@@ -1,4 +1,4 @@
-#Windows10Imaging-Customized.ps1
+#Windows10-Personalization.ps1
 ##########
 # Source: https://github.com/Disassembler0/Win10-Initial-Setup-Script | Disassembler <disassembler@dasm.cz>
 # Author: Austin Esser
