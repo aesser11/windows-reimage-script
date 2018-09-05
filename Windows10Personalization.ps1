@@ -5,154 +5,127 @@
 # Relaunch the script with administrator privileges and bypass execution-policy if it isn't already
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
     #Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -WorkingDirectory $pwd -Verb RunAs
-    # | echo $shell.sendkeys("Y`r`n")
-    #Set-ExecutionPolicy UnRestricted -Force
     Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File $PSCommandPath" -Verb RunAs
     exit
 }
-# Main Function call array
-$powerUserMain = @(
-    ### My functions ###
-    "powerUserDeleteApps",
-#    "endUserDeleteApps",
-    "disableNvidiaTelemetry",
-    "deleteHibernationFile",
-    "disableAeroShake",
+$allUsersAutomated = @(
+    "disableNvidiaTelemetry", # always run
+    "disableTelemetry", # always run
+    "configureWindowsUpdates", # always run
+    "configurePrivacy", # always run
+    "explorerHideSyncNotifications", # always run
+    "explorerSetExplorerThisPC", # always run
+    "disableStickyKeys", # always run
+    "enableLegacyF8Boot", # always run
+    "enableGuestSMBShares", # always run
+    "setVisualFXAppearance", # always run
+    "setPageFileToC", # always run
+    "setWindowsTimeZone", # always run
+    "uninstallWindowsFeatures", # always run
+    "disableRemoteAssistance", # always run
+    "deleteHibernationFile", # always run
+    "setPowerProfile" # always run
+)
+$allUsersPrompted = @(
+    ### Prompt Steps ### 
+    "configureNightLight", # user preference - prompt
+    "disableTeamViewerPrompt", # always run - prompt
+#    "removeRecycleBin", # user preference - prompt - needs improvement - call function up here (ONLY after it has been pinned to the start menu/quick access/taskbar)
+
+    ### Manual Steps ### 
+    "configureSoundOptions", # always run - prompt
+    "bluetoothManualSteps", # always run - prompt
+    "disableFocusAssistNotifications" # always run - prompt
+#    "configureUserFolderTargets", # always run (if more than one fixed drive exists, else skip) - prompt needs improvement [not finished]
+)
+$powerUserAutomated = @(
+    # run aggressive pre-defined user preference steps
+    "powerUserDeleteApps", # user preference
+    "restoreOldPhotoViewer", # user preference
+    "disableAeroShake", # user preference
+    "uninstallOptionalApps", # user preference
+    "taskbarCombineWhenFull", # user preference
+    "taskbarShowTrayIcons", # user preference
+    "taskbarHideSearch", # user preference
+    "taskbarHideTaskView", # user preference
+    "taskbarHidePeopleIcon", # user preference
+    "taskbarHideInkWorkspace", # user preference
+    "taskbarMMSteps", # user preference
+    "disableBingWebSearch", # user preference 
+    "disableGameMode-Bar-DVR", # user preference 
+#    "disableTipsTricksAndWelcomeExp", # user preference (not implemented)
+    "disableLockScreenTips", # user preference
+    "explorerShowKnownExtensions", # user preference
+    "explorerShowHiddenFiles", # user preference
+    "explorerHide3DObjectsFromThisPC", # user preference 
+    "explorerHide3DObjectsFromExplorer", # user preference
+    "explorerHideRecentShortcuts", # user preference
+    "explorerSetControlPanelLargeIcons", # user preference
+    "explorerShowFileTransferDetails", # user preference
+    "showTaskManagerDetails", # user preference
+    "disableMouseAcceleration", # user preference
+    "enableDarkMode", # user preference
+    "mkdirGodMode", # user preference
+    "unPinDocsAndPicsFromQuickAccess", # user preference
+    "disableHomeGroup", # user preference
+    "uninstallWMP", # user preference
+    "uninstallOneDrive", # user preference
+    "hideOneDrive", # user preference
+    "soundCommsAttenuation", # user preference
+    "disableWifiSense", # unsure
+    "disableWindowsDefenderSampleSubmission", # unsure
+    "removePrinters" # unsure
+)
+$regularUserAutomated = @(
+    # run relaxed pre-defined user preference steps
+    "endUserDeleteApps",
     "restoreOldPhotoViewer",
-    "disableTelemetry",
-    "disableWifiSense",
+    "disableAeroShake",
     "uninstallOptionalApps",
     "taskbarCombineWhenFull",
     "taskbarShowTrayIcons",
-    "taskbarHideSearch",
-#    "taskbarShowSearchIcon",
-    "taskbarHideTaskView",
-#    "taskbarShowTaskView",
+    #"taskbarShowSearchIcon",
+    "taskbarShowTaskView",
     "taskbarHidePeopleIcon",
     "taskbarHideInkWorkspace",
     "taskbarMMSteps",
     "disableBingWebSearch",
     "disableGameMode-Bar-DVR",
-#    "disableTipsTricksAndWelcomeExp",
+#    "disableTipsTricksAndWelcomeExp", # user preference (not implemented)
     "disableLockScreenTips",
-    "disableWindowsDefenderSampleSubmission",
-    "configureWindowsUpdates",
-    "configurePrivacy",
-    "explorerShowKnownExtensions",
-    "explorerShowHiddenFiles",
-    "explorerHideSyncNotifications",
-    "explorerSetExplorerThisPC",
-    "explorerHide3DObjectsFromThisPC",
-    "explorerHide3DObjectsFromExplorer",
-    "explorerHideRecentShortcuts",
     "explorerSetControlPanelLargeIcons",
     "explorerShowFileTransferDetails",
-    "removePrinters",
-    "disableStickyKeys",
     "showTaskManagerDetails",
-    "enableLegacyF8Boot",
-    "enableGuestSMBShares",
     "disableMouseAcceleration",
-    "setVisualFXAppearance",
-    "setPageFileToC",
-    "setWindowsTimeZone",
-    "enableDarkMode",
-    "mkdirGodMode",
-    "unPinDocsAndPicsFromQuickAccess",
-    ### Optional Steps ###
-    "disableHomeGroup", # always run for power user
-    "uninstallWMP", # always run for power user
-    "uninstallOneDrive", # always run for power user
-    "hideOneDrive", # always run for power user
-    "uninstallWindowsFeatures", # always run for power user
     "soundCommsAttenuation",
-    "disableRemoteAssistance",
-    "setPowerProfile"
+    "disableWifiSense", # unsure
+    "disableWindowsDefenderSampleSubmission", # unsure
+    "removePrinters" # unsure
 )
-$regularUserMain = @(
-    ### My functions ###
-#    "powerUserDeleteApps",
-    "endUserDeleteApps",
-    "disableNvidiaTelemetry",
-    "deleteHibernationFile",
-    "disableAeroShake",
-    "restoreOldPhotoViewer",
-    "disableTelemetry",
-    "disableWifiSense",
-    "uninstallOptionalApps",
-    "taskbarCombineWhenFull",
-    "taskbarShowTrayIcons",
-#    "taskbarHideSearch",
-    "taskbarShowSearchIcon",
-#    "taskbarHideTaskView",
-    "taskbarShowTaskView",
-    "taskbarHidePeopleIcon",
-    "taskbarHideInkWorkspace",
-    "taskbarMMSteps",
-#    "disableBingWebSearch",
-    "disableGameMode-Bar-DVR",
-#   "disableTipsTricksAndWelcomeExp",
-    "disableLockScreenTips",
-#    "disableWindowsDefenderSampleSubmission",
-    "configureWindowsUpdates",
-    "configurePrivacy",
-#    "explorerShowKnownExtensions",
-#    "explorerShowHiddenFiles",
-    "explorerHideSyncNotifications",
-    "explorerSetExplorerThisPC",
-    "explorerHide3DObjectsFromThisPC",
-    "explorerHide3DObjectsFromExplorer",
-#    "explorerHideRecentShortcuts",
-    "explorerSetControlPanelLargeIcons",
-    "explorerShowFileTransferDetails",
-    "removePrinters",
-    "disableStickyKeys",
-    "showTaskManagerDetails",
-    "enableLegacyF8Boot",
-#    "enableGuestSMBShares",
-    "disableMouseAcceleration",
-#    "setVisualFXAppearance",
-    "setPageFileToC",
-    "setWindowsTimeZone",
-#    "enableDarkMode",
-#    "mkdirGodMode",
-    "soundCommsAttenuation",
-    "disableRemoteAssistance",
-    "setPowerProfile"
-    ### Optional Steps ###
+$userPrompted = @(
+    # needs improvement - need a way to show prompts to the user for all of these functions, but only if prompts are selected
+    # let the user choose what they want changed for each of the user preference steps [enable/disable/leave default (and state what default is)]
 )
-$firstTimeOptionalMain = @(
-    "unpinTaskbarAndStartMenuTiles", # first time setup only
-#    "unpinStartMenuTiles", # first time setup only
-#    "unpinTaskbarIcons", # first time setup only
-    "renameComputer" # first time setup only
+$allUsersFirstRunAutomated = @(
+    # automatically do steps relevant for a new image 
+    "unpinTaskbarAndStartMenuTiles", # usually first run - automated
+    "remainingStepsToText"
 )
-# Needs improvement - try to automate these manual steps
-$manualMain = @(
-    ### Manual Steps ###
-#    $manualStepsMain
-    "configureNightLight",
-    "configureSoundOptions", # always run 
-    "bluetoothManualSteps", # always run 
-    "disableFocusAssistNotifications"
-#    "configureSystemProperties", # first time setup only -- depricated
-#    "privacyManualSteps", # always run 
-#    "configureUserFolderTargets", # always run
-)
-$firstTimeManualMain = @(
-#    "pinTaskbarItemsManually", # first time setup only
-    "pinStartMenuItemsAndInstallSoftware" # first time setup only
+$allUsersFirstRunPrompted = @(
+    # let the user choose what they want changed for each of the user preference steps that are only relevant for a new image 
+    "renameComputer", # usually first run - user preference prompt
+    "pinStartMenuItemsAndInstallSoftware" # always run - prompt - prompt if you want to install software and pin apps to the start menu
 )
 #--------------------------------------------------------------------------------------
 #Configuration phase-------------------------------------------------------------------  
 #   Uninstall windows 10 apps
     Function powerUserDeleteApps{
         Write-Host "Nuking out all Windows 10 apps except Calculator" -ForegroundColor Green -BackgroundColor Black
-        Get-AppxPackage -AllUsers | Where-Object {$_.name -notlike "*WindowsCalculator*"} | Remove-AppxPackage
+        Get-AppxPackage -AllUsers | Where-Object {$_.name -notlike "*WindowsCalculator*"} | Remove-AppxPackage -ErrorAction SilentlyContinue
     }    
     Function endUserDeleteApps { 
         Write-Host "Nuking out all Windows 10 apps except Calculator and Windows Store" -ForegroundColor Green -BackgroundColor Black
-        Get-AppxPackage -AllUsers | Where-Object {$_.name -notlike "*WindowsCalculator*"} | Where-Object {$_.name -notlike "*Store*"} | Remove-AppxPackage
+        Get-AppxPackage -AllUsers | Where-Object {$_.name -notlike "*WindowsCalculator*"} | Where-Object {$_.name -notlike "*Store*"} | Remove-AppxPackage -ErrorAction SilentlyContinue
     }
 #   Delete hibernation file -- (cmd)
     Function deleteHibernationFile{
@@ -169,6 +142,38 @@ $firstTimeManualMain = @(
         Write-Host "Attempting to disable NVIDIA telemetry via 'Container service for NVIDIA Telemetry' aka 'NvTelemetryContainer'" -ForegroundColor Green -BackgroundColor Black
         Set-Service NvTelemetryContainer -StartupType Disabled
         Set-Service NvTelemetryContainer -Status Stopped
+    }
+    #############################################
+    # Prompt user to disable TeamViewer service #
+    #############################################
+    Function disableTeamViewerPrompt {
+        $teamViewerIsInstalled = Test-Path "C:\Program Files (x86)\TeamViewer\TeamViewer.exe"
+        if ($teamViewerIsInstalled) {
+            Function disableTeamViewer {
+                Write-Host "Disabling TeamViewer listening service for security since it's not going to be used..." -ForegroundColor Green -BackgroundColor Black
+                Set-Service TeamViewer -StartupType Disabled
+                Set-Service TeamViewer -Status Stopped
+            }
+            do {
+                $teamViewerPrompt = Read-Host -Prompt "Will you be using TeamViewer to listen for connections? i.e. let people remote control your PC?: [y]/[n]"
+                if (($teamViewerPrompt -eq "y") -or ($teamViewerPrompt -eq "Y") -or ($teamViewerPrompt -eq "1")) {
+                    Write-Host "Leaving TeamViewer Alone" -ForegroundColor Green -BackgroundColor Black
+                    $redoDisableTeamViewerCheck = $false
+                }
+                elseif (($teamViewerPrompt -eq "n") -or ($teamViewerPrompt -eq "N") -or ($teamViewerPrompt -eq "0")) {
+                    disableTeamViewer
+                    $redoDisableTeamViewerCheck = $false
+                }
+                else {
+                    Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
+                    $redoDisableTeamViewerCheck = $true
+                }
+            }
+            while ($redoDisableTeamViewerCheck -eq $true)
+        }
+        else {
+            Write-Host "TeamViewer isn't installed, skipping..." -ForegroundColor Green -BackgroundColor Black
+        }
     }
 #   Enabling the old photo viewer
     Function restoreOldPhotoViewer {
@@ -221,7 +226,7 @@ $firstTimeManualMain = @(
         Set-Service DiagTrack -Status Stopped -ErrorAction SilentlyContinue
         echo "" > C:\ProgramData\Microsoft\Diagnosis\ETLLogs\AutoLogger\AutoLogger-Diagtrack-Listener.etl
         <#
-        #Not sure if these break windows updates so leaving them alone right now
+        #Not sure if these break windows updates so commenting them out right now
         Disable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser"
         Disable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\ProgramDataUpdater"
         Disable-ScheduledTask -TaskName "Microsoft\Windows\Autochk\Proxy"
@@ -287,7 +292,7 @@ $firstTimeManualMain = @(
     # Show Task View button
     Function taskbarShowTaskView {
         Write-Host "Showing Task View button..." -ForegroundColor Green -BackgroundColor Black
-        Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" #-ErrorAction SilentlyContinue
+        Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton"
     }
     # Hide Taskbar People icon
     Function taskbarHidePeopleIcon {
@@ -521,7 +526,7 @@ $firstTimeManualMain = @(
     # Hide 3D Objects from this PC
     Function explorerHide3DObjectsFromThisPC {
         Write-Host "Hiding 3D Objects icon from This PC..." -ForegroundColor Green -BackgroundColor Black
-        Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse #-ErrorAction SilentlyContinue
+        Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse
     
     }
     # Hide 3D Objects from File Explorer
@@ -1115,6 +1120,7 @@ $getstring = @'
                 Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\$$windows.data.bluelightreduction.settings\Current' -Name 'Data' -Value ([byte[]]$data) -Type Binary
             }
             Set-BlueLightReductionSettings -StartHour 21 -StartMinutes 30 -EndHour 8 -EndMinutes 0 -Enabled $true -NightColorTemperature 3400
+            #$skipFlux = $true
         }
         else {
             Write-Host "Night light not set" -ForegroundColor Yellow -BackgroundColor Black
@@ -1138,26 +1144,13 @@ $getstring = @'
         Write-Host "Configure Focus Assist - gaming/duplicating - uncheck 'show a notification in action center...'" -ForegroundColor Yellow -BackgroundColor Black
         Write-Host "-----------------------------------------------------------"
         start ms-settings:quiethours
+        Pause
         #start ms-settings:quietmomentsgame
         #Pause
         #start ms-settings:quietmomentspresentation
         #Pause
     }
-    <#
-    Function privacyManualSteps {
-        Write-Host "Disable ALL remaining privacy settings" -ForegroundColor Yellow -BackgroundColor Black
-        start ms-settings:privacy
-    }
-    #>
-    # Advanced system settings - (explorer)
-    <#
-    Function configureSystemProperties {
-        Write-Host " "
-        Write-Host "Uncheck 'allow remote assistance connections to this computer'" -ForegroundColor Yellow -BackgroundColor Black
-        SystemPropertiesRemote.exe
-    }
-    #>
-    #   Pin items back into the start menu manually
+    #   Pin items back into the start menu
     Function pinStartMenuItemsAndInstallSoftware {
         #Download software here
         do {
@@ -1284,7 +1277,17 @@ $getstring = @'
             Write-Host "We didn't delete a browser download or uninstall IE..." -ForegroundColor Green -BackgroundColor Black
         }
 #########Start the download selection:#################################################################################
-        #F.lux
+        # needs improvement - $skipFlux variable is never passed to this function since it's a variable delcared in another function 
+        <#
+        if ($skipFlux -eq $true) {
+            Write-Host "Skipping f.lux automatically since windows night light has been configured" -ForegroundColor Green -BackgroundColor Black
+            $flux = $false
+        }
+        else {
+            # Prompt to download f.lux
+        }
+        #>
+        #f.lux
         do {
             $doneUser = $false
             $SoftwareType = Read-Host -Prompt "Tools: Do you wish to download f.lux?: [y]/[n]?"
@@ -2090,7 +2093,7 @@ $getstring = @'
         }
         Write-Host "Waiting until all programs are installed before continuing..." -ForegroundColor Green -BackgroundColor Black
         Invoke-Item "C:\Users\$env:username\Downloads"
-        # Start the setup.exes for installation - Needs improvement (will launch multiple installation files if multiple are downloaded | change to only 1 instance)
+        # Start the setup.exes for installation - Needs improvement (will launch multiple installation files if multiple are downloaded | fix to only 1 instance)
         while ($putty -and !(Test-Path "C:\Program Files (x86)\Putty\putty.exe")) {
             Write-Host "Waiting for Putty to be installed..." -ForegroundColor Yellow -BackgroundColor Black
             if(!(Test-Path "C:\Program Files (x86)\Putty")) {
@@ -2102,7 +2105,7 @@ $getstring = @'
             $WScriptShell = New-Object -ComObject WScript.Shell
             $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
             $Shortcut.TargetPath = $TargetFile
-            $ShortCut.IconLocation = "C:\Program Files (x86)\Putty\putty.exe, 0"
+            $Shortcut.IconLocation = "C:\Program Files (x86)\Putty\putty.exe, 0"
             $Shortcut.Save()
             Start-Sleep -s 1
         }
@@ -2383,37 +2386,20 @@ $getstring = @'
                 $Result = $Verb.DoIt()
             }
         }
-        <#
-        f.lux
-        vlc
-        imgburn 
-        notepad
-        windirstat
-        7zip
-        hwmonitor
-        spotify
-        discord
-        steam
-        origin
-        battlenet
-        skype
-        dropbox
-        msiafterburner
-        putty
-        teamviewer
-        #>
-        #Applications
-        # needs improvement - could implement a wait function if selected apps 'get-process -name *' is running, then wait before attempting to pin things to the start menu since sometimes it starts this too fast
-        Start-Sleep -s 5
+        # Pin Applications    
         if ($chrome -eq $true){
-            #while (!(Get-Process *chrome*)) {
-            #    Write-Host "Waiting for Google Chrome to close before attempting to pin it to the start menu"
-            #    Start-Sleep -s 1
-            #}
+            while (Get-Process *ChromeSetup*) {
+                Write-Host "Waiting for Google Chrome to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "Google Chrome" -pin -start
         }
         Start-Sleep -m 100
         if ($firefox -eq $true){
+            while (Get-Process *Firefox Installer*) {
+                Write-Host "Waiting for Mozilla Firefox to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "Firefox" -pin -start
         }
         Start-Sleep -m 100
@@ -2422,26 +2408,53 @@ $getstring = @'
             Start-Sleep -m 100
         }
         if ($spotify -eq $true){
+            while (Get-Process *SpotifySetup*) {
+                Write-Host "Waiting for Spotify to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "Spotify" -pin -start
         }
         Start-Sleep -m 100
         if ($skype -eq $true){
+                       #Skype-8.29.0.50
+                       #Skype-8.29.0.50.tmp
+            while (Get-Process *Skype-*) {
+                Write-Host "Waiting for Skype to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "Skype" -pin -start
         }
         Start-Sleep -m 100
         if ($steam -eq $true){
+            while (Get-Process *SteamSetup*) {
+                Write-Host "Waiting for Steam to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "Steam" -pin -start
         }
         Start-Sleep -m 100
         if ($origin -eq $true){
+                     #OriginThinSetupInternal
+            while (Get-Process *Origin*Setup*) {
+                Write-Host "Waiting for Origin to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "Origin" -pin -start
         }
         Start-Sleep -m 100
         if ($battlenet -eq $true){
+            while (Get-Process *Battle.net-Setup*) {
+                Write-Host "Waiting for Battle.net to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "Battle.net" -pin -start
         }
         Start-Sleep -m 100
         if ($discord -eq $true){
+            while (Get-Process *DiscordSetup*) {
+                Write-Host "Waiting for Discord to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "Discord" -pin -start
         }
         Start-Sleep -m 100
@@ -2453,34 +2466,64 @@ $getstring = @'
         Pin-App "Paint" -pin -start
         Start-Sleep -m 100
         if ($notepad -eq $true){
+                          #npp.7.5.8.Installer
+            while (Get-Process *npp*Installer*) {
+                Write-Host "Waiting for NotePad++ to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "Notepad++" -pin -start
         }
         Start-Sleep -m 100
         if ($windirstat -eq $true){
+                           #windirstat1_1_2_setup
+            while (Get-Process *windirstat*setup*) {
+                Write-Host "Waiting for WinDirStat to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "WinDirStat" -pin -start
         }
         Start-Sleep -m 100
         if ($imgburn  -eq $true){
+                         #SetupImgBurn_2.5.8.0
+            while (Get-Process *SetupImgBurn_*) {
+                Write-Host "Waiting for ImgBurn to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "ImgBurn" -pin -start
         }
         Start-Sleep -m 100
         if ($putty -eq $true) {
-            Write-Host "Attempting to pin Putty to start menu" -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Attempting to pin Putty to the start menu" -ForegroundColor Yellow -BackgroundColor Black
+            Start-Sleep -s 5
             Pin-App "Putty" -pin -start
         }
         Start-Sleep -m 100
         Pin-App "Remote Desktop Connection" -pin -start
         Start-Sleep -m 100
         if ($teamviewer -eq $true){
+            while (Get-Process *TeamViewer_Setup*) {
+                Write-Host "Waiting for TeamViewer to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             #This will error out for future versions of teamviewer e.g. 14,15,16 etc...
             Pin-App "TeamViewer 13" -pin -start
         }
         Start-Sleep -m 100
         if ($msiafterburner -eq $true){
+                             #MSIAfterburnerSetup450
+            while (Get-Process *MSIAfterburnerSetup*) {
+                Write-Host "Waiting for MSI Afterburner to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "MSI Afterburner" -pin -start
         }
         Start-Sleep -m 100
         if ($hwmonitor -eq $true){
+                            #hwmonitor_1.35
+            while (Get-Process *hwmonitor_*) {
+                Write-Host "Waiting for HWMonitor to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "HWMonitor" -pin -start
         }
         Start-Sleep -m 100
@@ -2490,6 +2533,10 @@ $getstring = @'
         #Errors out
         #Pin-App "Downloads" -pin -start
         if ($dropbox -eq $true){
+            while (Get-Process *DropboxInstaller*) {
+                Write-Host "Waiting for Dropbox to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
             Pin-App "Dropbox" -pin -start
         }
         Start-Sleep -m 100
@@ -2497,131 +2544,24 @@ $getstring = @'
         Start-Sleep -m 100
         #Errors out
         #Pin-App "Recycle Bin" -pin -start
-        #Set default apps - needs improvement, could possibly set these automatically if ($appOfChoice -eq $true)? | yes, but looks like it has to be the same way I did for the restoreOldPhotoViewer function
-        Write-Host "Set the default apps..." -ForegroundColor Yellow -BackgroundColor Black
-        start ms-settings:defaultapps
     }
-###########################
-# Start main program here # 
-###########################
-# Initialize the call functions
-$powerUserMainCall = $false
-$regularUserMainCall = $false
-$firstTimeOptionalMainCall = $false
-$manualMainCall = $false
-$firstTimeManualMainCall = $false
-#################################
-# Prompt user to select presets # 
-#################################
-# First time run?
-$redoFirstTimePrompt = $false
-do {
-    $firstTimePrompt = Read-Host -Prompt "Is this a new install of Windows 10? | Unpin apps & install software? [y]/[n]"
-    if (($firstTimePrompt -eq "y") -or ($firstTimePrompt -eq "Y") -or ($firstTimePrompt -eq "1")) {
-        Write-Host "Adding additional steps for first run" -ForegroundColor Green -BackgroundColor Black
-        # invoke fresh image config presets
-        $firstTimeOptionalMainCall = $true
-        $firstTimeManualMainCall = $true
-        $redoFirstTimePrompt = $false
+###################################
+# Remove recycle bin from desktop #
+###################################
+Function removeRecycleBin {
+    Write-Host "Removing Recycle Bin from the desktop" -ForegroundColor Green -BackgroundColor Black
+    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel")){
+        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Force
     }
-    elseif (($firstTimePrompt -eq "n") -or ($firstTimePrompt -eq "N") -or ($firstTimePrompt -eq "0")) {
-        Write-Host "Skipping first run steps since it may kill existing configurations" -ForegroundColor Green -BackgroundColor Black
-        # skip fresh image config presets
-        $firstTimeOptionalMainCall = $false
-        $firstTimeManualMainCall = $false
-        $redoFirstTimePrompt = $false
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
+    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu")){
+        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Force
     }
-    else {
-        Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
-        $redoFirstTimePrompt = $true
-    }
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
 }
-while ($redoFirstTimePrompt -eq $true)
-# Power user?
-$redoUserPrompt = $false
-do {
-    $userPrompt = Read-Host -Prompt "Run through power user preset?: [y]/[n]?"
-    if (($userPrompt -eq "y") -or ($userPrompt -eq "Y") -or ($userPrompt -eq "1")) {
-        Write-Host "Running through the power user config parameters" -ForegroundColor Green -BackgroundColor Black
-        # Call the desired functions with power user presets
-        $powerUserMainCall = $true
-        # Invoke manual steps as well
-        $manualMainCall = $true
-        $redoUserPrompt = $false
-    }
-    elseif (($userPrompt -eq "n") -or ($userPrompt -eq "N") -or ($userPrompt -eq "0")) {
-        Write-Host "Running through the regular user config parameters" -ForegroundColor Green -BackgroundColor Black
-        # Call the predefined functions with regular user presets
-        $regularUserMainCall = $true
-        # Invoke manual steps as well
-        $manualMainCall = $true
-        $redoUserPrompt = $false
-    }
-    else {
-        Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
-        $redoUserPrompt = $true
-    }
-}
-while ($redoUserPrompt -eq $true)
-#######################################
-# Call the presets that were selected # 
-#######################################
-if ($powerUserMainCall) {
-    $powerUserMain | ForEach { Invoke-Expression $_ }
-    # Attempt to hide OneDrive a second time since the first time doesn't stick
-    hideOneDrive
-}
-if ($regularUserMainCall) {
-    $regularUserMain | ForEach { Invoke-Expression $_ }
-}
-if ($firstTimeOptionalMainCall) {
-    $firstTimeOptionalMain | ForEach { Invoke-Expression $_ }
-}
-if ($manualMainCall) {
-    $manualMain | ForEach { Invoke-Expression $_ }
-}
-if ($firstTimeManualMainCall) {
-    $firstTimeManualMain | ForEach { Invoke-Expression $_ }
-}
-else {
-    Write-Host "No functions were called to run" -ForegroundColor Yellow -BackgroundColor Black
-}
-#############################################
-# Prompt user to disable TeamViewer service #
-#############################################
-Function disableTeamViewerPrompt {
-    $teamViewerIsInstalled = Test-Path "C:\Program Files (x86)\TeamViewer\TeamViewer.exe"
-    if ($teamViewerIsInstalled) {
-        Function disableTeamViewer {
-            Write-Host "Disabling TeamViewer listening service for security since it's not going to be used..." -ForegroundColor Green -BackgroundColor Black
-            Set-Service TeamViewer -StartupType Disabled
-            Set-Service TeamViewer -Status Stopped
-        }
-        do {
-            $teamViewerPrompt = Read-Host -Prompt "Will you be using TeamViewer to listen for connections? i.e. let people remote control your PC?: [y]/[n]"
-            if (($teamViewerPrompt -eq "y") -or ($teamViewerPrompt -eq "Y") -or ($teamViewerPrompt -eq "1")) {
-                Write-Host "Leaving TeamViewer Alone" -ForegroundColor Green -BackgroundColor Black
-                $redoDisableTeamViewerCheck = $false
-            }
-            elseif (($teamViewerPrompt -eq "n") -or ($teamViewerPrompt -eq "N") -or ($teamViewerPrompt -eq "0")) {
-                disableTeamViewer
-                $redoDisableTeamViewerCheck = $false
-            }
-            else {
-                Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
-                $redoDisableTeamViewerCheck = $true
-            }
-        }
-        while ($redoDisableTeamViewerCheck -eq $true)
-    }
-    else {
-        Write-Host "TeamViewer isn't installed, skipping..." -ForegroundColor Green -BackgroundColor Black
-    }
-}
-disableTeamViewerPrompt
-############################################
-# Output final manual steps to a text file # 
-############################################
+############################################################
+# Output Austin specific final manual steps to a text file # 
+############################################################
 Function remainingStepsToText {
     $outputFile = "C:\Users\$env:username\Desktop\Remaining Manual Steps.txt"
 $outString = 
@@ -2633,7 +2573,48 @@ Applications
 Tools
 Navigation
 Pin 'Recycle Bin' and 'Downloads' manually
-Create a Shortcut folder for local games and pin to the start menu
+
+#############################
+### Backgrounds and Images ##
+#############################
+Set a background
+Set a lockscreen picture
+Set a user account picture
+
+#############################
+## Personal Folder Targets ##
+#############################
+Change the targets of the following to mass storage drive (if applicable)
+Documents, Downloads, Music, Pictures, Videos
+
+#####################################
+## Install/Pin Additional Software ##
+#####################################
+(if applicable)
+# Microsoft Office
+# Rufus
+# Electrum
+# NiceHash
+# PSFTP
+# Epic Games Launcher
+# uPlay
+# GoG Galaxy
+########################################################################################################################################################################################################
+"
+    $outString | Out-File -FilePath $outputFile -Width 200
+}
+Function remainingStepsToTextForAustin {
+    $outputFile = "C:\Users\$env:username\Desktop\Remaining Manual Steps.txt"
+$outString = 
+"
+########################################################################################################################################################################################################
+## Start Menu App Categories ##
+###############################
+Applications
+Tools
+Navigation
+Pin 'Recycle Bin' and 'Downloads' manually
+Pin a local games folder to the start menu as well
 
 ########################
 ## Map Network Drives ##
@@ -2651,54 +2632,236 @@ Pin FreeFileSyncBackupLogs to QuickAccess
 Pin Torrents watch directory to QuickAccess
 
 #############################
-## Personal Folder Targets ##
-#############################
-Change the targets for 
-Documents, Downloads, Music, Pictures, Videos
-
-#############################
 ### Backgrounds and Images ##
 #############################
 Set a background
 Set a lockscreen picture
 Set a user account picture
 
-#################################
-## Install Additional Software ##
-#################################
-# psftp
-# rufus
-# msOffice
-# electrum
-# nicehash
+#############################
+## Personal Folder Targets ##
+#############################
+Change the targets of the following to mass storage drive (if applicable)
+Documents, Downloads, Music, Pictures, Videos
+
+#####################################
+## Install/Pin Additional Software ##
+#####################################
+(if applicable)
+# Microsoft Office
+# Rufus
+# Electrum
+# NiceHash
+# PSFTP
+# Epic Games Launcher
+# uPlay
+# GoG Galaxy
 ########################################################################################################################################################################################################
 "
     $outString | Out-File -FilePath $outputFile -Width 200
 }
-remainingStepsToText
+###########################
+# Start main program here # 
+###########################
+#######################################
+# Call the presets that were selected # 
+#######################################
+<#
+#most to least automated
+    $allUsersAutomated
+     $powerUserAutomated
+     $regularUserAutomated
+     $allUsersFirstRunAutomated
+     $userPrompted
+    $allUsersPrompted
+    $allUsersFirstRunPrompted
+#>
+Function optionOne {
+    Write-Host "[1] New install w/ prompts & NO preset | Manual" -ForegroundColor Green -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
+    $userPrompted | ForEach { Invoke-Expression $_ }
+    $allUsersPrompted | ForEach { Invoke-Expression $_ }
+    Write-Host "Pin the Downloads folder to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    Write-Host "Pin Recycle Bin to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
+    #Set default apps
+    Write-Host "Set the default apps..." -ForegroundColor Yellow -BackgroundColor Black
+    start ms-settings:defaultapps
+}
+Function optionTwo {
+    Write-Host "[2] New install w/ prompts & aggressive preset | Semi-Auto # My preferred" -ForegroundColor Green -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $powerUserAutomated | ForEach { Invoke-Expression $_ }
+    # Attempt to hide OneDrive a second time since the first time doesn't stick
+    hideOneDrive
+    $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
+    $allUsersPrompted | ForEach { Invoke-Expression $_ }
+    Write-Host "Pin the Downloads folder to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    Write-Host "Pin Recycle Bin to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
+    #Set default apps
+    Write-Host "Set the default apps..." -ForegroundColor Yellow -BackgroundColor Black
+    start ms-settings:defaultapps
+}
+Function optionThree {
+    Write-Host "[3] New install w/ prompts & relaxed preset | Semi-Auto" -ForegroundColor Green -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $regularUserAutomated | ForEach { Invoke-Expression $_ }
+    $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
+    $allUsersPrompted | ForEach { Invoke-Expression $_ }
+    Write-Host "Pin the Downloads folder to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    Write-Host "Pin Recycle Bin to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
+    #Set default apps
+    Write-Host "Set the default apps..." -ForegroundColor Yellow -BackgroundColor Black
+    start ms-settings:defaultapps
+}
+Function optionFour {
+    Write-Host "[4] New install w/ auto only & aggressive preset | Full Auto " -ForegroundColor Green -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $powerUserAutomated | ForEach { Invoke-Expression $_ }
+    # Attempt to hide OneDrive a second time since the first time doesn't stick
+    hideOneDrive
+    $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
+}
+Function optionFive {
+    Write-Host "[5] New install w/ auto only & relaxed preset | Full Auto # Random user preferred" -ForegroundColor Green -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $regularUserAutomated | ForEach { Invoke-Expression $_ }
+    $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
+}
+Function optionSix {
+    Write-Host "[6] Re-run w/ prompts & NO presets | Manual" -ForegroundColor Green -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $userPrompted | ForEach { Invoke-Expression $_ }
+    $allUsersPrompted | ForEach { Invoke-Expression $_ }
+}
+Function optionSeven {
+    Write-Host "[7] Re-run w/ prompts & aggressive preset | Semi-Auto # My preferred" -ForegroundColor Green -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $powerUserAutomated | ForEach { Invoke-Expression $_ }
+    # Attempt to hide OneDrive a second time since the first time doesn't stick
+    hideOneDrive
+    $allUsersPrompted | ForEach { Invoke-Expression $_ }
+}
+Function optionEight {
+    Write-Host "[8] Re-run w/ prompts & relaxed preset | Semi-Auto" -ForegroundColor Green -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $regularUserAutomated | ForEach { Invoke-Expression $_ }
+    $allUsersPrompted | ForEach { Invoke-Expression $_ }
+}
+Function optionNine {
+    Write-Host "[9] Re-run w/ auto only & aggressive preset | Full Auto" -ForegroundColor Green -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $powerUserAutomated | ForEach { Invoke-Expression $_ }
+    # Attempt to hide OneDrive a second time since the first time doesn't stick
+    hideOneDrive
+}
+Function optionTen {
+    Write-Host "[0] Re-run w/ auto only & relaxed preset | Full Auto # Random user preferred" -ForegroundColor Green -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $regularUserAutomated | ForEach { Invoke-Expression $_ }
+}
+Function optionFirstSpecial {
+    Write-Host "[f] Welcome back Austin" -ForegroundColor Red -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $powerUserAutomated | ForEach { Invoke-Expression $_ }
+    # Attempt to hide OneDrive a second time since the first time doesn't stick
+    hideOneDrive
+    $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
+    $allUsersPrompted | ForEach { Invoke-Expression $_ }
+    Write-Host "Pin the Downloads folder to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    Write-Host "Pin Recycle Bin to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
+    #Set default apps
+    Write-Host "Set the default apps..." -ForegroundColor Yellow -BackgroundColor Black
+    start ms-settings:defaultapps
+    #Austin specific function calls
+    removeRecycleBin
+    remainingStepsToTextForAustin
+}
+Function optionRerunSpecial {
+    Write-Host "[r] Welcome back Austin" -ForegroundColor Red -BackgroundColor Black
+    $allUsersAutomated | ForEach { Invoke-Expression $_ }
+    $powerUserAutomated | ForEach { Invoke-Expression $_ }
+    # Attempt to hide OneDrive a second time since the first time doesn't stick
+    hideOneDrive
+    $allUsersPrompted | ForEach { Invoke-Expression $_ }
+    #Austin specific function calls
+    # insert function calls here
+}
 ####################
 # Restart computer # 
 ####################
-$restartState = $false
-do {
-    $restartHost = Read-Host -Prompt "Script finished, restart for changes to take effect: Restart now? [y]/[n]?"
-    if (($restartHost -eq "y") -or ($restartHost -eq "Y") -or ($restartHost -eq "1")) {
-        Write-Host "Restarting..." -ForegroundColor Green -BackgroundColor Black
-        $restartState = $true
-        Restart-Computer
+Function promptForRestart {
+    $restartState = $false
+    do {
+        $restartHost = Read-Host -Prompt "Script finished, restart for changes to take effect: Restart now? [y]/[n]?"
+        if (($restartHost -eq "y") -or ($restartHost -eq "Y") -or ($restartHost -eq "1")) {
+            Write-Host "Restarting..." -ForegroundColor Green -BackgroundColor Black
+            $restartState = $true
+            Restart-Computer
+        }
+        elseif (($restartHost -eq "n") -or ($restartHost -eq "N") -or ($restartHost -eq "0")) {
+            Write-Host "Restart manually, exiting..." -ForegroundColor Yellow -BackgroundColor Black
+            $restartState = $true
+        }
+        else {
+            $restartState = $false
+            Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
+        }
     }
-    elseif (($restartHost -eq "n") -or ($restartHost -eq "N") -or ($restartHost -eq "0")) {
-        Write-Host "Restart manually, exiting..." -ForegroundColor Yellow -BackgroundColor Black
-        $restartState = $true
-    }
-    else {
-        $restartState = $false
-        Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
-    }
+    while ($restartState -eq $false)
 }
-while ($restartState -eq $false)
-#>
-########################################################################################################################################################################################################
+#################################
+# Prompt user to select presets #
+#################################
+Function selectionMenu {
+Write-Host 
+"
+#############
+# First-run #
+#############
+[1] New install w/ prompts & NO preset           | Manual - [Not finished]
+[2] New install w/ prompts & aggressive preset   | Semi-Auto
+[3] New install w/ prompts & relaxed preset      | Semi-Auto
+[4] New install w/ auto only & aggressive preset | Full Auto - Power user recommended
+[5] New install w/ auto only & relaxed preset    | Full Auto - New user recommended
+###########
+# Re-runs #
+###########
+[6] Re-run w/ prompts & NO presets          | Manual [Not finished]
+[7] Re-run w/ prompts & aggressive preset   | Semi-Auto
+[8] Re-run w/ prompts & relaxed preset      | Semi-Auto
+[9] Re-run w/ auto only & aggressive preset | Full Auto - Power user recommended
+[0] Re-run w/ auto only & relaxed preset    | Full Auto - New user recommended
+"
+}
+Function promptForSelection {
+    $parameterSelection = Read-Host -Prompt "Make a selection [0]-[9]"
+    switch ($parameterSelection) {
+        1 {$result = optionOne break}
+        2 {$result = optionTwo break}
+        3 {$result = optionThree break}
+        4 {$result = optionFour break}
+        5 {$result = optionFive break}
+        6 {$result = optionSix break}
+        7 {$result = optionSeven break}
+        8 {$result = optionEight break}
+        9 {$result = optionNine break}
+        0 {$result = optionTen break}
+        "f" {$result = optionFirstSpecial break}
+        "r" {$result = optionRerunSpecial break}
+        default {$result = promptForSelection}
+    }
+    # Call the selected function here
+    $result
+}
+selectionMenu
+promptForSelection
+promptForRestart
+##########################################################################################################################################################
 # Improvements needed:
 # Configurations:
 # Set default programs automatically 
@@ -2709,31 +2872,31 @@ while ($restartState -eq $false)
 # Apps (recently uninstalled) show up on start menu as 'new' - remove them
 #
 # Script: 
-# Possible to install software with powershell and feed it configuration parameters?
+# Certain functions wait until the end to spit output status which jumbles the manual to-do list at the end #left off here, fix this first
+# Possible to install software with powershell and feed it configuration parameters? - have Rob take care of this
+#needs improvement, automatically determine which to display, first-run or re-run only
+#needs improvement, make it obvious that we've moved to manual steps | actually have a yes/no prompt to see if the user wants to invoke a window to change the setting manually
+#needs improvement, create a confirmation prompt for renaming the pc iff the input is longer than 15 characters
+#needs improvemnt, browser download section. make a point to let the user know to download/save the web browser 
+#needs improvement, software selection lists where you are and lists all software at first and explains each software
+#needs improvement, don't uninstall internet explorer 11 if the user isn't a power user
+#needs improvement, get-process of installers that are running, and wait until those processes are closed as well as the .exe file being detected?
 #
+# Software:
 # Additional Software to Add to Software section:
 # epic games launcher
 # uPlay
 # GoG Galaxy
-########################################################################################################################################################################################################
-#>
-# Needs improvement - not sure where to put this since Recycle Bin has to be pinned to start menu manually after it's removed from the desktop
-###################################
-# Remove recycle bin from desktop #
-###################################
-Function removeRecycleBin {
-    Write-Host "Removing Recycle Bin from the desktop" -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel")){
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Force
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
-    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu")){
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Force
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
-}
-
-########################################################################################################################################################################################################
+#
+# Feedback: 
+# Rob Feedback:
+# Silent installs for software
+# Make groups for changes -> e.g.:
+#   Security changes
+#   UI changes
+#   Power changes 
+#   Uninstalls/feature removal
+##########################################################################################################################################################
 <#
 # Needs improvement - Change targets for Documents, Downloads, Music, Pictures, Videos to the appropriate drive automatically by prompting the user
 Function configureUserFolderTargets {
@@ -2765,4 +2928,4 @@ Function configureUserFolderTargets {
 Pause
 }
 #>
-########################################################################################################################################################################################################
+##########################################################################################################################################################
