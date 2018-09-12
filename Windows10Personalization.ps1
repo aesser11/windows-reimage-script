@@ -417,7 +417,7 @@ $allUsersFirstRunPrompted = @(
         #Write-Host "Disabling Let Windows Track App Launches for Start and Search..." -ForegroundColor Green -BackgroundColor Black
         Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Type DWord -Value 0
         #Show me sugested content in settings app 
-        #Write-Host "Disabling Application suggestions..." -ForegroundColor Green -BackgroundColor Black - check for fix
+        #Write-Host "Disabling Application suggestions..." -ForegroundColor Green -BackgroundColor Black
         if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
             New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force
         }
@@ -1069,11 +1069,10 @@ $getstring = @'
             $newCompName = Read-Host -Prompt "Enter in a new computer name, limit 15 characters"
             $newCompNameLength = $newCompName.length
             while (($newCompNameLength -gt 15) -or ($newCompName -eq "y") -or ($newCompName -eq "Y") -or ($newCompName -eq "n") -or ($newCompName -eq "N")) {
-                Write-Host "The name specified is $newCompNameLength characters long" -ForegroundColor Red -BackgroundColor Black
-                Write-Host "Names longer than 15 characters will be truncated" -ForegroundColor Yellow -BackgroundColor Black
-                $renameComputer = Read-Host -Prompt "Attempt to rename: [y]/[n]?"
+                Write-Host "The name specified is $newCompNameLength character(s) long" -ForegroundColor Red -BackgroundColor Black
+                $renameComputer = Read-Host -Prompt "Do you wish to rename from $newCompName : [y]/[n]?"
                 if (($renameComputer -eq "y") -or ($renameComputer -eq "Y") -or ($renameComputer -eq "1")) {
-                    Write-Host "Getting a new name..." -ForegroundColor Green -BackgroundColor Black
+                    Write-Host "Getting a new name... Limit 15 characters" -ForegroundColor Green -BackgroundColor Black
                     Write-Host "Press [Enter] to continue without renaming" -ForegroundColor Yellow -BackgroundColor Black
                     $newCompName = Read-Host -Prompt "Enter in a new computer name, limit 15 characters"
                     $newCompNameLength = $newCompName.length
@@ -1208,7 +1207,7 @@ $getstring = @'
             if (($bluetoothStateUserInput -eq "y") -or ($bluetoothStateUserInput -eq "Y") -or ($bluetoothStateUserInput -eq "1")) {
                 $bluetoothState = $true
                 Write-Host "Disable bluetooth for battery life and security" -ForegroundColor Yellow -BackgroundColor Black
-                start ms-settings:bluetooth
+                Start-Process ms-settings:bluetooth
             }
             elseif (($bluetoothStateUserInput -eq "n") -or ($bluetoothStateUserInput -eq "N") -or ($bluetoothStateUserInput -eq "0")) {
                 $bluetoothState = $true
@@ -1228,9 +1227,9 @@ $getstring = @'
         if (($focusAssistUserInput -eq "y") -or ($focusAssistUserInput -eq "Y") -or ($focusAssistUserInput -eq "1")) {
             $focusAssistState = $true
             Write-Host "Configure focus assist for display duplicating & gaming - uncheck 'show a notification in action center...'" -ForegroundColor Yellow -BackgroundColor Black
-            start ms-settings:quiethours
-            #start ms-settings:quietmomentsgame
-            #start ms-settings:quietmomentspresentation
+            Start-Process ms-settings:quiethours
+            #Start-Process ms-settings:quietmomentsgame
+            #Start-Process ms-settings:quietmomentspresentation
             }
             elseif (($focusAssistUserInput -eq "n") -or ($focusAssistUserInput -eq "N") -or ($focusAssistUserInput -eq "0")) {
                 $focusAssistState = $true
@@ -1275,12 +1274,17 @@ $getstring = @'
         }
         while ($doneUser -eq $false)
         if ($chrome -eq $true) {
-            $ManualChromeBrowser = "https://www.google.com/chrome/browser/desktop/index.html"
+            if ($global:isAustin -eq $false) {
+                $ManualChromeBrowser = "https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7BADC0E3FC-2367-A334-848C-BA35C7C10739%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3Dx64-stable-statsdef_1%26brand%3DCHBD%26installdataindex%3Dempty/update2/installers/ChromeSetup.exe"
+            }
+            else {
+                $ManualChromeBrowser = "https://www.google.com/chrome/browser/desktop/index.html"
+            }
             if (!(Test-Path "C:\Users\$env:username\Downloads\*Chrome*") -and !(Test-Path "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")) {
                 Write-Host "Launching Google Chrome Download" -ForegroundColor Green -BackgroundColor Black
                 #$browserPath = "C:\Program Files (x86)\Internet Explorer\iexplore.exe"
-                #start $browserPath -ArgumentList $ManualChromeBrowser
-                start microsoft-edge:$ManualChromeBrowser
+                #Start-Process $browserPath -ArgumentList $ManualChromeBrowser
+                Start-Process microsoft-edge:$ManualChromeBrowser
             }
             $browserPath = "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
             $browserSelection = "Google Chrome"
@@ -1306,8 +1310,8 @@ $getstring = @'
             if (!(Test-Path "C:\Users\$env:username\Downloads\*Firefox*") -and !(Test-Path "C:\Program Files\Mozilla Firefox\firefox.exe")) {
                Write-Host "Launching Firefox Download" -ForegroundColor Green -BackgroundColor Black
                #$browserPath = "C:\Program Files (x86)\Internet Explorer\iexplore.exe"
-               #start $browserPath -ArgumentList $ManualFireFoxBrowser
-               start microsoft-edge:$ManualFireFoxBrowser
+               #Start-Process $browserPath -ArgumentList $ManualFireFoxBrowser
+               Start-Process microsoft-edge:$ManualFireFoxBrowser
             }
             $browserPath = "C:\Program Files\Mozilla Firefox\firefox.exe"
             $browserSelection = "Mozilla Firefox"
@@ -1694,201 +1698,190 @@ $getstring = @'
         #>
 #########Start the downloads themselves:#################################################################################
         #Download Statements - Manual required download button clicks first----------------------------------------------
-        <#
-        if ($arduino -eq $true){
-            Write-Host "Software Chosen: Arduino" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\ManualArduino.url"
-            $ManualArduino = "https://www.arduino.cc/en/Main/Software"
-            start $browserPath -ArgumentList $ManualArduino
-        }
-        #>
-        if ($vlc -eq $true){
+        if ($vlc -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*vlc*")) {
             Write-Host "Software Chosen: VLC Media Player" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\ManualVLC.url"
-            $ManualVLC = "https://www.videolan.org/vlc/"
+            $vlcURL = (Invoke-WebRequest -Uri "https://www.videolan.org/vlc/" -UseBasicParsing).Links.Href -like "*get.videolan.org/vlc*win64*"
+            $ManualVLC = "https:$vlcURL"
             if ($ie -eq $true) {
-                start microsoft-edge:$ManualVLC
+                Start-Process microsoft-edge:$ManualVLC
             }
             else {
-                start $browserPath -ArgumentList $ManualVLC
+                Start-Process $browserPath -ArgumentList $ManualVLC -WindowStyle Minimized
             }
         }
-        if ($imgburn -eq $true){
+        if ($imgburn -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*imgburn*")){
             Write-Host "Software Chosen: IMG Burn" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\ManualImgBurn.url"
-            $ManualImgBurn = "http://www.imgburn.com/index.php?act=download"
+            $ManualImgBurn = (Invoke-WebRequest -Uri "http://www.imgburn.com/index.php?act=download" -UseBasicParsing).Links.Href -like "*download.imgburn.com/SetupImgBurn*"
             if ($ie -eq $true) {
-                start microsoft-edge:$ManualImgBurn
+                Start-Process microsoft-edge:$ManualImgBurn
             }
             else {
-                start $browserPath -ArgumentList $ManualImgBurn
+                Start-Process $browserPath -ArgumentList $ManualImgBurn -WindowStyle Minimized
             }
         }
-        if ($notepad -eq $true){
+        if ($notepad -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*npp*")){
             Write-Host "Software Chosen: Notepad++" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\ManualNotepad++.url"
-            $ManualNotepadPP = "https://notepad-plus-plus.org/download/"
+            $nppURL = (Invoke-WebRequest -Uri "https://notepad-plus-plus.org/download/" -UseBasicParsing).Links.Href -like "*repository*npp*Installer.exe*"
+            $ManualNotepadPP = "https://notepad-plus-plus.org$nppURL"
             if ($ie -eq $true) {
-                start microsoft-edge:$ManualNotepadPP
+                Start-Process microsoft-edge:$ManualNotepadPP
             }
             else {
-                start $browserPath -ArgumentList $ManualNotepadPP
+                Start-Process $browserPath -ArgumentList $ManualNotepadPP -WindowStyle Minimized
             }
         }
-        if ($windirstat -eq $true){
+        if ($windirstat -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*windirstat*")){
             Write-Host "Software Chosen: WinDirStat" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\ManualWinDirStatFossHub.url"
-            $ManualWinDirStatFossHub = "https://www.fosshub.com/WinDirStat.html"
+            $winDirStatURL = (Invoke-WebRequest -Uri "https://www.fosshub.com/WinDirStat.html" -UseBasicParsing).Links.Href -like "*/WinDirStat.html/windirstat*_setup.exe*"
+            $ManualWinDirStatFossHub = "https://www.fosshub.com$winDirStatURL"
             if ($ie -eq $true) {
-                start microsoft-edge:$ManualWinDirStatFossHub
+                Start-Process microsoft-edge:$ManualWinDirStatFossHub
             }
             else {
-                start $browserPath -ArgumentList $ManualWinDirStatFossHub
+                Start-Process $browserPath -ArgumentList $ManualWinDirStatFossHub -WindowStyle Minimized
             }
         }
-        if ($7zip -eq $true){
+        if ($7zip -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*7z*")){
             Write-Host "Software Chosen: 7-Zip" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\Manual7zip.url"
-            $Manual7zip = "http://www.7-zip.org/download.html"
+            #for .exe
+            $7zipURL = (Invoke-WebRequest -Uri "https://www.7-zip.org" -UseBasicParsing).Links.Href -like "a/7z*-x64.exe"
+            #for .msi
+            #$7zipURL = (Invoke-WebRequest -Uri "https://www.7-zip.org" -UseBasicParsing).Links.Href -like "a/7z*-x64.msi"
+            $Manual7zip = "https://www.7-zip.org/$7zipURL"
             if ($ie -eq $true) {
-                start microsoft-edge:$Manual7zip
+                Start-Process microsoft-edge:$Manual7zip
             }
             else {
-                start $browserPath -ArgumentList $Manual7zip
+                Start-Process $browserPath -ArgumentList $Manual7zip -WindowStyle Minimized
             }
         }
-        if ($hwmonitor -eq $true){
+        if ($hwmonitor -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*hwmonitor*")){
             Write-Host "Software Chosen: HWMonitor" -ForegroundColor Green -BackgroundColor Black
-            $HWMonitorURL = "https://www.cpuid.com/softwares/hwmonitor.html"
+            $HWMonitorURL0 = (Invoke-WebRequest -Uri "https://www.cpuid.com/softwares/hwmonitor.html" -UseBasicParsing).Links.Href -like "/downloads/hwmonitor/hwmonitor_*.exe"
+            $HWMonitorURL01,$HWMonitorURL02 = $HWMonitorURL0.split("`r`n")
+            $HWMonitorInvoke0 = "https://www.cpuid.com$HWMonitorURL01"
+
+            $HWMonitorURL1 = (Invoke-WebRequest -Uri "$HWMonitorInvoke0" -UseBasicParsing).Links.Href -like "http://download.cpuid.com/hwmonitor/hwmonitor_*.exe"
+            #$HWMonitorInvoke1 = "$HWMonitorURL1"
             if ($ie -eq $true) {
-                start microsoft-edge:$HWMonitorURL
+                Start-Process microsoft-edge:$HWMonitorURL1
             }
             else {
-                start $browserPath -ArgumentList $HWMonitorURL
+                Start-Process $browserPath -ArgumentList $HWMonitorURL1 -WindowStyle Minimized
             }
         }
         #Write-Host "Note: Some downloads are manual, others are automatic" -ForegroundColor Yellow -BackgroundColor Black
-        if ($spotify -eq $true){
+        if ($spotify -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*spotify*")){
             Write-Host "Software Chosen: Spotify" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\Spotify.url"
             $SpotifyURL = "https://download.scdn.co/SpotifySetup.exe"
             if ($ie -eq $true) {
-                start microsoft-edge:$SpotifyURL
+                Start-Process microsoft-edge:$SpotifyURL
             }
             else {
-                start $browserPath -ArgumentList $SpotifyURL
+                Start-Process $browserPath -ArgumentList $SpotifyURL -WindowStyle Minimized
             }
         }
-        if ($discord -eq $true){
+        if ($discord -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*discord*")){
             Write-Host "Software Chosen: Discord" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\Spotify.url"
             $DiscordURL = "https://discordapp.com/api/download?platform=win"
             if ($ie -eq $true) {
-                start microsoft-edge:$DiscordURL
+                Start-Process microsoft-edge:$DiscordURL
             }
             else {
-                start $browserPath -ArgumentList $DiscordURL
+                Start-Process $browserPath -ArgumentList $DiscordURL -WindowStyle Minimized
             }
         }
-        if ($steam -eq $true){
+        if ($steam -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*steam*")){
             Write-Host "Software Chosen: Steam" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\Steam.url"
             $SteamURL = "https://steamcdn-a.akamaihd.net/client/installer/SteamSetup.exe"
             if ($ie -eq $true) {
-                start microsoft-edge:$SteamURL
+                Start-Process microsoft-edge:$SteamURL
             }
             else {
-                start $browserPath -ArgumentList $SteamURL
+                Start-Process $browserPath -ArgumentList $SteamURL -WindowStyle Minimized
             }
         }
-        if ($origin -eq $true){
+        if ($origin -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*origin*")){
             Write-Host "Software Chosen: Origin" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\Origin.url"
             $OriginURL = "https://www.dm.origin.com/download"
             if ($ie -eq $true) {
-                start microsoft-edge:$OriginURL
+                Start-Process microsoft-edge:$OriginURL
             }
             else {
-                start $browserPath -ArgumentList $OriginURL
+                Start-Process $browserPath -ArgumentList $OriginURL -WindowStyle Minimized
             }
         }
-        if ($battlenet -eq $true){
+        if ($battlenet -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*battle.net*")){
             Write-Host "Software Chosen: Battle.net" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\Battlenet.url"
             $BattlenetURL = "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP"
             if ($ie -eq $true) {
-                start microsoft-edge:$BattlenetURL
+                Start-Process microsoft-edge:$BattlenetURL
             }
             else {
-                start $browserPath -ArgumentList $BattlenetURL
+                Start-Process $browserPath -ArgumentList $BattlenetURL -WindowStyle Minimized
             }
         }
-        if ($skype -eq $true){
+        if ($skype -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*skype*")){
             Write-Host "Software Chosen: Skype" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\Skype.url"
             $SkypeURL = "https://go.skype.com/windows.desktop.download"
             if ($ie -eq $true) {
-                start microsoft-edge:$SkypeURL
+                Start-Process microsoft-edge:$SkypeURL
             }
             else {
-                start $browserPath -ArgumentList $SkypeURL
+                Start-Process $browserPath -ArgumentList $SkypeURL -WindowStyle Minimized
             }
         }
-        if ($msiafterburner -eq $true){
+        if ($msiafterburner -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*msiafterburner*")){
             Write-Host "Software Chosen: MSI Afterburner" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\MSIAfterburner.url"
             $MSIAfterburnerURL = "http://download.msi.com/uti_exe/vga/MSIAfterburnerSetup.zip"
             if ($ie -eq $true) {
-                start microsoft-edge:$MSIAfterburnerURL
+                Start-Process microsoft-edge:$MSIAfterburnerURL
             }
             else {
-                start $browserPath -ArgumentList $MSIAfterburnerURL
+                Start-Process $browserPath -ArgumentList $MSIAfterburnerURL -WindowStyle Minimized
             }
         }
-        if ($putty -eq $true){
+        if ($putty -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*putty*") -and !(Test-Path "C:\Program Files (x86)\Putty\putty.exe")){
             Write-Host "Software Chosen: Putty" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\Putty.url"
             $PuttyURL = "https://the.earth.li/~sgtatham/putty/latest/x86/putty.exe"
             if ($ie -eq $true) {
-                start microsoft-edge:$PuttyURL
+                Start-Process microsoft-edge:$PuttyURL
             }
             else {
-                start $browserPath -ArgumentList $PuttyURL
+                Start-Process $browserPath -ArgumentList $PuttyURL -WindowStyle Minimized
             }
         }
-        if ($teamviewer -eq $true){
+        if ($teamviewer -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*teamviewer*")){
             Write-Host "Software Chosen: TeamViewer" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\TeamViewer.url"
             $TeamViewerURL = "https://download.teamviewer.com/download/TeamViewer_Setup_en.exe"
             if ($ie -eq $true) {
-                start microsoft-edge:$TeamViewerURL
+                Start-Process microsoft-edge:$TeamViewerURL
             }
             else {
-                start $browserPath -ArgumentList $TeamViewerURL
+                Start-Process $browserPath -ArgumentList $TeamViewerURL -WindowStyle Minimized
             }
         }
-        if ($flux -eq $true) {
+        if ($flux -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*flux*")) {
             Write-Host "Software Chosen: f.lux" -ForegroundColor Green -BackgroundColor Black
             $FluxURL = "https://justgetflux.com/dlwin.html"
             if ($ie -eq $true) {
-                start microsoft-edge:$FluxURL
+                Start-Process microsoft-edge:$FluxURL
             }
             else {
-                start $browserPath -ArgumentList $FluxURL
+                Start-Process $browserPath -ArgumentList $FluxURL -WindowStyle Minimized
             }
         }
-        if ($dropbox -eq $true){
+        if ($dropbox -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*dropbox*")){
             Write-Host "Software Chosen: Dropbox" -ForegroundColor Green -BackgroundColor Black
-            #Invoke-Item "$workingDir\URLs\Dropbox.url"
             $DropboxURL = "https://www.dropbox.com/downloading"
             if ($ie -eq $true) {
-                start microsoft-edge:$DropboxURL
+                Start-Process microsoft-edge:$DropboxURL
             }
             else {
-                start $browserPath -ArgumentList $DropboxURL
+                Start-Process $browserPath -ArgumentList $DropboxURL -WindowStyle Minimized
             }
         }
-        Write-Host "Note: Some download links require you to manually click download. " -ForegroundColor Red -BackgroundColor Black
+        #Write-Host "Note: Some download links require you to manually click download. " -ForegroundColor Red -BackgroundColor Black
         <#
         $flux
         $windirstat
@@ -1924,7 +1917,7 @@ $getstring = @'
         }
         else {
             Write-Host "f.lux not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $FluxURL
+            Start-Process $browserPath -ArgumentList $FluxURL
         }
         Write-Host "Waiting for Spotify to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($spotify -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*spotify*"))) {
@@ -1938,7 +1931,7 @@ $getstring = @'
         }
         else {
             Write-Host "Spotify not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $SpotifyURL
+            Start-Process $browserPath -ArgumentList $SpotifyURL
         }
         Write-Host "Waiting for Discord to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($discord -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*discord*"))) {
@@ -1952,7 +1945,7 @@ $getstring = @'
         }
         else {
             Write-Host "Discord not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $DiscordURL
+            Start-Process $browserPath -ArgumentList $DiscordURL
         }
         Write-Host "Waiting for Steam to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($steam -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*steam*"))) {
@@ -1966,7 +1959,7 @@ $getstring = @'
         }
         else {
             Write-Host "Steam not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $SteamURL
+            Start-Process $browserPath -ArgumentList $SteamURL
         }
         Write-Host "Waiting for Origin to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($origin -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*origin*"))) {
@@ -1980,7 +1973,7 @@ $getstring = @'
         }
         else {
             Write-Host "Origin not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $OriginURL
+            Start-Process $browserPath -ArgumentList $OriginURL
         }
         Write-Host "Waiting for Battle.net to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($battlenet -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*battle.net*"))) {
@@ -1994,7 +1987,7 @@ $getstring = @'
         }
         else {
             Write-Host "Battle.net not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $BattlenetURL
+            Start-Process $browserPath -ArgumentList $BattlenetURL
         }
         Write-Host "Waiting for Skype to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($skype -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*skype*"))) {
@@ -2008,7 +2001,7 @@ $getstring = @'
         }
         else {
             Write-Host "Skype not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $SkypeURL
+            Start-Process $browserPath -ArgumentList $SkypeURL
         }
         Write-Host "Waiting for Dropbox to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($dropbox -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*dropbox*"))) {
@@ -2022,7 +2015,7 @@ $getstring = @'
         }
         else {
             Write-Host "Dropbox not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $DropboxURL
+            Start-Process $browserPath -ArgumentList $DropboxURL
         }
         Write-Host "Waiting for MSI Afterburner to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($msiafterburner -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*msiafterburner*"))) {
@@ -2036,7 +2029,7 @@ $getstring = @'
         }
         else {
             Write-Host "MSI Afterburner not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $MSIAfterburnerURL
+            Start-Process $browserPath -ArgumentList $MSIAfterburnerURL
         }
         Write-Host "Waiting for Putty to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($putty -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*putty*"))) {
@@ -2050,7 +2043,7 @@ $getstring = @'
         }
         else {
             Write-Host "Putty not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $PuttyURL
+            Start-Process $browserPath -ArgumentList $PuttyURL
         }
         Write-Host "Waiting for TeamViewer to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($teamviewer -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*teamviewer*"))) {
@@ -2064,7 +2057,7 @@ $getstring = @'
         }
         else {
             Write-Host "TeamViewer not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $TeamViewerURL
+            Start-Process $browserPath -ArgumentList $TeamViewerURL
         }
         # Manual download checks are below
         Write-Host "Waiting for WinDirStat to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
@@ -2079,7 +2072,7 @@ $getstring = @'
         }
         else {
             Write-Host "WinDirStat not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $ManualWinDirStatFossHub
+            Start-Process $browserPath -ArgumentList $ManualWinDirStatFossHub
         }
         Write-Host "Waiting for 7-Zip to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($7zip -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*7z*"))) {
@@ -2093,7 +2086,7 @@ $getstring = @'
         }
         else {
             Write-Host "7-Zip not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $Manual7zip
+            Start-Process $browserPath -ArgumentList $Manual7zip
         }
         Write-Host "Waiting for ImgBurn to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($imgburn -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*imgburn*"))) {
@@ -2107,7 +2100,7 @@ $getstring = @'
         }
         else {
             Write-Host "ImgBurn not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $ManualImgBurn
+            Start-Process $browserPath -ArgumentList $ManualImgBurn
         }
         Write-Host "Waiting for vlc to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($vlc -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*vlc*"))) {
@@ -2121,7 +2114,7 @@ $getstring = @'
         }
         else {
             Write-Host "VLC Media Player not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $ManualVLC
+            Start-Process $browserPath -ArgumentList $ManualVLC
         }
         Write-Host "Waiting for Notepad++ to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($notepad -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*npp*"))) {
@@ -2135,7 +2128,7 @@ $getstring = @'
         }
         else {
             Write-Host "Notepad++ not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $ManualNotepadPP
+            Start-Process $browserPath -ArgumentList $ManualNotepadPP
         }
         Write-Host "Waiting for hwmonitor to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($hwmonitor -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*hwmonitor*"))) {
@@ -2149,7 +2142,7 @@ $getstring = @'
         }
         else {
             Write-Host "HWMonitor not downloaded" -ForegroundColor Red -BackgroundColor Black
-            start $browserPath -ArgumentList $HWMonitorURL
+            Start-Process $browserPath -ArgumentList $HWMonitorURL
         }
         # Exit out of browser after all of manual software has been downloaded and installs start.
         Start-Sleep -s 1
@@ -2166,14 +2159,12 @@ $getstring = @'
         else {
             Write-Host "No browsers were killed after downloads have completed" -ForegroundColor Yellow -BackgroundColor Black
         }
-        Write-Host "Waiting until all programs are installed before continuing..." -ForegroundColor Green -BackgroundColor Black
         #Invoke-Item "C:\Users\$env:username\Downloads"
         
-        #Needs improvement - invoking setup.exes will launch multiple installation instances of each file if multiple are downloaded
-        #Needs improvement - automate these as much as possible (with silent installs, auto selecting config parameters, and closing out after autolaunch)
-
-        #needs improvement - left off here, continue automating silent software installs and remove the bring-to-foreground lines with programs that are working silently. see notes at the bottom of the script.
-
+        # Disable SmartScreen Filter temporarily 
+        #Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Type String -Value "Off"
+        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation" -Type DWord -Value 0
+        $env:SEE_MASK_NOZONECHECKS = 1
         $countForeground = 0
         while ($putty -and !(Test-Path "C:\Program Files (x86)\Putty\putty.exe")) {
             Write-Host "Waiting for Putty to be installed..." -ForegroundColor Yellow -BackgroundColor Black
@@ -2192,7 +2183,6 @@ $getstring = @'
         }
         #Note: Dropbox installer seems to crash and relaunch file explorer.exe
         if ($dropbox -and !(Test-Path "C:\Program Files (x86)\Dropbox\Client\Dropbox.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*dropbox*"
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*dropbox*" -ArgumentList "/NOLAUNCH"
             Write-Host "Waiting for Dropbox to be installed..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
@@ -2201,21 +2191,210 @@ $getstring = @'
         while ($dropbox -and (!(Test-Path "C:\Program Files (x86)\Dropbox\Client\Dropbox.exe") -or (Get-Process *DropboxInstaller*))) {
             Start-Sleep -s 1
             if ((Get-Process *DropboxInstaller*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *DropboxInstaller*).MainWindowTitle)
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *DropboxInstaller*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($7zip -and !(Test-Path "C:\Program Files\7-Zip\7zFM.exe")) {
+            #Invoke-Item "C:\Users\$env:username\Downloads\*7z*"
+            #for .exe
+            #Start-Process -FilePath "C:\Users\$env:username\Downloads\*7z*" -ArgumentList "/S","/D='C:\Program Files\7-Zip'"
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*7z*" -ArgumentList "/S"
+            #for .msi
+            #Start-Process -FilePath "C:\Users\$env:username\Downloads\*7z*" -ArgumentList "/qn","INSTALLDIR='C:\Program Files\7-Zip'"
+            Write-Host "Waiting for 7-Zip to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }                                                                           #7z1805-x64
+        while ($7zip -and (!(Test-Path "C:\Program Files\7-Zip\7zFM.exe") -or (Get-Process *7z*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *7z*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *7z*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($notepad -and !(Test-Path "C:\Program Files (x86)\Notepad++\notepad++.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*npp*" -ArgumentList "/S"
+            Write-Host "Waiting for Notepad++ to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }                                                                                               #npp.7.5.8.Installer
+        while ($notepad -and (!(Test-Path "C:\Program Files (x86)\Notepad++\notepad++.exe") -or (Get-Process *npp*Installer*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *npp*Installer*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *npp*Installer*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($windirstat -and !(Test-Path "C:\Program Files (x86)\WinDirStat\windirstat.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*windirstat*" -ArgumentList "/S"
+            Write-Host "Waiting for WinDirStat to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }                                                                                                    #windirstat1_1_2_setup
+        while ($windirstat -and (!(Test-Path "C:\Program Files (x86)\WinDirStat\windirstat.exe") -or (Get-Process *windirstat*setup*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *windirstat*setup*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *windirstat*setup*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($steam -and !(Test-Path "C:\Program Files (x86)\Steam\Steam.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*steam*" -ArgumentList "/S"
+            Write-Host "Waiting for Steam to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }
+        while ($steam -and (!(Test-Path "C:\Program Files (x86)\Steam\Steam.exe") -or (Get-Process *SteamSetup*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *SteamSetup*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *SteamSetup*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($flux -and !(Test-Path "C:\Users\$env:username\AppData\Local\FluxSoftware\Flux\flux.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*flux*" -ArgumentList "/S"
+            Write-Host "Waiting for f.lux to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }
+        while ($flux -and (!(Test-Path "C:\Users\$env:username\AppData\Local\FluxSoftware\Flux\flux.exe") -or (Get-Process *flux-setup*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *flux-setup*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *flux-setup*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($flux) {
+            while (!(Get-Process *flux*)) {
+                Start-Sleep -s 1
+            }
+            if (Get-Process *flux*) {
+                #exit out of flux program here
+                Get-Process *flux* | Stop-Process
+            }
+        }
+        if ($skype -and !(Test-Path "C:\Program Files (x86)\Microsoft\Skype for Desktop\Skype.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*skype*" -ArgumentList "/VERYSILENT","/SP-","/NOCANCEL","/NORESTART","/SUPPRESSMSGBOXES","/NOLAUNCH"
+            Write-Host "Waiting for Skype to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }                                                                                   #Skype-8.29.0.50 #Skype-8.29.0.50.tmp
+        while ($skype -and (!(Test-Path "C:\Program Files (x86)\Microsoft\Skype for Desktop\Skype.exe") -or (Get-Process *Skype-*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *Skype-*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *Skype-*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($skype) {
+            while (!(Get-Process *skype*)) {
+                Start-Sleep -s 1
+            }
+            if (Get-Process *skype*) {
+                #exit out of skype program here
+                Get-Process *skype* | Stop-Process
+            }
+        }
+        if ($teamviewer -and !(Test-Path "C:\Program Files (x86)\TeamViewer\TeamViewer.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*teamviewer*" -ArgumentList "/S"
+            Write-Host "Waiting for TeamViewer to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }
+        while ($teamviewer -and (!(Test-Path "C:\Program Files (x86)\TeamViewer\TeamViewer.exe") -or (Get-Process *TeamViewer_Setup*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *TeamViewer_Setup*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *TeamViewer_Setup*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($imgburn -and !(Test-Path "C:\Program Files (x86)\ImgBurn\ImgBurn.exe")) {
+            #Invoke-Item "C:\Users\$env:username\Downloads\*imgburn*"
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*imgburn*" -ArgumentList "/S","/NOCANDY"
+            Write-Host "Waiting for ImgBurn to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }                                                                                         #SetupImgBurn_2.5.8.0
+        while ($imgburn -and (!(Test-Path "C:\Program Files (x86)\ImgBurn\ImgBurn.exe") -or (Get-Process *SetupImgBurn*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *SetupImgBurn*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *SetupImgBurn*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($hwmonitor -and !(Test-Path "C:\Program Files\CPUID\HWMonitor\HWMonitor.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*hwmonitor*"
+            Write-Host "Waiting for HWMonitor to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }                                                                                                   #hwmonitor_1.35
+        while ($hwmonitor -and (!(Test-Path "C:\Program Files\CPUID\HWMonitor\HWMonitor.exe") -or (Get-Process *hwmonitor_*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *hwmonitor_*) -and ($countForeground -lt 1)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *hwmonitor_*).MainWindowTitle)
+                #https://invista.wordpress.com/2013/08/16/a-simple-powershell-script-to-send-keys-to-an-application-windows/
+                # load assembly cotaining class System.Windows.Forms.SendKeys
+                [void] [Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+# add a C# class to access the WIN32 API SetForegroundWindow
+Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+    public class StartActivateProgramClass {
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+    }
+"@
+                while (!(Get-Process *hwmonitor_*)) {
+                Start-Sleep -m 100
+                }
+                # get the applications with the specified title
+                $p = Get-Process *hwmonitor_*
+                # get the window handle of the first application
+                $h = $p[0].MainWindowHandle
+                # set the application to foreground
+                [void] [StartActivateProgramClass]::SetForegroundWindow($h)
+                # send the keys sequence #more info on MSDN at http://msdn.microsoft.com/en-us/library/System.Windows.Forms.SendKeys(v=vs.100).aspx
+                <#
+                Key  | Code
+                -----------
+                SHIFT  +
+                CTRL   ^
+                ALT    %
+                #>
+                Start-Sleep -m 100
+                [System.Windows.Forms.SendKeys]::SendWait("%{n}")
+                Start-Sleep -m 100
+                [System.Windows.Forms.SendKeys]::SendWait("%{n}")
+                Start-Sleep -m 100
+                [System.Windows.Forms.SendKeys]::SendWait("%{n}")
+                Start-Sleep -m 100
+                [System.Windows.Forms.SendKeys]::SendWait("%{i}")
+                Start-Sleep -s 1
+                [System.Windows.Forms.SendKeys]::SendWait("%{f}") 
+                while (!(Get-Process *notepad*)) {
+                    Start-Sleep -s 1
+                }
+                if (Get-Process *notepad*) {
+                    #exit out of notepad program here
+                    Get-Process *notepad* | Stop-Process
+                }
                 $countForeground ++
             }
         }
         if ($spotify -and !(Test-Path "C:\Users\$env:username\AppData\Roaming\Spotify\Spotify.exe")) {
             # Needs to install spotify as a the current user (in non-admin mode) | The script is currently running as admin
             $spotifyEXE = Get-ChildItem "C:\Users\$env:username\Downloads\*Spotify*"
-            $newPS = new-object System.Diagnostics.ProcessStartInfo "PowerShell"
+            $newPS = New-Object System.Diagnostics.ProcessStartInfo "PowerShell"
             # Specify what to run, you need the full path after explorer.exe
+            $env:SEE_MASK_NOZONECHECKS = 1
             $newPS.Arguments = "explorer.exe $spotifyEXE"
             [System.Diagnostics.Process]::Start($newPS)
             Write-Host "Waiting for Spotify to be installed..." -ForegroundColor Yellow -BackgroundColor Black
             # This works but requires a password prompt 
             #Start-Process "C:\Users\$env:username\Downloads\*spotify*" -Credential "$env:username"
-            # needs improvement - once spotify is finished installing, autoclose out of the application and proceed /Silent is the argument to install silently
+            # -ArgumentList "/Silent"
             # Bring the window to the foreground based on name
             $countForeground = 0
         }
@@ -2226,98 +2405,154 @@ $getstring = @'
                 $countForeground ++
             }
         }
+        if ($spotify) {
+            while (!(Get-Process *spotify*)) {
+                Start-Sleep -s 1
+            }
+            if (Get-Process *spotify*) {
+                #exit out of spotify program here
+                Get-Process *spotify* | Stop-Process
+            }
+        }
         if ($discord -and !(Test-Path "C:\Users\$env:username\AppData\Local\Discord\Update.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*discord*"
-            #Needs improvement - get silent install arguments
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*discord*" -ArgumentList "/S"
+            $env:SEE_MASK_NOZONECHECKS = 1
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*discord*"
             Write-Host "Waiting for Discord to be installed..." -ForegroundColor Yellow -BackgroundColor Black
-            #commenting out... this install is automatic
             # Bring the window to the foreground based on name
             $countForeground = 0
         }
         while ($discord -and (!(Test-Path "C:\Users\$env:username\AppData\Local\Discord\Update.exe") -or (Get-Process *DiscordSetup*))) {
             Start-Sleep -s 1
             if ((Get-Process *DiscordSetup*) -and ($countForeground -lt 2)) {
+                #This install is automatic
                 (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *DiscordSetup*).MainWindowTitle)
                 $countForeground ++
             }
         }
-        if ($7zip -and !(Test-Path "C:\Program Files\7-Zip\7zFM.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*7z*"
-            #Needs improvement - get silent install arguments
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*7z*" -ArgumentList "/S"
-            Write-Host "Waiting for 7-Zip to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+        if ($discord) {
+            while (!(Get-Process *discord*)) {
+                Start-Sleep -s 1
+            }
+            if (Get-Process *discord*) {
+                #exit out of discord program here
+                Get-Process *discord* | Stop-Process
+            }
+        }
+        if ($origin -and !(Test-Path "C:\Program Files (x86)\Origin\Origin.exe")) {
+            if ($global:isAustin -eq $true) {
+                Write-Host "Uncheck 'Share hardware specifications' && 'Run Origin when Windows starts'" -ForegroundColor Red -BackgroundColor Black
+                Start-Process -FilePath "C:\Users\$env:username\Downloads\*origin*"
+            }
+            else {
+                Start-Process -FilePath "C:\Users\$env:username\Downloads\*origin*" -ArgumentList "/silent"
+            }
+
+            Write-Host "Waiting for Origin to be installed..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
-        }                                                                           #7z1805-x64
-        while ($7zip -and (!(Test-Path "C:\Program Files\7-Zip\7zFM.exe") -or (Get-Process *7z*))) {
+        }                                                                                             #OriginThinSetupInternal
+        while ($origin -and (!(Test-Path "C:\Program Files (x86)\Origin\Origin.exe") -or (Get-Process *OriginThinSetupInternal*))) {
             Start-Sleep -s 1
-            if ((Get-Process *7z*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *7z*).MainWindowTitle)
+            if ((Get-Process *OriginThinSetupInternal*) -and ($countForeground -lt 2)) {
+                if ($global:isAustin -eq $true) {
+                    (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *OriginThinSetupInternal*).MainWindowTitle)
+                }
                 $countForeground ++
             }
         }
-        if ($hwmonitor -and !(Test-Path "C:\Program Files\CPUID\HWMonitor\HWMonitor.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*hwmonitor*"
-            #Needs improvement - get silent install arguments
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*hwmonitor*" -ArgumentList "/S"
-            Write-Host "Waiting for HWMonitor to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+        if ($origin) {
+            while (!(Get-Process *origin*)) {
+                Start-Sleep -s 1
+            }
+            if (Get-Process *origin*) {
+                #exit out of origin program here
+                Get-Process *origin* | Stop-Process
+            }
+        }
+        if ($vlc -and !(Test-Path "C:\Program Files\VideoLAN\VLC\vlc.exe")) {
+            if ($global:isAustin -eq $true) {
+                Write-Host "Uncheck Firefox & IE Web Plugins" -ForegroundColor Red -BackgroundColor Black
+                Start-Process -FilePath "C:\Users\$env:username\Downloads\*vlc*"
+            }
+            else {
+                Start-Process -FilePath "C:\Users\$env:username\Downloads\*vlc*" -ArgumentList "/L=1033","/S"
+            }
+            Write-Host "Waiting for VLC Media Player to be installed..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
-        }                                                                                                   #hwmonitor_1.35
-        while ($hwmonitor -and (!(Test-Path "C:\Program Files\CPUID\HWMonitor\HWMonitor.exe") -or (Get-Process *hwmonitor_*))) {
+        }                                                                                    #vlc-3.0.4-win32
+        while ($vlc -and (!(Test-Path "C:\Program Files\VideoLAN\VLC\vlc.exe") -or (Get-Process *vlc-*))) {
             Start-Sleep -s 1
-            if ((Get-Process *hwmonitor_*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *hwmonitor_*).MainWindowTitle)
+            if ((Get-Process *vlc-*) -and ($countForeground -lt 2)) {
+                if ($global:isAustin -eq $true) {
+                    (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *vlc-*).MainWindowTitle)
+                }
                 $countForeground ++
             }
         }
-        if ($notepad -and !(Test-Path "C:\Program Files (x86)\Notepad++\notepad++.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*npp*"
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*npp*" -ArgumentList "/S"
-            Write-Host "Waiting for Notepad++ to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+        #Expand-Archive seems to bust and re-launch windows file explorer.exe?
+        if ($msiafterburner -and !(Test-Path "C:\Program Files (x86)\MSI Afterburner\MSIAfterburner.exe")) {
+            Expand-Archive -Path "C:\Users\$env:username\Downloads\*msiafterburner*" -DestinationPath "C:\Users\$env:username\Downloads" -Force
+            #Invoke-Item "C:\Users\$env:username\Downloads\*\*msiafterburner*"
+            if ($global:isAustin -eq $true) {
+                Write-Host "Uncheck Rivatuner option" -ForegroundColor Red -BackgroundColor Black
+                Start-Process -FilePath "C:\Users\$env:username\Downloads\*\*msiafterburner*"
+            }
+            else {
+                Start-Process -FilePath "C:\Users\$env:username\Downloads\*\*msiafterburner*" -ArgumentList "/S"
+            }
+            Write-Host "Waiting for MSI Afterburner to be installed..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
-        }                                                                                               #npp.7.5.8.Installer
-        while ($notepad -and (!(Test-Path "C:\Program Files (x86)\Notepad++\notepad++.exe") -or (Get-Process *npp*Installer*))) {
+        }                                                                                                                      #MSIAfterburnerSetup450
+        while ($msiafterburner -and (!(Test-Path "C:\Program Files (x86)\MSI Afterburner\MSIAfterburner.exe") -or (Get-Process *MSIAfterburnerSetup*))) {
             Start-Sleep -s 1
-            if ((Get-Process *npp*Installer*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *npp*Installer*).MainWindowTitle)
+            if ((Get-Process *MSIAfterburnerSetup*) -and ($countForeground -lt 2)) {
+                if ($global:isAustin -eq $true) {
+                    (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *MSIAfterburnerSetup*).MainWindowTitle)
+                }
                 $countForeground ++
             }
         }
-        if ($windirstat -and !(Test-Path "C:\Program Files (x86)\WinDirStat\windirstat.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*windirstat*"
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*windirstat*" -ArgumentList "/S"
-            Write-Host "Waiting for WinDirStat to be installed..." -ForegroundColor Yellow -BackgroundColor Black
-            # Bring the window to the foreground based on name
-            $countForeground = 0
-        }                                                                                                    #windirstat1_1_2_setup
-        while ($windirstat -and (!(Test-Path "C:\Program Files (x86)\WinDirStat\windirstat.exe") -or (Get-Process *windirstat*setup*))) {
-            Start-Sleep -s 1
-            if ((Get-Process *windirstat*setup*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *windirstat*setup*).MainWindowTitle)
-                $countForeground ++
+        if ($global:isAustin -eq $false) {
+            #Uninstall rivatuner
+            while ($msiafterburner -and (!(Test-Path "C:\Program Files (x86)\RivaTuner Statistics Server\Uninstall.exe") -or ((Get-Process *dxwebsetup*) -or (Get-Process *dxwsetup*) -or (Get-Process *RTSSSetup*) -or (Get-Process *MSIAfterburnerSetup*)))) {
+                Start-Sleep -s 1
+            }
+            if ($msiafterburner -and ((Test-Path "C:\Program Files (x86)\RivaTuner Statistics Server\Uninstall.exe") -and (!(Get-Process *dxwebsetup*) -and !(Get-Process *dxwsetup*) -and !(Get-Process *RTSSSetup*) -and !(Get-Process *MSIAfterburnerSetup*)))) {
+                 Start-Process -FilePath "C:\Program Files (x86)\RivaTuner Statistics Server\Uninstall.exe" -ArgumentList "/S"
+                # answer no to the saving profile preferences prompt
+                #https://invista.wordpress.com/2013/08/16/a-simple-powershell-script-to-send-keys-to-an-application-windows/
+                # load assembly cotaining class System.Windows.Forms.SendKeys
+                [void] [Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+# add a C# class to access the WIN32 API SetForegroundWindow
+Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+    public class StartActivateProgramClass {
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+    }
+"@
+                #RivaTuner uninstaller process
+                while (!(Get-Process *Au_*)) {
+                    Start-Sleep -s 1
+                }
+                # get the applications with the specified title
+                $p = Get-Process *Au_*
+                # get the window handle of the first application
+                $h = $p[0].MainWindowHandle
+                # set the application to foreground
+                [void] [StartActivateProgramClass]::SetForegroundWindow($h)
+                # send the keys sequence #more info on MSDN at http://msdn.microsoft.com/en-us/library/System.Windows.Forms.SendKeys(v=vs.100).aspx
+                [System.Windows.Forms.SendKeys]::SendWait("n")
             }
         }
-        if ($steam -and !(Test-Path "C:\Program Files (x86)\Steam\Steam.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*steam*"
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*steam*" -ArgumentList "/S"
-            Write-Host "Waiting for Steam to be installed..." -ForegroundColor Yellow -BackgroundColor Black
-            # Bring the window to the foreground based on name
-            $countForeground = 0
-        }
-        while ($steam -and (!(Test-Path "C:\Program Files (x86)\Steam\Steam.exe") -or (Get-Process *SteamSetup*))) {
-            Start-Sleep -s 1
-            if ((Get-Process *SteamSetup*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *SteamSetup*).MainWindowTitle)
-                $countForeground ++
-            }
-        }
+        #Manual install processes 
+        #No way to silently install or feed key presses to the installer window
         if ($battlenet -and !(Test-Path "C:\Program Files (x86)\Battle.net\Battle.net Launcher.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*battle.net*"
-            #Needs improvement - get silent install arguments
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*battle.net*" -ArgumentList "/S"
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*battle.net*"
             Write-Host "Waiting for Battle.net to be installed..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
@@ -2329,110 +2564,18 @@ $getstring = @'
                 $countForeground ++
             }
         }
-        if ($flux -and !(Test-Path "C:\Users\$env:username\AppData\Local\FluxSoftware\Flux\flux.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*flux*"
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*flux*" -ArgumentList "/S"
-            Write-Host "Waiting for f.lux to be installed..." -ForegroundColor Yellow -BackgroundColor Black
-            # Bring the window to the foreground based on name
-            $countForeground = 0
-        }
-        while ($flux -and (!(Test-Path "C:\Users\$env:username\AppData\Local\FluxSoftware\Flux\flux.exe") -or (Get-Process *flux-setup*))) {
-            Start-Sleep -s 1
-            if ((Get-Process *flux-setup*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *flux-setup*).MainWindowTitle)
-                $countForeground ++
+        if ($battlenet) {
+            while (!(Get-Process *battle.net*)) {
+                Start-Sleep -s 1
+            }
+            if (Get-Process *battle.net*) {
+                #exit out of battle.net program here
+                Get-Process *battle.net* | Stop-Process
             }
         }
-        if ($skype -and !(Test-Path "C:\Program Files (x86)\Microsoft\Skype for Desktop\Skype.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*skype*"
-            #Needs improvement - get silent install arguments
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*skype*" -ArgumentList "/S"
-            Write-Host "Waiting for Skype to be installed..." -ForegroundColor Yellow -BackgroundColor Black
-            # Bring the window to the foreground based on name
-            $countForeground = 0
-        }                                                                                   #Skype-8.29.0.50 #Skype-8.29.0.50.tmp
-        while ($skype -and (!(Test-Path "C:\Program Files (x86)\Microsoft\Skype for Desktop\Skype.exe") -or (Get-Process *Skype-*))) {
-            Start-Sleep -s 1
-            if ((Get-Process *Skype-*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *Skype-*).MainWindowTitle)
-                $countForeground ++
-            }
-        }
-        #Expand-Archive seems to bust and re-launch windows file explorer.exe?
-        if ($msiafterburner -and !(Test-Path "C:\Program Files (x86)\MSI Afterburner\MSIAfterburner.exe")) {
-            Expand-Archive -Path "C:\Users\$env:username\Downloads\*msiafterburner*" -DestinationPath "C:\Users\$env:username\Downloads" -Force
-            #Invoke-Item "C:\Users\$env:username\Downloads\*\*msiafterburner*"
-            #Needs improvement - uncheck rivia tuner statistics server component
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*\*msiafterburner*" -ArgumentList "/S"
-            Write-Host "Waiting for MSI Afterburner to be installed..." -ForegroundColor Yellow -BackgroundColor Black
-            # Bring the window to the foreground based on name
-            $countForeground = 0
-        }                                                                                                                    #MSIAfterburnerSetup450
-        while ($msiafterburner -and (!(Test-Path "C:\Program Files (x86)\MSI Afterburner\MSIAfterburner.exe") -or (Get-Process *MSIAfterburnerSetup*))) {
-            Start-Sleep -s 1
-            if ((Get-Process *MSIAfterburnerSetup*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *MSIAfterburnerSetup*).MainWindowTitle)
-                $countForeground ++
-            }
-        }
-        if ($vlc -and !(Test-Path "C:\Program Files\VideoLAN\VLC\vlc.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*vlc*"
-            #Needs improvement - uncheck web plugin components
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*vlc*" -ArgumentList "/L=1033","/S"
-            Write-Host "Waiting for VLC Media Player to be installed..." -ForegroundColor Yellow -BackgroundColor Black
-            # Bring the window to the foreground based on name
-            $countForeground = 0
-        }                                                                                    #vlc-3.0.4-win32
-        while ($vlc -and (!(Test-Path "C:\Program Files\VideoLAN\VLC\vlc.exe") -or (Get-Process *vlc-*))) {
-            Start-Sleep -s 1
-            if ((Get-Process *vlc-*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *vlc-*).MainWindowTitle)
-                $countForeground ++
-            }
-        }
-        if ($teamviewer -and !(Test-Path "C:\Program Files (x86)\TeamViewer\TeamViewer.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*teamviewer*"
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*teamviewer*" -ArgumentList "/S"
-            Write-Host "Waiting for TeamViewer to be installed..." -ForegroundColor Yellow -BackgroundColor Black
-            # Bring the window to the foreground based on name
-            $countForeground = 0
-        }
-        while ($teamviewer -and (!(Test-Path "C:\Program Files (x86)\TeamViewer\TeamViewer.exe") -or (Get-Process *TeamViewer_Setup*))) {
-            Start-Sleep -s 1
-            if ((Get-Process *TeamViewer_Setup*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *TeamViewer_Setup*).MainWindowTitle)
-                $countForeground ++
-            }
-        }
-        if ($origin -and !(Test-Path "C:\Program Files (x86)\Origin\Origin.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*origin*"
-            #Needs improvement - get new silent arguments
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*origin*" -ArgumentList "/silent"
-            Write-Host "Waiting for Origin to be installed..." -ForegroundColor Yellow -BackgroundColor Black
-            # Bring the window to the foreground based on name
-            $countForeground = 0
-        }                                                                                             #OriginThinSetupInternal
-        while ($origin -and (!(Test-Path "C:\Program Files (x86)\Origin\Origin.exe") -or (Get-Process *OriginThinSetupInternal*))) {
-            Start-Sleep -s 1
-            if ((Get-Process *OriginThinSetupInternal*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *OriginThinSetupInternal*).MainWindowTitle)
-                $countForeground ++
-            }
-        }
-        if ($imgburn -and !(Test-Path "C:\Program Files (x86)\ImgBurn\ImgBurn.exe")) {
-            #Invoke-Item "C:\Users\$env:username\Downloads\*imgburn*"
-            Start-Process -FilePath "C:\Users\$env:username\Downloads\*imgburn*" -ArgumentList "/S"
-            Write-Host "Waiting for ImgBurn to be installed..." -ForegroundColor Yellow -BackgroundColor Black
-            # Bring the window to the foreground based on name
-            $countForeground = 0
-        }                                                                                         #SetupImgBurn_2.5.8.0
-        while ($imgburn -and (!(Test-Path "C:\Program Files (x86)\ImgBurn\ImgBurn.exe") -or (Get-Process *SetupImgBurn*))) {
-            Start-Sleep -s 1
-            if ((Get-Process *SetupImgBurn*) -and ($countForeground -lt 2)) {
-                (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *SetupImgBurn*).MainWindowTitle)
-                $countForeground ++
-            }
-        }
+        # Re-Enable SmartScreen Filter
+        #Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "SmartScreenEnabled" -Type String -Value "RequireAdmin"
+        #Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost" -Name "EnableWebContentEvaluation"
         # Exit out of the users Downloads folder(s)
         #Write-Host "Closing out of the Downloads folder"
         ############Get-Process explorer | Stop-Process
@@ -2715,7 +2858,7 @@ $getstring = @'
 Function setDefaultPrograms {
     #Set default apps
     Write-Host "Set the default programs..." -ForegroundColor Yellow -BackgroundColor Black
-    start ms-settings:defaultapps
+    Start-Process ms-settings:defaultapps
 }
 ###################################
 # Remove recycle bin from desktop #
@@ -2760,7 +2903,7 @@ $outString =
 Applications
 Tools
 Navigation
-Pin 'Recycle Bin' and 'Downloads' manually
+Pin 'Recycle Bin' and 'Downloads' folder manually
 
 #############################
 ### Backgrounds and Images ##
@@ -2781,10 +2924,8 @@ Documents, Downloads, Music, Pictures, Videos
 (if applicable)
 # Microsoft Office
 # Sublime Text Editor
+# GoogleDrive
 # Rufus
-# Electrum
-# NiceHash
-# PSFTP
 # Epic Games Launcher
 # uPlay
 # GoG Galaxy
@@ -2802,7 +2943,7 @@ $outString =
 Applications
 Tools
 Navigation
-Pin 'Recycle Bin' and 'Downloads' manually
+Pin 'Recycle Bin' and 'Downloads' folder manually
 Pin a local games folder to the start menu as well
 
 ########################
@@ -2839,6 +2980,7 @@ Documents, Downloads, Music, Pictures, Videos
 (if applicable)
 # Microsoft Office
 # Sublime Text Editor
+# GoogleDrive
 # Rufus
 # Electrum
 # NiceHash
@@ -2867,6 +3009,7 @@ Documents, Downloads, Music, Pictures, Videos
     $allUsersFirstRunPrompted
 #>
 Function optionOne {
+    $global:isAustin = $false
     Write-Host "[1] New install w/ prompts & NO preset | Manual" -ForegroundColor Green -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
@@ -2877,6 +3020,7 @@ Function optionOne {
     $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
 }
 Function optionTwo {
+    $global:isAustin = $false
     Write-Host "[2] New install w/ prompts & aggressive preset | Semi-Auto # My preferred" -ForegroundColor Green -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $powerUserAutomated | ForEach { Invoke-Expression $_ }
@@ -2889,6 +3033,7 @@ Function optionTwo {
     $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
 }
 Function optionThree {
+    $global:isAustin = $false
     Write-Host "[3] New install w/ prompts & relaxed preset | Semi-Auto" -ForegroundColor Green -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $regularUserAutomated | ForEach { Invoke-Expression $_ }
@@ -2899,6 +3044,7 @@ Function optionThree {
     $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
 }
 Function optionFour {
+    $global:isAustin = $false
     Write-Host "[4] New install w/ auto only & aggressive preset | Full Auto " -ForegroundColor Green -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $powerUserAutomated | ForEach { Invoke-Expression $_ }
@@ -2907,18 +3053,21 @@ Function optionFour {
     $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
 }
 Function optionFive {
+    $global:isAustin = $false
     Write-Host "[5] New install w/ auto only & relaxed preset | Full Auto # Random user preferred" -ForegroundColor Green -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $regularUserAutomated | ForEach { Invoke-Expression $_ }
     $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
 }
 Function optionSix {
+    $global:isAustin = $false
     Write-Host "[6] Re-run w/ prompts & NO presets | Manual" -ForegroundColor Green -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $userPrompted | ForEach { Invoke-Expression $_ }
     $allUsersPrompted | ForEach { Invoke-Expression $_ }
 }
 Function optionSeven {
+    $global:isAustin = $false
     Write-Host "[7] Re-run w/ prompts & aggressive preset | Semi-Auto # My preferred" -ForegroundColor Green -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $powerUserAutomated | ForEach { Invoke-Expression $_ }
@@ -2927,12 +3076,14 @@ Function optionSeven {
     $allUsersPrompted | ForEach { Invoke-Expression $_ }
 }
 Function optionEight {
+    $global:isAustin = $false
     Write-Host "[8] Re-run w/ prompts & relaxed preset | Semi-Auto" -ForegroundColor Green -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $regularUserAutomated | ForEach { Invoke-Expression $_ }
     $allUsersPrompted | ForEach { Invoke-Expression $_ }
 }
 Function optionNine {
+    $global:isAustin = $false
     Write-Host "[9] Re-run w/ auto only & aggressive preset | Full Auto" -ForegroundColor Green -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $powerUserAutomated | ForEach { Invoke-Expression $_ }
@@ -2940,11 +3091,13 @@ Function optionNine {
     hideOneDrive
 }
 Function optionTen {
+    $global:isAustin = $false
     Write-Host "[0] Re-run w/ auto only & relaxed preset | Full Auto # Random user preferred" -ForegroundColor Green -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $regularUserAutomated | ForEach { Invoke-Expression $_ }
 }
 Function optionFirstSpecial {
+    $global:isAustin = $true
     Write-Host "[f] Welcome back Austin" -ForegroundColor Red -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $powerUserAutomated | ForEach { Invoke-Expression $_ }
@@ -2956,10 +3109,10 @@ Function optionFirstSpecial {
     Write-Host "Pin Recycle Bin to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
     $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
     #Austin specific function calls
-    removeRecycleBin
     remainingStepsToTextForAustin
 }
 Function optionRerunSpecial {
+    $global:isAustin = $true
     Write-Host "[r] Welcome back Austin" -ForegroundColor Red -BackgroundColor Black
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $powerUserAutomated | ForEach { Invoke-Expression $_ }
@@ -3045,38 +3198,40 @@ promptForRestart
 ##########################################################################################################################################################
 # Improvements needed:
 # Configurations:
+# if $global:isAustin set the accent color to purple - Priority
 # Set default programs automatically 
 # Hide ease of access button on logon screen for power users
 # If only one local drive exists, Create a separate local games folder in user context and pin to start menu?
 #
 # Errors:
-# Apps (recently uninstalled) show up on start menu as 'new' - remove them
+# Built-in Apps (recently uninstalled/removed) show up on start menu as 'new' - remove them
 #
 # Script: 
+# Automate most of my personal settings in the text output using $global:isAustin to check. e.g. make a dropbox public link to some pictures and automatically set them as user/background/lock screen pictures - Priority
+# Have a check function at the end, that validates every setting was changed successfully
 # Certain functions wait until the end to spit output status which jumbles the manual to-do list at the end
-# Possible to install software with powershell and feed it configuration parameters? - have Rob take care of this
 # Automatically determine which to display, first-run or re-run only list selection
 #
 # Software:
-# Additional Software to Add to Software section:
-# epic games launcher
-# uPlay
+# Additional Software to Add to Software section: - Priority
+# Sublime Text Editor - prompt for this and/or npp
+# GoogleDrive - prompt for this and/or dropbox?
 # GoG Galaxy
-# Sublime Text
-# GoogleDrive
+# Epic Games Launcher
+# uPlay
+# Rufus
+# Electrum
+# PSFTP
+
+# Microsoft Office
 #
-# Feedback: 
-# Rob Feedback:
-# Silent installs for software
-############ Silent install flags#########################
-# "flux-setup.exe" /S
-# "windirstat1_1_2_setup.exe" /S
-# "Setup_ImgBurn_2.5.8.0.exe" /S
-#   msiexec.exe /i "7z1805-x64.msi" /qb
-#   7z1805-x64.exe ????/S????
-# Other Feedback:
+# Additional Feedback: 
+#
+#
+#
 ##########################################################################################################################################################
 <#
+# Additional Prototype Functions
 #Change targets for Documents, Downloads, Music, Pictures, Videos to the appropriate drive automatically by prompting the user
 Function configureUserFolderTargets {
     Write-Host "Set user folder targets to separate drive..." -ForegroundColor Green -BackgroundColor Black
@@ -3108,53 +3263,3 @@ Pause
 }
 #>
 ##########################################################################################################################################################
-<#
-#Install order notes
-#Auto
-$putty -auto
-$dropbox -auto (starts after) "DropboxInstaller.exe" /NOLAUNCH
-
-$spotify -auto (starts after) [autostarts on boot] "SpotifySetup.exe" /Silent (need to disable auto-start)
-$discord -auto (starts && launches some browser.hadoff after) [autostarts on boot] ?silentinstall?
-
-#Semi-Auto
-$7zip.exe -nexts 7z1805-x64.exe ????/S????
-$7zip.msi -nexts (uncheck localization files?) msiexec.exe /i "7z1805-x64.msi" /qb (what does /qn do?)
-$hwmonitor -nexts (checkbox to view readme after) ?silentinstall?
-$notepad -nexts (checkbox to start after) npp.exe /S
-$windirstat -nexts (checkbox to start after) "windirstat1_1_2_setup.exe" /S
-$steam -nexts (checkbox to start after) [autostarts on boot] /S (need to disable auto-start)
-$battlenet -nexts (starts after) ?silentinstall?
-$flux -nexts (starts after) "flux-setup.exe" /S
-$skype -nexts (starts after) [autostarts on boot] ?silentinstall?
-
-#Manual
-$msiafterburner -nexts (uncheck riviatuner stats server && checkbox to start && view readme after) /S (need to remove rivia statistics server)
-$vlc -nexts (uncheck web-plugins & some default protocols && checkbox to start after) /L=1033 – Set language to English /S – Install silently
-$teamviewer -nexts (check basic/unattended install type && personal/non-commerical && starts after) /S
-$origin -nexts (uncheck run at start && share hardware specifications && starts after) /silent?
-
-#Contains Bloatware
-$imgburn -uncheck bloatware (launches edge browser thank you page after) "Setup_ImgBurn_2.5.8.0.exe" /S
-#>
-
-<#
-#Silent install trial run results - Left off here
-putty good
-dropbox good
-spotify (need to implement auto-close feature)
-discord (same as before)
-7-zip (doens't install?)
-hwmonitor (same as before)
-notepad++ good
-windirstat good
-steam good
-battle.net (same as before)
-f.lux (silently installs, but after it still runs and prompts for location)
-skype (same as before)
-msiAfterburner (silently installs, but need to uncheck riviatuner stats server)
-vlc good (might need to check if plugins were installed)
-teamviewer good (might need to check what was all installed)
-origin good (might need to check what was all installed/selected) (also starts after silent install is completed)
-imgburn good (didn't install opera but it doesn't always prompt if you do it manually... might have to continue testing with this)
-#>
