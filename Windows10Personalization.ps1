@@ -30,14 +30,13 @@ $allUsersPrompted = @(
     ### Prompt Steps ### 
     "configureNightLight", # user preference - prompt
     "disableTeamViewerPrompt", # always run - prompt
+    "removeRecycleBin", # alwasy run - prompt if $global:isAustin -eq $false
     "uninstallIE", # always run - prompt
-    "removeRecycleBin", # Needs improvement - find a way to determine if it has been pinned to the start menu/quick access/taskbar
-
     ### Manual Steps ### 
     "configureSoundOptions", # always run - prompt
     "bluetoothManualSteps", # always run - prompt
     "disableFocusAssistNotifications" # always run - prompt
-#    "configureUserFolderTargets", # always run (if more than one fixed drive exists, else skip) - prompt needs improvement [not finished]
+#    "configureUserFolderTargets", # always run (if more than one fixed drive exists, else skip) - prompt [not finished]
 )
 $powerUserAutomated = @(
     # run aggressive pre-defined user preference steps
@@ -86,7 +85,7 @@ $regularUserAutomated = @(
     "uninstallOptionalApps",
     "taskbarCombineWhenFull",
     "taskbarShowTrayIcons",
-    #"taskbarShowSearchIcon",
+#    "taskbarShowSearchIcon",
     "taskbarShowTaskView",
     "taskbarHidePeopleIcon",
     "taskbarHideInkWorkspace",
@@ -105,7 +104,7 @@ $regularUserAutomated = @(
     "removePrinters" # unsure
 )
 $userPrompted = @(
-    # needs improvement - need a way to show prompts to the user for all of these functions, but only if prompts are selected
+    # Future improvement - need a way to show prompts to the user for all of these functions, but only if prompts are selected
     # let the user choose what they want changed for each of the user preference steps [enable/disable/leave default (and state what default is)]
 )
 $allUsersFirstRunAutomated = @(
@@ -115,6 +114,7 @@ $allUsersFirstRunAutomated = @(
 )
 $allUsersFirstRunPrompted = @(
     # let the user choose what they want changed for each of the user preference steps that are only relevant for a new image 
+#    "setWindowsColor",
     "renameComputer", # usually first run - user preference prompt
     "pinStartMenuItemsAndInstallSoftware", # always run - prompt - prompt if you want to install software and pin apps to the start menu
     "setDefaultPrograms"
@@ -211,7 +211,7 @@ $allUsersFirstRunPrompted = @(
         Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.tiff\OpenWithProgids" -Name "PhotoViewer.FileAssoc.Tiff" -Type None -Value $photoValue
         Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.wdp\OpenWithProgids" -Name "PhotoViewer.FileAssoc.Tiff" -Type None -Value $photoValue
     }
-#   Disable Telemetry - Needs improvement (need to ensure windows updates doesn't break from this)
+#   Disable Telemetry - Future improvement (need to ensure windows updates doesn't break from this)
 # Windows Update control panel may show message "Your device is at risk...", -- try to disable maximum telemetry without triggering this error
     Function disableTelemetry {
         Write-Host "Disabling Telemetry..." -ForegroundColor Green -BackgroundColor Black
@@ -1096,6 +1096,12 @@ $getstring = @'
             Write-Host "A personalized computer name already exists: $env:computername | Skipping the renaming section" -ForegroundColor Green -BackgroundColor Black
         }
     }
+    Function setWindowsColor {
+        if ($global:isAustin -eq $true) {
+            Write-Host "Set a color scheme" -ForegroundColor Yellow -BackgroundColor Black
+            Start-Process ms-settings:personalization-colors
+        }
+    }
     Function configureNightLight {
         $nightLightState = $false
         $changeNightLight = $false
@@ -1345,15 +1351,19 @@ $getstring = @'
             Start-Sleep -s 1 
         }
         if (($chrome -eq $true) -and (Test-Path $browserPath)) {
-            Start-Sleep -s 1
+            while (!(Get-Process *chrome*)) {
+                Start-Sleep -s 1
+            }
             Get-Process *chrome* | Stop-Process
-            Remove-Item -Path "C:\Users\$env:username\Downloads\*Chrome*"
+            #Remove-Item -Path "C:\Users\$env:username\Downloads\*Chrome*"
             Remove-Item -Path "C:\Users\$env:username\Desktop\*Edge*"
         }
         elseif (($firefox -eq $true) -and (Test-Path $browserPath)) {
-            Start-Sleep -s 1
+            while (!(Get-Process *firefox*)) {
+                Start-Sleep -s 1
+            }
             Get-Process *firefox* | Stop-Process
-            Remove-Item -Path "C:\Users\$env:username\Downloads\*Firefox*"
+            #Remove-Item -Path "C:\Users\$env:username\Downloads\*Firefox*"
             Remove-Item -Path "C:\Users\$env:username\Desktop\*Edge*"
         }
         elseif ($ie -eq $true) {
@@ -1366,7 +1376,7 @@ $getstring = @'
         #WinDirStat
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[17] Utilities: Do you wish to download WinDirStat? [y]/[n] | (Disk usage analyzer)"
+            $SoftwareType = Read-Host -Prompt "[21] Utilities: Do you wish to download WinDirStat? [y]/[n] | (Disk usage analyzer)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $windirstat = $true
@@ -1384,7 +1394,7 @@ $getstring = @'
         #7-Zip
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[16] Utilities: Do you wish to download 7-Zip? [y]/[n] | (File & folder archiver)"
+            $SoftwareType = Read-Host -Prompt "[20] Utilities: Do you wish to download 7-Zip? [y]/[n] | (File & folder archiver)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $7zip = $true
@@ -1402,7 +1412,7 @@ $getstring = @'
         #IMG Burn
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[15] Utilities: Do you wish to download IMG Burn? [y]/[n] | (Optical disc burning & IMG/ISO creation program)"
+            $SoftwareType = Read-Host -Prompt "[19] Utilities: Do you wish to download IMG Burn? [y]/[n] | (Optical disc burning & IMG/ISO creation program)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $imgburn = $true
@@ -1417,10 +1427,46 @@ $getstring = @'
             }
         }
         while ($doneUser -eq $false)
-        #Notepad++ #additionally Sublime Text [14b-2][14a-1]
+        #Rufus
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[14] Utilities: Do you wish to download Notepad++? [y]/[n] | (Text and source code editor)"
+            $SoftwareType = Read-Host -Prompt "[18] Utilities: Do you wish to download Rufus? [y]/[n] | (Bootable flash drive ISO tool)"
+            if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
+                $doneUser = $true
+                $rufus = $true
+            }
+            elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "0")){
+                $doneUser = $true
+                $rufus = $false
+            }
+            else {
+                $doneUser = $false
+                Write-Host "Please input 'y' or 'n' for selection" -ForegroundColor Red -BackgroundColor Black
+            }
+        }
+        while ($doneUser -eq $false)
+        #Sublime Text [14b]
+        do {
+            $doneUser = $false
+            $SoftwareType = Read-Host -Prompt "[17b] Utilities: Do you wish to download Sublime Text? [y]/[n] | (Text and source code editor)"
+            if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
+                $doneUser = $true
+                $sublimetext = $true
+            }
+            elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "N") -or ($SoftwareType -eq "0")){
+                $doneUser = $true
+                $sublimetext = $false
+            }
+            else {
+                $doneUser = $false
+                Write-Host "Please input 'y' or 'n' for selection" -ForegroundColor Red -BackgroundColor Black
+            }
+        }
+        while ($doneUser -eq $false)
+        #Notepad++ [14a]
+        do {
+            $doneUser = $false
+            $SoftwareType = Read-Host -Prompt "[17a] Utilities: Do you wish to download Notepad++? [y]/[n] | (Text and source code editor)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $notepad = $true
@@ -1438,7 +1484,7 @@ $getstring = @'
         #HWMonitor
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[13] Utilities: Do you wish to download HWMonitor? [y]/[n] | (PC sensor monitoring program)"
+            $SoftwareType = Read-Host -Prompt "[16] Utilities: Do you wish to download HWMonitor? [y]/[n] | (PC sensor monitoring program)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $hwmonitor = $true
@@ -1456,7 +1502,7 @@ $getstring = @'
 		#VLC
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[12] Multimedia: Do you wish to download VLC Media Player? [y]/[n] | (Open source media player)"
+            $SoftwareType = Read-Host -Prompt "[15] Multimedia: Do you wish to download VLC Media Player? [y]/[n] | (Open source media player)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $vlc = $true
@@ -1474,7 +1520,7 @@ $getstring = @'
         #Spotify
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[11] Multimedia: Do you wish to download Spotify? [y]/[n] | (Music streaming platform)"
+            $SoftwareType = Read-Host -Prompt "[14] Multimedia: Do you wish to download Spotify? [y]/[n] | (Music streaming platform)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $spotify = $true
@@ -1492,7 +1538,7 @@ $getstring = @'
         #Skype
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[10] Communication Do you wish to download Skype? [y]/[n] | (Video and voice calling program)"
+            $SoftwareType = Read-Host -Prompt "[13] Communication Do you wish to download Skype? [y]/[n] | (Video and voice calling program)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $skype = $true
@@ -1510,7 +1556,7 @@ $getstring = @'
         #Discord
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[9] Communication: Do you wish to download Discord? [y]/[n] | (Voice program for gaming)"
+            $SoftwareType = Read-Host -Prompt "[12] Communication: Do you wish to download Discord? [y]/[n] | (Voice program for gaming)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $discord = $true
@@ -1528,7 +1574,7 @@ $getstring = @'
         #Steam
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[8] Gaming: Do you wish to download Steam? [y]/[n] | (Gaming platform)"
+            $SoftwareType = Read-Host -Prompt "[11] Gaming: Do you wish to download Steam? [y]/[n] | (Gaming platform)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $steam = $true
@@ -1546,7 +1592,7 @@ $getstring = @'
         #Origin
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[7] Gaming: Do you wish to download Origin? [y]/[n] | (Gaming platform)"
+            $SoftwareType = Read-Host -Prompt "[10] Gaming: Do you wish to download Origin? [y]/[n] | (Gaming platform)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $origin = $true
@@ -1561,10 +1607,10 @@ $getstring = @'
             }
         }
         while ($doneUser -eq $false)
-        #Battle.net - additionally uPlay, Epic Games Launcher, GOG Galaxy [#,#,#]
+        #Battle.net
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[6] Gaming: Do you wish to download Battle.net? [y]/[n] | (Gaming platform)"
+            $SoftwareType = Read-Host -Prompt "[9] Gaming: Do you wish to download Battle.net? [y]/[n] | (Gaming platform)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $battlenet = $true
@@ -1572,6 +1618,60 @@ $getstring = @'
             elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "N") -or ($SoftwareType -eq "0")){
                 $doneUser = $true
                 $battlenet = $false
+            }
+            else {
+                $doneUser = $false
+                Write-Host "Please input 'y' or 'n' for selection" -ForegroundColor Red -BackgroundColor Black
+            }
+        }
+        while ($doneUser -eq $false)
+        #GoG Galaxy
+        do {
+            $doneUser = $false
+            $SoftwareType = Read-Host -Prompt "[8] Gaming: Do you wish to download GoG Galaxy? [y]/[n] | (Gaming platform)"
+            if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
+                $doneUser = $true
+                $goggalaxy = $true
+            }
+            elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "N") -or ($SoftwareType -eq "0")){
+                $doneUser = $true
+                $goggalaxy = $false
+            }
+            else {
+                $doneUser = $false
+                Write-Host "Please input 'y' or 'n' for selection" -ForegroundColor Red -BackgroundColor Black
+            }
+        }
+        while ($doneUser -eq $false)
+        #Uplay
+        do {
+            $doneUser = $false
+            $SoftwareType = Read-Host -Prompt "[7] Gaming: Do you wish to download Uplay? [y]/[n] | (Gaming platform)"
+            if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
+                $doneUser = $true
+                $uplay = $true
+            }
+            elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "N") -or ($SoftwareType -eq "0")){
+                $doneUser = $true
+                $uplay = $false
+            }
+            else {
+                $doneUser = $false
+                Write-Host "Please input 'y' or 'n' for selection" -ForegroundColor Red -BackgroundColor Black
+            }
+        }
+        while ($doneUser -eq $false)
+        #Epic Games Launcher
+        do {
+            $doneUser = $false
+            $SoftwareType = Read-Host -Prompt "[6] Gaming: Do you wish to download the Epic Games Launcher? [y]/[n] | (Gaming platform)"
+            if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
+                $doneUser = $true
+                $epicgameslauncher = $true
+            }
+            elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "N") -or ($SoftwareType -eq "0")){
+                $doneUser = $true
+                $epicgameslauncher = $false
             }
             else {
                 $doneUser = $false
@@ -1597,10 +1697,10 @@ $getstring = @'
             }
         }
         while ($doneUser -eq $false)
-        #Dropbox - additionally GoogleDrive [4b-2][4a-1]
+        #Dropbox - additionally GoogleDrive [4b]
         do {
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "[4] Utilities: Do you wish to download Dropbox? [y]/[n] | (Cloud storage program)"
+            $SoftwareType = Read-Host -Prompt "[4b] Utilities: Do you wish to download Dropbox? [y]/[n] | (Cloud storage program)"
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $dropbox = $true
@@ -1608,6 +1708,24 @@ $getstring = @'
             elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "N") -or ($SoftwareType -eq "0")){
                 $doneUser = $true
                 $dropbox = $false
+            }
+            else {
+                $doneUser = $false
+                Write-Host "Please input 'y' or 'n' for selection" -ForegroundColor Red -BackgroundColor Black
+            }
+        }
+        while ($doneUser -eq $false)
+        #Google Drive [4a]
+        do {
+            $doneUser = $false
+            $SoftwareType = Read-Host -Prompt "[4a] Utilities: Do you wish to download Google Drive? [y]/[n] | (Cloud storage program)"
+            if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
+                $doneUser = $true
+                $googledrive = $true
+            }
+            elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "N") -or ($SoftwareType -eq "0")){
+                $doneUser = $true
+                $googledrive = $false
             }
             else {
                 $doneUser = $false
@@ -1697,7 +1815,78 @@ $getstring = @'
         while ($doneUser -eq $false)
         #>
 #########Start the downloads themselves:#################################################################################
-        #Download Statements - Manual required download button clicks first----------------------------------------------
+        #Download Statements
+        if ($goggalaxy -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*setup_galaxy*")) {
+            Write-Host "Software Chosen: GoG Galaxy" -ForegroundColor Green -BackgroundColor Black
+            $GogURL = (Invoke-WebRequest -Uri "https://www.gog.com/galaxy" -UseBasicParsing).Links.Href -like "*https://content-system.gog.com/open_link/download?path=/open/galaxy/client/setup_galaxy_*.exe*"
+            $GogURL0,$GogURL1,$GogURL2 = $GogURL.split("`r`n")
+            if ($ie -eq $true) {
+                Start-Process microsoft-edge:$GogURL0
+            }
+            else {
+                Start-Process $browserPath -ArgumentList $GogURL0 -WindowStyle Minimized
+            }
+        }
+        if ($uplay -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*UplayInstaller*")) {
+            #Install parameters: 
+            #Download Uplay
+            #http://ubi.li/4vxt9
+            #Manage your account
+            #http://ubi.li/y99x6
+            $UplayURL = (Invoke-WebRequest -Uri "https://uplay.ubi.com/" -UseBasicParsing).Links.Href -like "*ubi.li/4vxt9*"
+            if ($ie -eq $true) {
+                Start-Process microsoft-edge:$UplayURL
+            }
+            else {
+                Start-Process $browserPath -ArgumentList $UplayURL -WindowStyle Minimized
+            }
+        }
+        if ($epicgameslauncher -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*EpicInstaller*")) {
+            #Install parameters: http://www.jrsoftware.org/ishelp/
+            $EGLURL = (Invoke-WebRequest -Uri "https://www.epicgames.com/site/en-US/home" -UseBasicParsing).Links.Href -like "*EpicGamesLauncherInstaller.msi*"
+            $EGLURL0,$EGLURL1 = $EGLURL.split("`r`n")
+            if ($ie -eq $true) {
+                Start-Process microsoft-edge:$EGLURL0
+            }
+            else {
+                Start-Process $browserPath -ArgumentList $EGLURL0 -WindowStyle Minimized
+            }
+        }
+        if ($rufus -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*rufus*")) {
+            $RufusURL = (Invoke-WebRequest -Uri "https://rufus.akeo.ie/" -UseBasicParsing).Links.Href -notlike "*downloads/rufus-*p.exe*" -like "*downloads/rufus-*.exe*"
+            $RufusDownload = "https://rufus.akeo.ie$RufusURL"
+            if ($ie -eq $true) {
+                Start-Process microsoft-edge:$RufusDownload
+            }
+            else {
+                Start-Process $browserPath -ArgumentList $RufusDownload -WindowStyle Minimized
+            }
+        }
+        if ($sublimetext -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*Sublime*")) {
+            $SublimeURL = (Invoke-WebRequest -Uri "https://www.sublimetext.com/3" -UseBasicParsing).Links.Href -like "*download.sublimetext.com/Sublime*Text*x64*Setup.exe*"
+            $SublimeURLConverted = $SublimeURL.Replace(' ','%20')
+            if ($ie -eq $true) {
+                Start-Process microsoft-edge:$SublimeURLConverted
+            }
+            else {
+                Start-Process $browserPath -ArgumentList $SublimeURLConverted -WindowStyle Minimized
+            }
+        }
+        if ($googledrive -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*installbackupandsync*")) {
+            # GoogleDrive - prompt for this and/or dropbox?
+            if ($global:isAustin -eq $false) {
+                $GDriveURL = "https://dl.google.com/tag/s/appguid%3D%7B3C122445-AECE-4309-90B7-85A6AEF42AC0%7D%26iid%3D%7B9648D435-67BA-D2A7-54D2-1E0B5656BF03%7D%26ap%3Duploader%26appname%3DBackup%2520and%2520Sync%26needsadmin%3Dtrue/drive/installbackupandsync.exe"
+            }
+            else {
+                $GDriveURL = "https://www.google.com/drive/download/"
+            }
+            if ($ie -eq $true) {
+                Start-Process microsoft-edge:$GDriveURL
+            }
+            else {
+                Start-Process $browserPath -ArgumentList $GDriveURL -WindowStyle Minimized
+            }
+        }
         if ($vlc -eq $true -and !(Test-Path "C:\Users\$env:username\Downloads\*vlc*")) {
             Write-Host "Software Chosen: VLC Media Player" -ForegroundColor Green -BackgroundColor Black
             $vlcURL = (Invoke-WebRequest -Uri "https://www.videolan.org/vlc/" -UseBasicParsing).Links.Href -like "*get.videolan.org/vlc*win64*"
@@ -1881,8 +2070,14 @@ $getstring = @'
                 Start-Process $browserPath -ArgumentList $DropboxURL -WindowStyle Minimized
             }
         }
-        #Write-Host "Note: Some download links require you to manually click download. " -ForegroundColor Red -BackgroundColor Black
         <#
+        $rufus
+        $sublimetext
+        $goggalaxy
+        $uplay
+        $epicgameslauncher
+        $googledrive
+
         $flux
         $windirstat
         $7zip
@@ -1905,6 +2100,90 @@ $getstring = @'
         # Check that all software was downloaded successfully. If not downloaded successfully, reattempt download
         # implement a while loop to ensure that everything is continually checked for successfull downloads after re-attempts are made
         #>
+        Write-Host "Waiting for rufus to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
+        while (($rufus -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*rufus*"))) {
+            Start-Sleep -s 1 
+        }
+        if (($rufus -eq $true) -and (Test-Path "C:\Users\$env:username\Downloads\*rufus*")) {
+            Write-Host "rufus successfully downloaded" -ForegroundColor Green -BackgroundColor Black
+        }
+        elseif ($rufus -eq $false) {
+            Write-Host "rufus not selected" -ForegroundColor Green -BackgroundColor Black
+        }
+        else {
+            Write-Host "rufus not downloaded" -ForegroundColor Red -BackgroundColor Black
+            Start-Process $browserPath -ArgumentList $RufusDownload
+        }
+        Write-Host "Waiting for Sublime Text to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
+        while (($sublimetext -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*Sublime*"))) {
+            Start-Sleep -s 1 
+        }
+        if (($sublimetext -eq $true) -and (Test-Path "C:\Users\$env:username\Downloads\*Sublime*")) {
+            Write-Host "Sublime Text successfully downloaded" -ForegroundColor Green -BackgroundColor Black
+        }
+        elseif ($sublimetext -eq $false) {
+            Write-Host "Sublime Text not selected" -ForegroundColor Green -BackgroundColor Black
+        }
+        else {
+            Write-Host "Sublime Text not downloaded" -ForegroundColor Red -BackgroundColor Black
+            Start-Process $browserPath -ArgumentList $SublimeURLConverted
+        }
+        Write-Host "Waiting for GoG Galaxy to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
+        while (($goggalaxy -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*setup_galaxy*"))) {
+            Start-Sleep -s 1 
+        }
+        if (($goggalaxy -eq $true) -and (Test-Path "C:\Users\$env:username\Downloads\*setup_galaxy*")) {
+            Write-Host "GoG Galaxy successfully downloaded" -ForegroundColor Green -BackgroundColor Black
+        }
+        elseif ($goggalaxy -eq $false) {
+            Write-Host "GoG Galaxy not selected" -ForegroundColor Green -BackgroundColor Black
+        }
+        else {
+            Write-Host "GoG Galaxy not downloaded" -ForegroundColor Red -BackgroundColor Black
+            Start-Process $browserPath -ArgumentList $GogURL0
+        }
+        Write-Host "Waiting for Uplay to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
+        while (($uplay -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*UplayInstaller*"))) {
+            Start-Sleep -s 1 
+        }
+        if (($uplay -eq $true) -and (Test-Path "C:\Users\$env:username\Downloads\*UplayInstaller*")) {
+            Write-Host "Uplay successfully downloaded" -ForegroundColor Green -BackgroundColor Black
+        }
+        elseif ($uplay -eq $false) {
+            Write-Host "Uplay not selected" -ForegroundColor Green -BackgroundColor Black
+        }
+        else {
+            Write-Host "Uplay not downloaded" -ForegroundColor Red -BackgroundColor Black
+            Start-Process $browserPath -ArgumentList $UplayURL
+        }
+        Write-Host "Waiting for the Epic Games Launcher to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
+        while (($epicgameslauncher -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*EpicInstaller*"))) {
+            Start-Sleep -s 1 
+        }
+        if (($epicgameslauncher -eq $true) -and (Test-Path "C:\Users\$env:username\Downloads\*EpicInstaller*")) {
+            Write-Host "the Epic Games Launcher successfully downloaded" -ForegroundColor Green -BackgroundColor Black
+        }
+        elseif ($epicgameslauncher -eq $false) {
+            Write-Host "the Epic Games Launcher not selected" -ForegroundColor Green -BackgroundColor Black
+        }
+        else {
+            Write-Host "the Epic Games Launcher not downloaded" -ForegroundColor Red -BackgroundColor Black
+            Start-Process $browserPath -ArgumentList $EGLURL0
+        }
+        Write-Host "Waiting for Google Drive to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
+        while (($googledrive -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*installbackupandsync*"))) {
+            Start-Sleep -s 1 
+        }
+        if (($googledrive -eq $true) -and (Test-Path "C:\Users\$env:username\Downloads\*installbackupandsync*")) {
+            Write-Host "Google Drive successfully downloaded" -ForegroundColor Green -BackgroundColor Black
+        }
+        elseif ($googledrive -eq $false) {
+            Write-Host "Google Drive not selected" -ForegroundColor Green -BackgroundColor Black
+        }
+        else {
+            Write-Host "Google Drive not downloaded" -ForegroundColor Red -BackgroundColor Black
+            Start-Process $browserPath -ArgumentList $GDriveURL
+        }
         Write-Host "Waiting for f.lux to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
         while (($flux -eq $true) -and (!(Test-Path "C:\Users\$env:username\Downloads\*flux*"))) {
             Start-Sleep -s 1 
@@ -2167,7 +2446,7 @@ $getstring = @'
         $env:SEE_MASK_NOZONECHECKS = 1
         $countForeground = 0
         while ($putty -and !(Test-Path "C:\Program Files (x86)\Putty\putty.exe")) {
-            Write-Host "Waiting for Putty to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for Putty to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             if(!(Test-Path "C:\Program Files (x86)\Putty")) {
                 New-Item -ItemType Directory -Path "C:\Program Files (x86)\Putty" -Force
             }
@@ -2181,10 +2460,93 @@ $getstring = @'
             $Shortcut.Save()
             Start-Sleep -s 1
         }
+        $rufusInfo = Get-ItemProperty -Path "C:\Users\$env:username\Downloads\*rufus*"
+        $rufusName = $rufusInfo.Name
+        while ($rufus -and !(Test-Path "C:\Program Files (x86)\Rufus\$rufusName")) {
+            Write-Host "Waiting for Rufus to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
+            if(!(Test-Path "C:\Program Files (x86)\Rufus\$rufusName")) {
+                New-Item -ItemType Directory -Path "C:\Program Files (x86)\Rufus" -Force
+            }
+            Move-Item -Path "C:\Users\$env:username\Downloads\$rufusName" -Destination "C:\Program Files (x86)\Rufus"
+            $TargetFile = "C:\Program Files (x86)\Rufus\$rufusName"
+            $ShortcutFile = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Rufus.lnk"
+            $WScriptShell = New-Object -ComObject WScript.Shell
+            $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
+            $Shortcut.TargetPath = $TargetFile
+            $Shortcut.IconLocation = "C:\Program Files (x86)\Rufus\$rufusName, 0"
+            $Shortcut.Save()
+            Start-Sleep -s 1
+        }
+        if ($epicgameslauncher -and !(Test-Path "C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*EpicInstaller*" -ArgumentList "/qn"
+            Write-Host "Waiting for Epic Games Launcher to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }
+        # -or (Get-Process *msiexec*)
+        while ($epicgameslauncher -and (!(Test-Path "C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"))) {
+            Start-Sleep -s 1
+            if ((Get-Process *msiexec*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *DropboxInstaller*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($sublimetext -and !(Test-Path "C:\Program Files\Sublime Text 3\sublime_text.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*Sublime*" -ArgumentList '/VERYSILENT /TASKS="contextentry"'
+            Write-Host "Waiting for Sublime Text to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }
+        while ($sublimetext -and (!(Test-Path "C:\Program Files\Sublime Text 3\sublime_text.exe") -or (Get-Process *sublime*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *sublime*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *DropboxInstaller*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($goggalaxy -and !(Test-Path "C:\Program Files (x86)\GOG Galaxy\GalaxyClient.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*setup_galaxy*" -ArgumentList "/VERYSILENT"
+            Write-Host "Waiting for GoG Galaxy to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }
+        while ($goggalaxy -and (!(Test-Path "C:\Program Files (x86)\GOG Galaxy\GalaxyClient.exe") -or (Get-Process *setup_galaxy*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *setup_galaxy*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *DropboxInstaller*).MainWindowTitle)
+                $countForeground ++
+            }
+        }
+        if ($googledrive -and !(Test-Path "C:\Program Files\Google\Drive\googledrivesync.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*installbackupandsync*"
+            Write-Host "Waiting for Google Drive to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }
+        while ($googledrive -and (!(Test-Path "C:\Program Files\Google\Drive\googledrivesync.exe") -or (Get-Process *installbackupandsync*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *installbackupandsync*) -and ($countForeground -lt 2)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *DropboxInstaller*).MainWindowTitle)
+                $countForeground ++
+            }
+            if (Get-Process *googledrivesync*) {
+                Get-Process *installbackupandsync* | Stop-Process
+                Get-Process *GoogleUpdate* | Stop-Process -Force
+            }
+        }
+        if ($googledrive) {
+            while (!(Get-Process *googledrivesync*)) {
+                Start-Sleep -s 1
+            }
+            if (Get-Process *googledrivesync*) {
+                #exit out of google sync first launch program here
+                Get-Process *googledrivesync* | Stop-Process
+            }
+        }
         #Note: Dropbox installer seems to crash and relaunch file explorer.exe
         if ($dropbox -and !(Test-Path "C:\Program Files (x86)\Dropbox\Client\Dropbox.exe")) {
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*dropbox*" -ArgumentList "/NOLAUNCH"
-            Write-Host "Waiting for Dropbox to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for Dropbox to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }
@@ -2202,7 +2564,7 @@ $getstring = @'
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*7z*" -ArgumentList "/S"
             #for .msi
             #Start-Process -FilePath "C:\Users\$env:username\Downloads\*7z*" -ArgumentList "/qn","INSTALLDIR='C:\Program Files\7-Zip'"
-            Write-Host "Waiting for 7-Zip to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for 7-Zip to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }                                                                           #7z1805-x64
@@ -2215,7 +2577,7 @@ $getstring = @'
         }
         if ($notepad -and !(Test-Path "C:\Program Files (x86)\Notepad++\notepad++.exe")) {
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*npp*" -ArgumentList "/S"
-            Write-Host "Waiting for Notepad++ to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for Notepad++ to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }                                                                                               #npp.7.5.8.Installer
@@ -2228,7 +2590,7 @@ $getstring = @'
         }
         if ($windirstat -and !(Test-Path "C:\Program Files (x86)\WinDirStat\windirstat.exe")) {
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*windirstat*" -ArgumentList "/S"
-            Write-Host "Waiting for WinDirStat to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for WinDirStat to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }                                                                                                    #windirstat1_1_2_setup
@@ -2241,7 +2603,7 @@ $getstring = @'
         }
         if ($steam -and !(Test-Path "C:\Program Files (x86)\Steam\Steam.exe")) {
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*steam*" -ArgumentList "/S"
-            Write-Host "Waiting for Steam to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for Steam to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }
@@ -2254,7 +2616,7 @@ $getstring = @'
         }
         if ($flux -and !(Test-Path "C:\Users\$env:username\AppData\Local\FluxSoftware\Flux\flux.exe")) {
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*flux*" -ArgumentList "/S"
-            Write-Host "Waiting for f.lux to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for f.lux to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }
@@ -2276,7 +2638,7 @@ $getstring = @'
         }
         if ($skype -and !(Test-Path "C:\Program Files (x86)\Microsoft\Skype for Desktop\Skype.exe")) {
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*skype*" -ArgumentList "/VERYSILENT","/SP-","/NOCANCEL","/NORESTART","/SUPPRESSMSGBOXES","/NOLAUNCH"
-            Write-Host "Waiting for Skype to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for Skype to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }                                                                                   #Skype-8.29.0.50 #Skype-8.29.0.50.tmp
@@ -2298,7 +2660,7 @@ $getstring = @'
         }
         if ($teamviewer -and !(Test-Path "C:\Program Files (x86)\TeamViewer\TeamViewer.exe")) {
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*teamviewer*" -ArgumentList "/S"
-            Write-Host "Waiting for TeamViewer to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for TeamViewer to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }
@@ -2312,7 +2674,7 @@ $getstring = @'
         if ($imgburn -and !(Test-Path "C:\Program Files (x86)\ImgBurn\ImgBurn.exe")) {
             #Invoke-Item "C:\Users\$env:username\Downloads\*imgburn*"
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*imgburn*" -ArgumentList "/S","/NOCANDY"
-            Write-Host "Waiting for ImgBurn to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for ImgBurn to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }                                                                                         #SetupImgBurn_2.5.8.0
@@ -2323,9 +2685,73 @@ $getstring = @'
                 $countForeground ++
             }
         }
+        if ($uplay -and !(Test-Path "C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\Uplay.exe")) {
+            Start-Process -FilePath "C:\Users\$env:username\Downloads\*UplayInstaller*"
+            Write-Host "Waiting for Uplay to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
+            # Bring the window to the foreground based on name
+            $countForeground = 0
+        }
+        while ($uplay -and (!(Test-Path "C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\Uplay.exe") -or (Get-Process *UplayInstaller*))) {
+            Start-Sleep -s 1
+            if ((Get-Process *UplayInstaller*) -and ($countForeground -lt 1)) {
+                #(New-Object -ComObject WScript.Shell).AppActivate((Get-Process *UplayInstaller*).MainWindowTitle)
+                #https://invista.wordpress.com/2013/08/16/a-simple-powershell-script-to-send-keys-to-an-application-windows/
+                # load assembly cotaining class System.Windows.Forms.SendKeys
+                [void] [Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+# add a C# class to access the WIN32 API SetForegroundWindow
+Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+    public class StartActivateProgramClass {
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+    }
+"@
+                while (!(Get-Process *UplayInstaller*)) {
+                Start-Sleep -m 100
+                }
+                # get the applications with the specified title
+                $p = Get-Process *UplayInstaller*
+                # get the window handle of the first application
+                $h = $p[0].MainWindowHandle
+                # set the application to foreground
+                [void] [StartActivateProgramClass]::SetForegroundWindow($h)
+                # send the keys sequence #more info on MSDN at http://msdn.microsoft.com/en-us/library/System.Windows.Forms.SendKeys(v=vs.100).aspx
+                <#
+                Key  | Code
+                -----------
+                SHIFT  +
+                CTRL   ^
+                ALT    %
+                #>
+                Start-Sleep -m 100
+                [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+                Start-Sleep -m 100
+                [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
+                Start-Sleep -m 100
+                [System.Windows.Forms.SendKeys]::SendWait("%{i}")
+                while (!(Test-Path "C:\Users\PowerShellGuy\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Ubisoft\Uplay\Uplay.lnk")) {
+                    Start-Sleep -m 100
+                }
+                Start-Sleep -m 100
+                [System.Windows.Forms.SendKeys]::SendWait("%{n}")
+                Start-Sleep -m 100
+                [System.Windows.Forms.SendKeys]::SendWait("%{f}") 
+                #*upc* && *uplaywebcore* 
+                while (!(Get-Process *upc*)) {
+                    Start-Sleep -s 1
+                }
+                if (Get-Process *upc*) {
+                    #exit out of the program here
+                    Get-Process *upc* | Stop-Process
+                }
+                $countForeground ++
+            }
+        }
         if ($hwmonitor -and !(Test-Path "C:\Program Files\CPUID\HWMonitor\HWMonitor.exe")) {
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*hwmonitor*"
-            Write-Host "Waiting for HWMonitor to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for HWMonitor to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }                                                                                                   #hwmonitor_1.35
@@ -2371,7 +2797,13 @@ Add-Type @"
                 [System.Windows.Forms.SendKeys]::SendWait("%{n}")
                 Start-Sleep -m 100
                 [System.Windows.Forms.SendKeys]::SendWait("%{i}")
-                Start-Sleep -s 1
+                #Future improvement - this is contingent on the finish menu showing up within 1 second. this isn't always the case and will need another check method to wait before sending the 'f' key to finsh the installer
+                <#
+                while (!(Test-Path "C:\Program Files\CPUID\HWMonitor")) {
+                    Start-Sleep -m 100
+                }
+                #>
+                Start-Sleep -m 1000
                 [System.Windows.Forms.SendKeys]::SendWait("%{f}") 
                 while (!(Get-Process *notepad*)) {
                     Start-Sleep -s 1
@@ -2391,7 +2823,7 @@ Add-Type @"
             $env:SEE_MASK_NOZONECHECKS = 1
             $newPS.Arguments = "explorer.exe $spotifyEXE"
             [System.Diagnostics.Process]::Start($newPS)
-            Write-Host "Waiting for Spotify to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for Spotify to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # This works but requires a password prompt 
             #Start-Process "C:\Users\$env:username\Downloads\*spotify*" -Credential "$env:username"
             # -ArgumentList "/Silent"
@@ -2417,7 +2849,7 @@ Add-Type @"
         if ($discord -and !(Test-Path "C:\Users\$env:username\AppData\Local\Discord\Update.exe")) {
             $env:SEE_MASK_NOZONECHECKS = 1
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*discord*"
-            Write-Host "Waiting for Discord to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for Discord to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }
@@ -2447,7 +2879,7 @@ Add-Type @"
                 Start-Process -FilePath "C:\Users\$env:username\Downloads\*origin*" -ArgumentList "/silent"
             }
 
-            Write-Host "Waiting for Origin to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for Origin to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }                                                                                             #OriginThinSetupInternal
@@ -2477,7 +2909,7 @@ Add-Type @"
             else {
                 Start-Process -FilePath "C:\Users\$env:username\Downloads\*vlc*" -ArgumentList "/L=1033","/S"
             }
-            Write-Host "Waiting for VLC Media Player to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for VLC Media Player to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }                                                                                    #vlc-3.0.4-win32
@@ -2501,7 +2933,7 @@ Add-Type @"
             else {
                 Start-Process -FilePath "C:\Users\$env:username\Downloads\*\*msiafterburner*" -ArgumentList "/S"
             }
-            Write-Host "Waiting for MSI Afterburner to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for MSI Afterburner to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }                                                                                                                      #MSIAfterburnerSetup450
@@ -2553,7 +2985,7 @@ Add-Type @"
         #No way to silently install or feed key presses to the installer window
         if ($battlenet -and !(Test-Path "C:\Program Files (x86)\Battle.net\Battle.net Launcher.exe")) {
             Start-Process -FilePath "C:\Users\$env:username\Downloads\*battle.net*"
-            Write-Host "Waiting for Battle.net to be installed..." -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Waiting for Battle.net to finish installing..." -ForegroundColor Yellow -BackgroundColor Black
             # Bring the window to the foreground based on name
             $countForeground = 0
         }
@@ -2760,6 +3192,33 @@ Add-Type @"
             Pin-App "Battle.net" -pin -start
         }
         Start-Sleep -m 100
+        if ($goggalaxy -eq $true){
+            while (Get-Process *setup_galaxy*) {
+                Write-Host "Waiting for GoG Galaxy to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
+            Pin-App "GOG Galaxy" -pin -start
+        }
+        Start-Sleep -m 100
+        #skip the installer check otherwise it might wait forever on an unrelated *msiexec.exe* process
+        if ($epicgameslauncher -eq $true){
+            <#
+            while (Get-Process *????*) {
+                Write-Host "Waiting for Epic Games Launcher to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
+            #>
+            Pin-App "Epic Games Launcher" -pin -start
+        }
+        Start-Sleep -m 100
+        if ($uplay -eq $true){
+            while (Get-Process *UplayInstaller*) {
+                Write-Host "Waiting for Uplay to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
+            Pin-App "Uplay" -pin -start
+        }
+        Start-Sleep -m 100
         if ($discord -eq $true){
             while (Get-Process *DiscordSetup*) {
                 Write-Host "Waiting for Discord to close before attempting to pin it to the start menu"
@@ -2784,6 +3243,14 @@ Add-Type @"
             Pin-App "Notepad++" -pin -start
         }
         Start-Sleep -m 100
+        if ($sublimetext -eq $true){
+            while (Get-Process *sublime*) {
+                Write-Host "Waiting for Sublime Text to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
+            Pin-App "Sublime Text 3" -pin -start
+        }
+        Start-Sleep -m 100
         if ($windirstat -eq $true){
                            #windirstat1_1_2_setup
             while (Get-Process *windirstat*setup*) {
@@ -2802,9 +3269,15 @@ Add-Type @"
             Pin-App "ImgBurn" -pin -start
         }
         Start-Sleep -m 100
+        if ($rufus -eq $true) {
+            Write-Host "Attempting to pin Rufus to the start menu" -ForegroundColor Yellow -BackgroundColor Black
+            Start-Sleep -s 1
+            Pin-App "Rufus" -pin -start
+        }
+        Start-Sleep -m 100
         if ($putty -eq $true) {
             Write-Host "Attempting to pin Putty to the start menu" -ForegroundColor Yellow -BackgroundColor Black
-            Start-Sleep -s 5
+            Start-Sleep -s 1
             Pin-App "Putty" -pin -start
         }
         Start-Sleep -m 100
@@ -2840,8 +3313,16 @@ Add-Type @"
         #Navigation
         Pin-App "This PC" -pin -start
         Start-Sleep -m 100
-        #Errors out
-        #Pin-App "Downloads" -pin -start
+        Pin-App "Downloads" -pin -start
+        Start-Sleep -m 100
+        if ($googledrive -eq $true){
+            while (Get-Process *installbackupandsync*) {
+                Write-Host "Waiting for Google Drive to close before attempting to pin it to the start menu"
+                Start-Sleep -s 1
+            }
+            Pin-App "Backup and Sync from Google" -pin -start
+        }
+        Start-Sleep -m 100
         if ($dropbox -eq $true){
             while (Get-Process *DropboxInstaller*) {
                 Write-Host "Waiting for Dropbox to close before attempting to pin it to the start menu"
@@ -2852,8 +3333,8 @@ Add-Type @"
         Start-Sleep -m 100
         Pin-App "Control Panel" -pin -start
         Start-Sleep -m 100
-        #Errors out
-        #Pin-App "Recycle Bin" -pin -start
+        Pin-App "Recycle Bin" -pin -start
+        Start-Sleep -m 100
     }
 Function setDefaultPrograms {
     #Set default apps
@@ -2864,31 +3345,65 @@ Function setDefaultPrograms {
 # Remove recycle bin from desktop #
 ###################################
 Function removeRecycleBin {
-    $recycleBinState = $false
-    do {
-        $recycleBinUserInput = Read-Host -Prompt "Do you wish to remove the recycle bin from the desktop? [y]/[n]?"
-        if (($recycleBinUserInput -eq "y") -or ($recycleBinUserInput -eq "Y") -or ($recycleBinUserInput -eq "1")) {
-            $recycleBinState = $true
-            Write-Host "Removing Recycle Bin from the desktop" -ForegroundColor Green -BackgroundColor Black
-            if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel")){
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Force
-            }
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
-            if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu")){
-                New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Force
-            }
-            Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
+    #12*4+2 (175) = recycle bin shorcut icon #?
+    $downloadsReg = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" -Name "{374DE290-123F-4565-9164-39C4925E467B}"
+    $downloadsLoc = $downloadsReg."{374DE290-123F-4565-9164-39C4925E467B}"
+    #create a shortcut
+    #43*4+3 (50) = downloads shortcut icon #?
+    $TargetFile0 = $downloadsLoc
+    $ShortcutFile0 = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Downloads.lnk"
+    $WScriptShell0 = New-Object -ComObject WScript.Shell
+    $Shortcut0 = $WScriptShell0.CreateShortcut($ShortcutFile0)
+    $Shortcut0.TargetPath = $TargetFile0
+    $Shortcut0.IconLocation = "C:\Windows\System32\imageres.dll, 175"
+    $Shortcut0.Save()
+
+    $TargetFile1 = "shell:RecycleBinFolder"
+    $ShortcutFile1 = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Recycle Bin.lnk"
+    $WScriptShell1 = New-Object -ComObject WScript.Shell
+    $Shortcut1 = $WScriptShell1.CreateShortcut($ShortcutFile1)
+    $Shortcut1.TargetPath = $TargetFile1
+    $Shortcut1.IconLocation = "C:\Windows\System32\imageres.dll, 50"
+    $Shortcut1.Save()
+
+    if ($global:isAustin -eq $true) {
+        Write-Host "Removing Recycle Bin from the desktop" -ForegroundColor Green -BackgroundColor Black
+        if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel")){
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Force
         }
-        elseif (($recycleBinUserInput -eq "n") -or ($recycleBinUserInput -eq "N") -or ($recycleBinUserInput -eq "0")) {
-            Write-Host "Leaving recycle bin desktop shortcut alone" -ForegroundColor Yellow -BackgroundColor Black
-            $recycleBinState = $true
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
+        if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu")){
+            New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Force
         }
-        else {
-            $recycleBinState = $false
-            Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
-        }
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
     }
-    while ($recycleBinState -eq $false)
+    else {
+        $recycleBinState = $false
+        do {
+            $recycleBinUserInput = Read-Host -Prompt "Do you wish to remove the recycle bin from the desktop? [y]/[n]?"
+            if (($recycleBinUserInput -eq "y") -or ($recycleBinUserInput -eq "Y") -or ($recycleBinUserInput -eq "1")) {
+                $recycleBinState = $true
+                Write-Host "Removing Recycle Bin from the desktop" -ForegroundColor Green -BackgroundColor Black
+                if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel")){
+                    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Force
+                }
+                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
+                if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu")){
+                    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Force
+                }
+                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
+            }
+            elseif (($recycleBinUserInput -eq "n") -or ($recycleBinUserInput -eq "N") -or ($recycleBinUserInput -eq "0")) {
+                Write-Host "Leaving recycle bin desktop shortcut alone" -ForegroundColor Yellow -BackgroundColor Black
+                $recycleBinState = $true
+            }
+            else {
+                $recycleBinState = $false
+                Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
+            }
+        }
+        while ($recycleBinState -eq $false)
+    }
 }
 ############################################################
 # Output Austin specific final manual steps to a text file # 
@@ -2903,11 +3418,11 @@ $outString =
 Applications
 Tools
 Navigation
-Pin 'Recycle Bin' and 'Downloads' folder manually
 
-#############################
-### Backgrounds and Images ##
-#############################
+###############################
+## Theme and Personalization ##
+###############################
+Set a color scheme
 Set a background
 Set a lockscreen picture
 Set a user account picture
@@ -2923,12 +3438,6 @@ Documents, Downloads, Music, Pictures, Videos
 #####################################
 (if applicable)
 # Microsoft Office
-# Sublime Text Editor
-# GoogleDrive
-# Rufus
-# Epic Games Launcher
-# uPlay
-# GoG Galaxy
 ########################################################################################################################################################################################################
 "
     $outString | Out-File -FilePath $outputFile -Width 200
@@ -2943,7 +3452,6 @@ $outString =
 Applications
 Tools
 Navigation
-Pin 'Recycle Bin' and 'Downloads' folder manually
 Pin a local games folder to the start menu as well
 
 ########################
@@ -2961,9 +3469,10 @@ Z: Watch 192.168.20.20 | mediasvc01 MediaSrv user
 Pin FreeFileSyncBackupLogs to QuickAccess
 Pin Torrents watch directory to QuickAccess
 
-#############################
-### Backgrounds and Images ##
-#############################
+###############################
+## Theme and Personalization ##
+###############################
+Set a color scheme
 Set a background
 Set a lockscreen picture
 Set a user account picture
@@ -2979,15 +3488,9 @@ Documents, Downloads, Music, Pictures, Videos
 #####################################
 (if applicable)
 # Microsoft Office
-# Sublime Text Editor
-# GoogleDrive
-# Rufus
 # Electrum
 # NiceHash
 # PSFTP
-# Epic Games Launcher
-# uPlay
-# GoG Galaxy
 ########################################################################################################################################################################################################
 "
     $outString | Out-File -FilePath $outputFile -Width 200
@@ -3015,8 +3518,8 @@ Function optionOne {
     $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
     $userPrompted | ForEach { Invoke-Expression $_ }
     $allUsersPrompted | ForEach { Invoke-Expression $_ }
-    Write-Host "Pin the Downloads folder to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
-    Write-Host "Pin Recycle Bin to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+
+
     $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
 }
 Function optionTwo {
@@ -3028,8 +3531,8 @@ Function optionTwo {
     hideOneDrive
     $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
     $allUsersPrompted | ForEach { Invoke-Expression $_ }
-    Write-Host "Pin the Downloads folder to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
-    Write-Host "Pin Recycle Bin to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    
+    
     $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
 }
 Function optionThree {
@@ -3039,8 +3542,8 @@ Function optionThree {
     $regularUserAutomated | ForEach { Invoke-Expression $_ }
     $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
     $allUsersPrompted | ForEach { Invoke-Expression $_ }
-    Write-Host "Pin the Downloads folder to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
-    Write-Host "Pin Recycle Bin to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    
+    
     $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
 }
 Function optionFour {
@@ -3105,8 +3608,8 @@ Function optionFirstSpecial {
     hideOneDrive
     $allUsersFirstRunAutomated | ForEach { Invoke-Expression $_ }
     $allUsersPrompted | ForEach { Invoke-Expression $_ }
-    Write-Host "Pin the Downloads folder to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
-    Write-Host "Pin Recycle Bin to the start menu..." -ForegroundColor Yellow -BackgroundColor Black
+    
+    
     $allUsersFirstRunPrompted | ForEach { Invoke-Expression $_ }
     #Austin specific function calls
     remainingStepsToTextForAustin
@@ -3191,47 +3694,51 @@ Function promptForSelection {
 }
 #pre-req variables
 $global:skipFlux = $false
+$global:isAustin = $false
 #function calls
 selectionMenu
 promptForSelection
 promptForRestart
 ##########################################################################################################################################################
-# Improvements needed:
-# Configurations:
-# if $global:isAustin set the accent color to purple - Priority
+########################
+# Improvements needed: #
+########################
+# OS Configurations:
+# New windows 10 changes Oct 2018 - Disable cloud clipboard sync && Disable 3rd party browser install warning
 # Set default programs automatically 
 # Hide ease of access button on logon screen for power users
-# If only one local drive exists, Create a separate local games folder in user context and pin to start menu?
 #
 # Errors:
 # Built-in Apps (recently uninstalled/removed) show up on start menu as 'new' - remove them
 #
-# Script: 
-# Automate most of my personal settings in the text output using $global:isAustin to check. e.g. make a dropbox public link to some pictures and automatically set them as user/background/lock screen pictures - Priority
+# Script:
 # Have a check function at the end, that validates every setting was changed successfully
 # Certain functions wait until the end to spit output status which jumbles the manual to-do list at the end
 # Automatically determine which to display, first-run or re-run only list selection
+############
+# Software #
+############
 #
-# Software:
-# Additional Software to Add to Software section: - Priority
-# Sublime Text Editor - prompt for this and/or npp
-# GoogleDrive - prompt for this and/or dropbox?
-# GoG Galaxy
-# Epic Games Launcher
-# uPlay
-# Rufus
-# Electrum
-# PSFTP
-
-# Microsoft Office
-#
-# Additional Feedback: 
-#
+#######################
+# Additional Feedback #
+#######################
 #
 #
 ##########################################################################################################################################################
+########################
+# To add new software: #
+########################
+#Prompt for selection
+#Invoke download URL
+#Check for download to be finished
+#Invoke the installation (silently if possible)
+#Wait for installation to finish
+#Pin to start-menu
+#
+##################################
+# Additional Prototype Functions #
+##################################
 <#
-# Additional Prototype Functions
 #Change targets for Documents, Downloads, Music, Pictures, Videos to the appropriate drive automatically by prompting the user
 Function configureUserFolderTargets {
     Write-Host "Set user folder targets to separate drive..." -ForegroundColor Green -BackgroundColor Black
