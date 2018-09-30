@@ -1306,6 +1306,7 @@ $getstring = @'
             }
             elseif (Test-Path "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe") {
                 Write-Host "Google Chrome is already installed... exiting" -ForegroundColor Yellow -BackgroundColor Black
+                $chromeInstallCheck = $true
             }
             else {
                 Write-Host "Couldn't find Google Chrome's Setup.exe" -ForegroundColor Red -BackgroundColor Black
@@ -1333,6 +1334,7 @@ $getstring = @'
             }
             elseif (Test-Path "C:\Program Files\Mozilla Firefox\firefox.exe") {
                 Write-Host "Mozilla Firefox is already installed... exiting" -ForegroundColor Yellow -BackgroundColor Black
+                $firefoxInstallCheck = $true
             }
             else {
                 Write-Host "Couldn't find Mozilla Firefox's setup.exe" -ForegroundColor Red -BackgroundColor Black
@@ -1351,7 +1353,7 @@ $getstring = @'
             Start-Sleep -s 1 
         }
         if (($chrome -eq $true) -and (Test-Path $browserPath)) {
-            while (!(Get-Process *chrome*)) {
+            while (!(Get-Process *chrome*) -and ($chromeInstallCheck -ne $true)) {
                 Start-Sleep -s 1
             }
             Get-Process *chrome* | Stop-Process
@@ -1359,7 +1361,7 @@ $getstring = @'
             Remove-Item -Path "C:\Users\$env:username\Desktop\*Edge*"
         }
         elseif (($firefox -eq $true) -and (Test-Path $browserPath)) {
-            while (!(Get-Process *firefox*)) {
+            while (!(Get-Process *firefox*) -and ($firefoxInstallCheck -ne $true)) {
                 Start-Sleep -s 1
             }
             Get-Process *firefox* | Stop-Process
