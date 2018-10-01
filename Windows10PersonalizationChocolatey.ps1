@@ -1,4 +1,4 @@
-#Windows10Personalization.ps1
+#Windows10PersonalizationChocolatey.ps1
 ########################
 # Author: Austin Esser #
 ########################
