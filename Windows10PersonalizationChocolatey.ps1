@@ -1,7 +1,129 @@
-#Windows10PersonalizationChocolatey.ps1
+#Windows10Personalization.ps1
 ########################
 # Author: Austin Esser #
 ########################
+##########################################################################################################################################################
+########################
+# Improvements needed: #
+########################
+# OS Configurations:
+# New windows 10 changes Oct 2018 - Disable cloud clipboard sync && Disable 3rd party browser install warning
+# Set default programs automatically 
+# Hide ease of access button on logon screen for power users
+#
+# Errors:
+# Built-in Apps (recently uninstalled/removed) show up on start menu as 'new' - remove them
+#
+# Script:
+# if $global:isAustin -> create a script with manual steps to save some time (bluetooth settings, changing a background, etc...)
+# Have a check function at the end, that validates every setting was changed successfully
+# Automatically determine which to display, first-run or re-run only list selection
+############
+# Software #
+############
+#
+##########################################################################################################################################################
+##################################
+# Additional Prototype Functions #
+##################################
+<#
+#Change targets for Documents, Downloads, Music, Pictures, Videos to the appropriate drive automatically by prompting the user
+Function configureUserFolderTargets {
+    Write-Host "Set user folder targets to separate drive..." -ForegroundColor Green -BackgroundColor Black
+    #Give the option to input and change the drive for paths of the documents/downloads/music/videos user folders to: 
+    #(D:\, E:\, etc... if multiple drives exist on the system)
+    
+    #"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v Personal /t REG_SZ /d "d:\mydocs" /f
+    $fixedDrives = Get-WMIObject -query "SELECT * from win32_logicaldisk where DriveType = '3'"
+    $fixedDriveCount = 0
+    ForEach ($_ in $fixedDrives) {
+        $fixedDriveCount++
+    }
+    #Non C: drive drives have more than 100GB and 20% freespace
+    if ($fixedDriveCount -gt 1 -and )# and non-C-drive
+
+    $driveSpaceInGB = $fixedDrives.FreeSpace/1073741824
+    $driveSpaceInGBRounded = [Math]::Round($driveSpaceInGB,2)
+    $powerPlanGUIDAMD = $powerPlanGUIDs.split("`r`n") | ForEach {$_} | Select-String -Pattern "9897998c-92de-4669-853f-b7cd3ecb2790"   
+
+    if fixed drives > 1 
+    
+    #DeviceID     : C:
+    #DriveType    : 3
+    #ProviderName :
+    #FreeSpace    : 18786136064
+    #Size         : 33781968896
+    #VolumeName   :
+Pause
+}
+
+####################
+# Additional Notes #
+####################
+#CHOCO AUTO UPDATER (DISABLE IN-APP UPDATERS)
+hwmonitor [disable at initial launch || C:\Program Files\CPUID\HWMonitor\hwmonitorw.ini -> add: UPDATES=0]
+vlc [disable at initial launch || Tools -> Preferences -> Interface -> Uncheck: Activate updates notifier]
+notepad++ [Settings -> Preferences -> MISC. -> Disable auto-updater]
+sublimetext [Preferences -> Settings (User) -> add "update_check": false]
+imgburn [Tools -> Settings... -> Events -> Check For Program Update: Never]
+rufus [Show application settings -> Check for updates: Disabled]
+teamviewer [Extras -> Options -> Advanced -> Check for new version: Never && Install new versions automatically: No automatic updates]
+msi afterburner [Settings gear -> Check for available product updates: never]
+
+#NO UPDATERS TO DISABLE
+7-zip
+windirstat
+putty 
+
+#GOOD AUTO UPDATERS (CHOCO PINNED)
+google chrome
+firefox
+dropbox
+google drive
+f.lux - auto updates but can't disable
+spotify
+skype - auto updates but can't disable
+discord
+steam
+gog galaxy
+origin
+uplay
+epic games launcher
+
+#NO CHOCO INSTALL
+battle.net
+
+Scheduled Task Settings:
+GENERAL
+Name: Update Chocolatey Packages | -TaskName $Name = "Update Chocolatey Packages"
+Use the following user account: current user? | -User $Username = $env:username
+Run with highest privileges | -RunLevel Highest
+Configure for Windows 10 | -Compatibility [At, V1, Vista, Win7, Win8]
+
+TRIGGERS
+weekly every wednesday at 1am | -Trigger $Trigger = New-ScheduledTaskTrigger -Weekly -WeeksInterval 1 -DaysOfWeek Wednesday -At 1am
+
+ACTIONS
+Start a program cup all -y | -Action $Action = New-ScheduledTaskAction -Execute "cup" -Argument "all -y"
+
+CONDITIONS
+Start only when idle | -RunOnlyIfIdle
+    for 10 mins | -IdleDuration (New-TimeSpan -Minutes 10)
+    wait for idle for 30 mins | -IdleWaitTimeout (New-TimeSpan -Minutes 30)
+UNCHECK "Stop if the computer ceases to be idle" | -DontStopOnIdleEnd
+start only if on AC power | set automatically
+stop if switches to battery power | set automatically
+
+SETTINGS
+run task as soon as possible after missed schedule | -StartWhenAvailable
+if fails restart every 1 minute | -RestartInterval (New-TimeSpan -Minutes 1)
+    restart up to 3 times | -RestartCount 3
+stop of the task runs longer than 2 hours | -ExecutionTimeLimit (New-TimeSpan -Hours 2)
+if doesn't end when requested, force to stop | set automatically
+do not start a new instance | set automatically -MultipleInstances IgnoreNew
+#>
+##########################################################################################################################################################
+
 # Relaunch the script with administrator privileges and bypass execution-policy if it isn't already
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
     #Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -WorkingDirectory $pwd -Verb RunAs
@@ -129,10 +251,12 @@ Function getPromptAnswers {
             if (($nightLight -eq "y") -or ($nightLight -eq "Y") -or ($nightLight -eq "1")) {
                 $nightLightState = $true
                 $global:changeNightLight = $true
+                $global:skipFlux = $true
             }
             elseif (($nightLight -eq "n") -or ($nightLight -eq "N") -or ($nightLight -eq "0")) {
                 $nightLightState = $true
                 $global:changeNightLight = $false
+                $global:skipFlux = $false
             }
             else {
                 $nightLightState = $false
@@ -140,9 +264,7 @@ Function getPromptAnswers {
             }
         }
         while ($nightLightState -eq $false)
-
     
-
     #"removeRecycleBin",
     if ($global:isAustin -ne $true) {
         $recycleBinState = $false
@@ -293,18 +415,21 @@ Function getSoftwareAnswers {
         ################
         # Web Browsers #
         ################
-        #needs improvement - can make all prompts look like this one for all software 1-yes 0-no
         do {
             $browserPrompt = 
 "
-[#] Web Browsers: 
+[18] Install Web Browsers: 
 [1] for Google Chrome
 [2] for FireFox
-[3] for All
+[3] for Both
+[0] for None
 "
             $doneUser = $false
             $SoftwareType = Read-Host -Prompt $browserPrompt
-            if ($SoftwareType -eq "1") {
+            if ($SoftwareType -eq "0") {
+                $doneUser = $true
+            }
+            elseif ($SoftwareType -eq "1") {
                 $doneUser = $true
                 $global:chrome = $true
             }
@@ -331,14 +456,18 @@ Function getSoftwareAnswers {
         do {
             $storagePrompt = 
 "
-[#] Cloud Storage: 
+[17] Install Cloud Storage: 
 [1] for Dropbox
 [2] for Google Drive
-[3] for All
+[3] for Both
+[0] for None
 "
             $doneUser = $false
             $SoftwareType = Read-Host -Prompt $storagePrompt
-            if ($SoftwareType -eq "1") {
+            if ($SoftwareType -eq "0") {
+                $doneUser = $true
+            }
+            elseif ($SoftwareType -eq "1") {
                 $doneUser = $true
                 $global:dropbox = $true
             }
@@ -364,14 +493,18 @@ Function getSoftwareAnswers {
         do {
             $textPrompt = 
 "
-[#] Text Editors: 
+[16] Install Text Editors: 
 [1] for Notepad++
 [2] for SublimeText3
-[3] for All
+[3] for Both
+[0] for None
 "
             $doneUser = $false
             $SoftwareType = Read-Host -Prompt $textPrompt
-            if ($SoftwareType -eq "1") {
+            if ($SoftwareType -eq "0") {
+                $doneUser = $true
+            }
+            elseif ($SoftwareType -eq "1") {
                 $doneUser = $true
                 $global:notepadpp = $true 
             }
@@ -396,14 +529,20 @@ Function getSoftwareAnswers {
         ######################
         #f.lux
         if ($global:skipFlux -eq $true) {
-            Write-Host "Utilities: Skipping f.lux automatically since windows night light has been configured" -ForegroundColor Green -BackgroundColor Black
+            Write-Host "[15] Utilities: Skipping f.lux automatically since windows night light has been configured" -ForegroundColor Green -BackgroundColor Black
             $global:flux = $false
         }
         else {
             # Prompt to download f.lux
             do {
+                $fluxPrompt = 
+"
+[15] Utilities: Install f.lux?: Reduces blue light at night
+[y] for yes
+[n] for no
+"
                 $doneUser = $false
-                $SoftwareType = Read-Host -Prompt "Utilities: Do you wish to download f.lux? [y]/[n] | (Reduces blue light at night)"
+                $SoftwareType = Read-Host -Prompt $fluxPrompt
                 if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                     $doneUser = $true
                     $global:flux = $true
@@ -421,8 +560,14 @@ Function getSoftwareAnswers {
         }
         #IMG Burn
         do {
+            $imgburnPrompt = 
+"
+[14] Utilities: Install IMG Burn?: Optical disc burning & IMG/ISO creation program
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Utilities: Do you wish to download IMG Burn? [y]/[n] | (Optical disc burning & IMG/ISO creation program)"
+            $SoftwareType = Read-Host -Prompt $imgburnPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:imgburn = $true
@@ -439,8 +584,14 @@ Function getSoftwareAnswers {
         while ($doneUser -eq $false)
         #Rufus
         do {
+            $rufusPrompt = 
+"
+[13] Utilities: Install Rufus?: Bootable flash drive creation tool
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Utilities: Do you wish to download Rufus? [y]/[n] | (Bootable flash drive ISO tool)"
+            $SoftwareType = Read-Host -Prompt $rufusPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:rufus = $true
@@ -457,8 +608,14 @@ Function getSoftwareAnswers {
         while ($doneUser -eq $false)
         #Putty
         do {
+            $puttyPrompt = 
+"
+[12] Utilities: Install PuTTY?: Open source terminal emulator for SSH, SCP, Telnet, rlogin
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Utilities: Do you wish to download Putty? [y]/[n] | (Open source terminal emulator for SSH, SCP, Telnet, rlogin)"
+            $SoftwareType = Read-Host -Prompt $puttyPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:putty = $true
@@ -476,8 +633,14 @@ Function getSoftwareAnswers {
         #TeamViewer.host needs improvement - implement this functionality
         #TeamViewer
         do {
+            $teamviewerPrompt0 = 
+"
+[11] Utilities: Install TeamViewer?: Remote computer control program
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Utilities: Do you wish to download TeamViewer? [y]/[n] | (Remote computer control program)"
+            $SoftwareType = Read-Host -Prompt $teamviewerPrompt0
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:teamviewer = $true
@@ -494,8 +657,14 @@ Function getSoftwareAnswers {
         while ($doneUser -eq $false)
         #MSI Afterburner
         do {
+            $msiafterburnerPrompt = 
+"
+[10] Utilities: Install MSI Afterburner?: Graphics card overclocking & monitoring program
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Utilities: Do you wish to download MSI Afterburner? [y]/[n] | (Graphics card overclocking & monitoring program)"
+            $SoftwareType = Read-Host -Prompt $msiafterburnerPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:msiafterburner = $true
@@ -516,8 +685,14 @@ Function getSoftwareAnswers {
         #########################
         #Spotify
         do {
+            $spotifyPrompt = 
+"
+[9] Multimedia: Install Spotify?: Music streaming platform
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Multimedia: Do you wish to download Spotify? [y]/[n] | (Music streaming platform)"
+            $SoftwareType = Read-Host -Prompt $spotifyPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:spotify = $true
@@ -534,8 +709,14 @@ Function getSoftwareAnswers {
         while ($doneUser -eq $false)
         #Skype
         do {
+            $skypePrompt = 
+"
+[8] Communication: Install Skype?: Video and voice calling program
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Communication Do you wish to download Skype? [y]/[n] | (Video and voice calling program)"
+            $SoftwareType = Read-Host -Prompt $skypePrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:skype = $true
@@ -556,8 +737,14 @@ Function getSoftwareAnswers {
         ##########
         #Discord
         do {
+            $discordPrompt = 
+"
+[7] Communication: Install Discord?: Voice program for gaming
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Communication: Do you wish to download Discord? [y]/[n] | (Voice program for gaming)"
+            $SoftwareType = Read-Host -Prompt $discordPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:discord = $true
@@ -574,8 +761,14 @@ Function getSoftwareAnswers {
         while ($doneUser -eq $false)
         #Steam
         do {
+            $steamPrompt = 
+"
+[6] Gaming: Install Steam?: Gaming platform
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Gaming: Do you wish to download Steam? [y]/[n] | (Gaming platform)"
+            $SoftwareType = Read-Host -Prompt $steamPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:steam = $true
@@ -592,8 +785,14 @@ Function getSoftwareAnswers {
         while ($doneUser -eq $false)
         #GoG Galaxy
         do {
+            $goggalaxyPrompt = 
+"
+[5] Gaming: Install GoG Galaxy?: Gaming platform
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Gaming: Do you wish to download GoG Galaxy? [y]/[n] | (Gaming platform)"
+            $SoftwareType = Read-Host -Prompt $goggalaxyPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:goggalaxy = $true
@@ -610,8 +809,14 @@ Function getSoftwareAnswers {
         while ($doneUser -eq $false)
         #Battle.net
         do {
+            $battlenetPrompt = 
+"
+[4] Gaming: Install Battle.net?: Gaming platform
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Gaming: Do you wish to download Battle.net? [y]/[n] | (Gaming platform)"
+            $SoftwareType = Read-Host -Prompt $battlenetPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:battlenet = $true
@@ -628,8 +833,14 @@ Function getSoftwareAnswers {
         while ($doneUser -eq $false)
         #Origin
         do {
+            $originPrompt = 
+"
+[3] Gaming: Install Origin?: Gaming platform
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Gaming: Do you wish to download Origin? [y]/[n] | (Gaming platform)"
+            $SoftwareType = Read-Host -Prompt $originPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:origin = $true
@@ -646,8 +857,14 @@ Function getSoftwareAnswers {
         while ($doneUser -eq $false)
         #Uplay
         do {
+            $uplayPrompt = 
+"
+[2] Gaming: Install Uplay?: Gaming platform
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Gaming: Do you wish to download Uplay? [y]/[n] | (Gaming platform)"
+            $SoftwareType = Read-Host -Prompt $uplayPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:uplay = $true
@@ -664,8 +881,14 @@ Function getSoftwareAnswers {
         while ($doneUser -eq $false)
         #Epic Games Launcher
         do {
+            $epicgameslauncherPrompt = 
+"
+[1] Gaming: Install Epic Games Launcher?: Gaming platform
+[y] for yes
+[n] for no
+"
             $doneUser = $false
-            $SoftwareType = Read-Host -Prompt "Gaming: Do you wish to download the Epic Games Launcher? [y]/[n] | (Gaming platform)"
+            $SoftwareType = Read-Host -Prompt $epicgameslauncherPrompt
             if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
                 $doneUser = $true
                 $global:epicgameslauncher = $true
@@ -714,36 +937,29 @@ Function getSoftwareAnswers {
     #############################################
     #needs improvement - don't ask or execute this if choco install teamviewer.host is selected
     Function disableTeamViewerPrompt {
-        #needs improvement - this shows up on any run, but we only want it to show up if the user selects teamviewer software
         #"disableTeamViewerPrompt",
-        $global:teamviewerState = $false
-        do {
-            $global:teamviewerPrompt = Read-Host -Prompt "Will you be using TeamViewer to listen for connections? i.e. let people remote control your PC?: [y]/[n]"
-            if (($global:teamviewerPrompt -eq "y") -or ($global:teamviewerPrompt -eq "Y") -or ($global:teamviewerPrompt -eq "1")) {
-                Write-Host "Leaving TeamViewer Alone" -ForegroundColor Green -BackgroundColor Black
-                $global:teamviewerState = $true
-                $global:disableTeamViewer = $true
-            }
-            elseif (($global:teamviewerPrompt -eq "n") -or ($global:teamviewerPrompt -eq "N") -or ($global:teamviewerPrompt -eq "0")) {
-                $global:teamviewerState = $true
-                $global:disableTeamViewer = $false
-            }
-            else {
-                Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
-                $global:teamviewerState = $false
-            }
-        }
-        while ($global:teamviewerState -eq $false)
-
-
         $teamviewerIsInstalled = Test-Path "C:\Program Files (x86)\TeamViewer\TeamViewer.exe"
-        if ($global:disableTeamViewer -and $teamviewerIsInstalled) {
-            Write-Host "Disabling TeamViewer listening service for security since it's not going to be used..." -ForegroundColor Green -BackgroundColor Black
-            Set-Service TeamViewer -StartupType Disabled
-            Set-Service TeamViewer -Status Stopped
-        }
-        else {
-            Write-Host "TeamViewer isn't installed, skipping..." -ForegroundColor Green -BackgroundColor Black
+        if ($global:teamviewer -or $teamviewerIsInstalled) {
+            $teamviewerState = $false
+            do {
+                $teamviewerPrompt = Read-Host -Prompt "Disable TeamViewer remote listener service?: [y]/[n]"
+                if (($teamviewerPrompt -eq "y") -or ($teamviewerPrompt -eq "Y") -or ($teamviewerPrompt -eq "1")) {
+                    Write-Host "Disabling TeamViewer listening service for security since it's not going to be used..." -ForegroundColor Green -BackgroundColor Black
+                    Set-Service TeamViewer -StartupType Disabled
+                    Set-Service TeamViewer -Status Stopped
+                    $teamviewerState = $true
+                }
+                elseif (($teamviewerPrompt -eq "n") -or ($teamviewerPrompt -eq "N") -or ($teamviewerPrompt -eq "0")) {
+                    Write-Host "Leaving TeamViewer listening service alone" -ForegroundColor Green -BackgroundColor Black
+                    $teamviewerState = $true
+                    $disableTeamViewer = $false
+                }
+                else {
+                    Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
+                    $teamviewerState = $false
+                }
+            }
+            while ($teamviewerState -eq $false)
         }
     }
 #   Enabling the old photo viewer
@@ -1430,7 +1646,7 @@ $getstring = @'
         Start-Process $onedrive "/uninstall"
     }
     # Hide OneDrive from File Explorer Nav
-    Function hideOneDrive {    
+    Function hideOneDrive {
         Write-Host "Importing OneDrive reg keys to hide from Explorer nav..." -ForegroundColor Green -BackgroundColor Black   
         # Set HKEY_CLASSES_ROOT registry location 
         New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT     
@@ -1732,8 +1948,6 @@ $getstring = @'
     }
     #   Pin items back into the start menu
     Function pinStartMenuItemsAndInstallSoftware {
-
-        #needs improvement - #Create a cup all -y powershell script that auto upgrades software periodically???? does it do this automatically on system boot?
         #Disable File Security Checks for this PowerShell instance
         $env:SEE_MASK_NOZONECHECKS = 1
 
@@ -1758,9 +1972,11 @@ $getstring = @'
         }
         if ($global:hwmonitor){
             choco install hwmonitor -y
+            $global:appendHwmonitor = "hwmonitor [disable at initial launch || C:\Program Files\CPUID\HWMonitor\hwmonitorw.ini -> add: UPDATES=0]"
         }
         if ($global:vlc){
             choco install vlc -y
+            $global:appendVlc = "vlc [disable at initial launch || Tools -> Preferences -> Interface -> Uncheck: Activate updates notifier]"
         }
         if ($global:windirstat){
             choco install windirstat -y
@@ -1795,15 +2011,18 @@ $getstring = @'
         ################
         if ($global:notepadpp){
             choco install notepadplusplus -y
+            $global:appendNpp = "notepad++ [Settings -> Preferences -> MISC. -> Disable auto-updater]"
         }
         if ($global:sublimetext){
             choco install sublimetext3 -y
+            $global:appendSublime = "sublimetext [Preferences -> Settings (User) -> add 'update_check': false (with double quotes)]"
         }
         ######################
         # Optional Utilities #
         ######################
         if ($global:flux){
             choco install f.lux -y
+            choco pin add -n=f.lux
             #launches automatically
             #launches automatically, will want to close this out until reboot | #also check for $global:skipFlux variable
             while (!(Get-Process *flux*)) {
@@ -1816,17 +2035,19 @@ $getstring = @'
         }
         if ($global:imgburn){
             choco install imgburn -y
+            $global:appendImgburn = "imgburn [Tools -> Settings... -> Events -> Check For Program Update: Never]"
         }
         if ($global:rufus){
             choco install rufus -y
+            $global:appendRufus = "rufus [Show application settings -> Check for updates: Disabled]"
             $rufusInfo = Get-ItemProperty -Path "C:\ProgramData\chocolatey\lib\rufus\tools\*rufus*"
             $rufusName = $rufusInfo.Name
-            $TargetFile = "C:\ProgramData\chocolatey\lib\rufus\tools\rufusName"
+            $TargetFile = "C:\ProgramData\chocolatey\lib\rufus\tools\$rufusName"
             $ShortcutFile = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Rufus.lnk"
             $WScriptShell = New-Object -ComObject WScript.Shell
             $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
             $Shortcut.TargetPath = $TargetFile
-            $Shortcut.IconLocation = "C:\ProgramData\chocolatey\lib\rufus\tools\rufusName, 0"
+            $Shortcut.IconLocation = "C:\ProgramData\chocolatey\lib\rufus\tools\$rufusName, 0"
             $Shortcut.Save()
         }
         if ($global:putty){
@@ -1835,6 +2056,7 @@ $getstring = @'
         }
         if ($global:teamviewer){
             choco install teamviewer -y
+            $global:appendTeamviewer = "teamviewer [Extras -> Options -> Advanced -> Check for new version: Never && Install new versions automatically: No automatic updates]"
             #also has a listener version, choco install teamviewer.host -y | will want to avoid prompting to disable service if .host is installed
             #choco install teamviewer.host -y
             #$global:teamviewerhost choco install teamviewer.host -y
@@ -1850,8 +2072,8 @@ $getstring = @'
             choco pin add -n=spotify
         }
         if ($global:skype){
-            choco install skype -y #close after install finishes, look for parameters first
-            #runs after install finishes, will want to close this
+            choco install skype -y
+            choco pin add -n=skype
             #Close out of skype after install finishes
             while (!(Get-Process *skype*)) {
                 Start-Sleep -m 10
@@ -1882,16 +2104,20 @@ $getstring = @'
         }
         if ($global:uplay){
             choco install uplay -y
+            choco pin add -n=uplay
         }
         if ($global:epicgameslauncher){
             choco install epicgameslauncher -y
+            choco pin add -n=epicgameslauncher
         }
 
         ###################
         # Manual Installs #
         ###################
         if ($global:msiafterburner){
-            choco install msiafterburner -y #installs rivatuner
+            #Note: also installs rivatuner
+            choco install msiafterburner -y
+            $global:appendMsiafterburner = "msi afterburner [Settings gear -> Check for available product updates: never]"
             #installs rivatuner, will want to skip this somehow or uninstall it afterwards
             #Uninstall rivatuner
             while ($global:msiafterburner -and (!(Test-Path "C:\Program Files (x86)\RivaTuner Statistics Server\Uninstall.exe"))) {
@@ -1899,7 +2125,7 @@ $getstring = @'
                 Start-Sleep -m 100
             }
             if ($global:msiafterburner -and ((Test-Path "C:\Program Files (x86)\RivaTuner Statistics Server\Uninstall.exe"))) {
-                 Start-Process -FilePath "C:\Program Files (x86)\RivaTuner Statistics Server\Uninstall.exe" -ArgumentList "/S"
+                Start-Process -FilePath "C:\Program Files (x86)\RivaTuner Statistics Server\Uninstall.exe" -ArgumentList "/S"
                 # answer no to the saving profile preferences prompt
                 #https://invista.wordpress.com/2013/08/16/a-simple-powershell-script-to-send-keys-to-an-application-windows/
                 # load assembly cotaining class System.Windows.Forms.SendKeys
@@ -1932,6 +2158,7 @@ Add-Type @"
         if ($global:battlenet) {
             #errors out on checksum checking sometimes - skip checksum?
             #choco install battle.net -y
+            #choco pin add -n=battle.net
             #Manual process
             #Download
             if (!(Test-Path "C:\Users\$env:username\Downloads\*battle.net*")) {
@@ -1940,15 +2167,15 @@ Add-Type @"
                 $output = "C:\Users\$env:username\Downloads\Battle.net-Setup.exe"
                 $start_time = Get-Date
                 (New-Object System.Net.WebClient).DownloadFile($global:battlenetURL, $output)
-                Write-Host "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
+                Write-Host "Waiting for Battle.net to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
             }
             #Check 
-            Write-Host "Waiting for Battle.net to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
             while (!(Test-Path "C:\Users\$env:username\Downloads\*battle.net*")) {
                 Start-Sleep -m 10
             }
             if (Test-Path "C:\Users\$env:username\Downloads\*battle.net*") {
                 Write-Host "Battle.net successfully downloaded" -ForegroundColor Green -BackgroundColor Black
+                Write-Host "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
             }
             else {
                 Write-Error "Error downloading Battle.net"
@@ -1963,8 +2190,9 @@ Add-Type @"
             }
             while (!(Test-Path "C:\Program Files (x86)\Battle.net\Battle.net Launcher.exe") -or (Get-Process *Battle.net-Setup*)) {
                 Start-Sleep -m 10
-                if ((Get-Process *Battle.net-Setup*) -and ($countForeground -lt 2)) {
-                    #needs improvement - attempt to bring this window to the foreground until successful (but timeout after 10 seconds)
+             
+                if ((Get-Process *Battle.net-Setup*) -and (((New-Object -ComObject WScript.Shell).AppActivate((Get-Process *Battle.net-Setup*).MainWindowTitle)) -and ($countForeground -lt 1))) {
+                    Write-Host "Bringing Battle.net to the foreground" -ForegroundColor Yellow -BackgroundColor Black
                     (New-Object -ComObject WScript.Shell).AppActivate((Get-Process *Battle.net-Setup*).MainWindowTitle)
                     $countForeground ++
                 }
@@ -1975,6 +2203,16 @@ Add-Type @"
             #Close
             Get-Process *battle.net* | Stop-Process
         }
+
+        #Create scheduled auto update task for chocolatey packages
+        Write-Host "Creating an auto update scheduled task for chocolatey packages" -ForegroundColor Green -BackgroundColor Black
+        $Name = "Update Chocolatey Packages"
+        $Username = $env:username
+        $Trigger = New-ScheduledTaskTrigger -Weekly -WeeksInterval 1 -DaysOfWeek Wednesday -At 1am
+        $Action = New-ScheduledTaskAction -Execute "cup" -Argument "all -y"
+        $Settings = New-ScheduledTaskSettingsSet -Compatibility Win8 -RunOnlyIfIdle -IdleDuration (New-TimeSpan -Minutes 10) -IdleWaitTimeout (New-TimeSpan -Minutes 30) -DontStopOnIdleEnd -StartWhenAvailable -RestartInterval (New-TimeSpan -Minutes 1) -RestartCount 3 -ExecutionTimeLimit (New-TimeSpan -Hours 2) -MultipleInstances IgnoreNew
+
+        Register-ScheduledTask -TaskName $Name -User $Username -RunLevel Highest -Trigger $Trigger -Action $Action -Settings $Settings -Force
 
         ####################
         # Pin Applications #
@@ -2198,7 +2436,7 @@ Add-Type @"
         Pin-App "Downloads" -pin -start
         Start-Sleep -m 10
         if ($global:googledrive){
-            Pin-App "Backup and Sync from Google" -pin -start
+            Pin-App "Google Drive" -pin -start
         }
         Start-Sleep -m 10
         if ($global:dropbox){
@@ -2264,9 +2502,6 @@ Function removeRecycleBin {
             }
             Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Name "{645FF040-5081-101B-9F08-00AA002F954E}" -Type DWord -Value 1
         }
-
-
-
     }
 }
 ############################################################
@@ -2276,7 +2511,7 @@ Function remainingStepsToText {
     $outputFile = "C:\Users\$env:username\Desktop\Remaining Manual Steps.txt"
 $outString = 
 "
-########################################################################################################################################################################################################
+##########################################################################
 ## Start Menu App Categories ##
 ###############################
 Applications
@@ -2304,12 +2539,22 @@ configureSoundOptions
 bluetoothManualSteps
 disableFocusAssistNotifications
 
-#####################################
-## Install/Pin Additional Software ##
-#####################################
-(if applicable)
+#########################
+## Additional Software ##
+#########################
+#Install (if applicable)
 # Microsoft Office
-########################################################################################################################################################################################################
+
+#Disable updates for the following to prevent a conflict with Chocolatey's auto updater:
+$global:appendHwmonitor
+$global:appendVlc
+$global:appendNpp
+$global:appendSublime
+$global:appendImgburn
+$global:appendRufus
+$global:appendTeamviewer
+$global:appendMsiafterburner
+##########################################################################
 "
     $outString | Out-File -FilePath $outputFile -Width 200
 }
@@ -2317,7 +2562,7 @@ Function remainingStepsToTextForAustin {
     $outputFile = "C:\Users\$env:username\Desktop\Remaining Manual Steps.txt"
 $outString = 
 "
-########################################################################################################################################################################################################
+##########################################################################
 ## Start Menu App Categories ##
 ###############################
 Applications
@@ -2354,14 +2599,31 @@ Set a user account picture
 Change the targets of the following to mass storage drive (if applicable)
 Documents, Downloads, Music, Pictures, Videos
 
-#####################################
-## Install/Pin Additional Software ##
-#####################################
-(if applicable)
+########################
+## Additional Changes ##
+########################
+configureSoundOptions
+bluetoothManualSteps
+disableFocusAssistNotifications
+
+#########################
+## Additional Software ##
+#########################
+#Install (if applicable)
 # Microsoft Office
 # NiceHash
 # Electrum -> choco install electrum.install
-########################################################################################################################################################################################################
+
+#Disable updates for the following to prevent a conflict with Chocolatey's auto updater:
+$global:appendHwmonitor
+$global:appendVlc
+$global:appendNpp
+$global:appendSublime
+$global:appendImgburn
+$global:appendRufus
+$global:appendTeamviewer
+$global:appendMsiafterburner
+##########################################################################
 "
     $outString | Out-File -FilePath $outputFile -Width 200
 }
@@ -2480,7 +2742,7 @@ Function optionTen {
 }
 Function optionFirstSpecial {
     $global:isAustin = $true
-    Write-Host "[f] Welcome back Austin" -ForegroundColor Red -BackgroundColor Black
+    Write-Host "[F] Welcome back Austin" -ForegroundColor Red -BackgroundColor Black
     getPromptAnswers
     getSoftwareAnswers
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
@@ -2495,7 +2757,7 @@ Function optionFirstSpecial {
 }
 Function optionRerunSpecial {
     $global:isAustin = $true
-    Write-Host "[r] Welcome back Austin" -ForegroundColor Red -BackgroundColor Black
+    Write-Host "[R] Welcome back Austin" -ForegroundColor Red -BackgroundColor Black
     getPromptAnswers
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $powerUserAutomated | ForEach { Invoke-Expression $_ }
@@ -2512,7 +2774,7 @@ Function optionRerunSpecial {
 Function promptForRestart {
     $restartState = $false
     do {
-        $restartHost = Read-Host -Prompt "Script finished, restart for changes to take effect: Restart now? [y]/[n]?"
+        $restartHost = Read-Host -Prompt "Script finished, some changes require a restart to take effect: Restart now? [y]/[n]?"
         if (($restartHost -eq "y") -or ($restartHost -eq "Y") -or ($restartHost -eq "1")) {
             Write-Host "Restarting..." -ForegroundColor Green -BackgroundColor Black
             $restartState = $true
@@ -2532,6 +2794,7 @@ Function promptForRestart {
 #################################
 # Prompt user to select presets #
 #################################
+<#
 Function selectionMenu {
 Write-Host 
 "
@@ -2553,6 +2816,8 @@ Write-Host
 [0] Re-run w/ auto only & relaxed preset    | Full Auto - New user recommended
 "
 }
+#>
+<#
 Function promptForSelection {
     $parameterSelection = Read-Host -Prompt "Make a selection [0]-[9]"
     switch ($parameterSelection) {
@@ -2573,67 +2838,71 @@ Function promptForSelection {
     # Call the selected function here
     $result
 }
+#>
 #pre-req variables
 $global:skipFlux = $false
 $global:isAustin = $false
+$global:appendHwmonitor = $null
+$global:appendVlc = $null
+$global:appendNpp = $null
+$global:appendSublime = $null
+$global:appendImgburn = $null
+$global:appendRufus = $null
+$global:appendTeamviewer = $null
+$global:appendMsiafterburner = $null
 #function calls
-selectionMenu
-promptForSelection
-promptForRestart
+#selectionMenu
+#promptForSelection
 
-##########################################################################################################################################################
-########################
-# Improvements needed: #
-########################
-# Output doesn't get written to the console until after for some reason - Priority Fix - left off here
-# OS Configurations:
-# New windows 10 changes Oct 2018 - Disable cloud clipboard sync && Disable 3rd party browser install warning
-# Set default programs automatically 
-# Hide ease of access button on logon screen for power users
-#
-# Errors:
-# Built-in Apps (recently uninstalled/removed) show up on start menu as 'new' - remove them
-#
-# Script:
-# Have a check function at the end, that validates every setting was changed successfully
-# Automatically determine which to display, first-run or re-run only list selection
-############
-# Software #
-############
-#
-##########################################################################################################################################################
-##################################
-# Additional Prototype Functions #
-##################################
-<#
-#Change targets for Documents, Downloads, Music, Pictures, Videos to the appropriate drive automatically by prompting the user
-Function configureUserFolderTargets {
-    Write-Host "Set user folder targets to separate drive..." -ForegroundColor Green -BackgroundColor Black
-    #Give the option to input and change the drive for paths of the documents/downloads/music/videos user folders to: 
-    #(D:\, E:\, etc... if multiple drives exist on the system)
-    
-    #"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v Personal /t REG_SZ /d "d:\mydocs" /f
-    $fixedDrives = Get-WMIObject -query "SELECT * from win32_logicaldisk where DriveType = '3'"
-    $fixedDriveCount = 0
-    ForEach ($_ in $fixedDrives) {
-        $fixedDriveCount++
+$selectionState = $false
+do {
+    $actionPrompt = 
+"
+[1] For running this script for the first time after a fresh Windows install
+[2] For re-running this script
+"
+    $selectionPrompt = Read-Host -Prompt $actionPrompt
+    if ($selectionPrompt -eq "1") {
+        $selectionState = $true
+        optionTwo
     }
-    #Non C: drive drives have more than 100GB and 20% freespace
-    if ($fixedDriveCount -gt 1 -and )# and non-C-drive
-
-    $driveSpaceInGB = $fixedDrives.FreeSpace/1073741824
-    $driveSpaceInGBRounded = [Math]::Round($driveSpaceInGB,2)
-    $powerPlanGUIDAMD = $powerPlanGUIDs.split("`r`n") | ForEach {$_} | Select-String -Pattern "9897998c-92de-4669-853f-b7cd3ecb2790"   
-
-    if fixed drives > 1 
-    
-    #DeviceID     : C:
-    #DriveType    : 3
-    #ProviderName :
-    #FreeSpace    : 18786136064
-    #Size         : 33781968896
-    #VolumeName   :
-Pause
+    elseif ($selectionPrompt -eq "2") {
+        $selectionState = $true
+        optionSeven
+    }
+    elseif (($selectionPrompt -eq "f") -or ($selectionPrompt -eq "F")) {
+        $selectionState = $true
+        optionFirstSpecial
+    }
+    elseif (($selectionPrompt -eq "r") -or ($selectionPrompt -eq "R")) {
+        $selectionState = $true
+        optionRerunSpecial
+    }
+    else {
+        $selectionState = $false
+        Write-Host "Select [1] or [2] to start" -ForegroundColor Red -BackgroundColor Black
+    }
 }
-#>
-##########################################################################################################################################################
+while ($selectionState -eq $false)
+
+##################################
+# First time running this script #
+##################################
+#[2] New install w/ prompts & aggressive preset
+#optionTwo
+#[F] New install w/ prompts & aggressive preset (customized for Austin)
+#optionFirstSpecial
+
+##########################
+# Re-running this script #
+##########################
+#[7] Re-run w/ prompts & aggressive preset
+#optionSeven
+
+#[R] Re-run w/ prompts & aggressive preset (customized for Austin)
+#optionRerunSpecial
+
+#########################################
+# Last thing to do: Prompt for a reboot #
+#########################################
+promptForRestart
