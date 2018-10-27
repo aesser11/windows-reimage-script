@@ -16,5 +16,5 @@ A PowerShell script to personalize and de-crapify Windows 10 automatically after
 
   [5a] Manually step through the Battle.net client install (if selected)
   
-[6] Follow through with post setup manual steps in "Remaining Manual Steps.txt"
+[6] Follow through with post setup manual steps in "Remaining Manual Steps.txt" located on your Desktop
 
