@@ -8,16 +8,12 @@
 ########################
 # OS Configurations:
 # New windows 10 changes Oct 2018 - Disable cloud clipboard sync && Disable 3rd party browser install warning
-# Set default programs automatically 
-# Hide ease of access button on logon screen for power users
-#
-# Errors:
-# Built-in Apps (recently uninstalled/removed) show up on start menu as 'new' - remove them
 #
 # Script:
+# Automatically disable 3rd party installed software updaters that chocolatey manages - left off here
 # if $global:isAustin -> create a script with manual steps to save some time (bluetooth settings, changing a background, etc...)
 # Have a check function at the end, that validates every setting was changed successfully
-# Automatically determine which to display, first-run or re-run only list selection
+# Automate as much as possible  in the Remaining Manual Steps.txt file
 ############
 # Software #
 ############
