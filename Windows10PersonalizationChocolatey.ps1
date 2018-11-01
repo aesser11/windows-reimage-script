@@ -2738,7 +2738,7 @@ Function optionTen {
 }
 Function optionFirstSpecial {
     $global:isAustin = $true
-    Write-Host "[F] Welcome back Austin" -ForegroundColor Red -BackgroundColor Black
+    Write-Host "[F] Welcome Austin" -ForegroundColor Red -BackgroundColor Black
     getPromptAnswers
     getSoftwareAnswers
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
@@ -2754,12 +2754,12 @@ Function optionFirstSpecial {
 Function optionRerunSpecial {
     $global:isAustin = $true
     Write-Host "[R] Welcome back Austin" -ForegroundColor Red -BackgroundColor Black
-    getPromptAnswers
+    #getPromptAnswers
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
     $powerUserAutomated | ForEach { Invoke-Expression $_ }
     # Attempt to hide OneDrive a second time since the first time doesn't stick
     hideOneDrive
-    $allUsersPrompted | ForEach { Invoke-Expression $_ }
+    #$allUsersPrompted | ForEach { Invoke-Expression $_ }
     disableTeamViewerPrompt
     #Austin specific function calls
     # insert function calls here
