@@ -17,18 +17,19 @@ $allUsersPrompted = @(
     "uninstallIE"
 )
 $regularUserAutomated = @(
-#    "endUserDeleteApps",
+    "endUserDeleteApps",
+    "uninstallOptionalApps",
 #    "disableHomeGroup",
 #    "uninstallWMP",
 #    "uninstallOneDrive",
-#    "removePrinters"
+    "removePrinters"
 )
 $powerUserAutomated = @(
     "enableGuestSMBShares",
     "powerUserDeleteApps",
     "uninstallOptionalApps",
-    "mkdirGodMode",
-    "unPinDocsAndPicsFromQuickAccess",
+    #"mkdirGodMode", -removed?
+    #"unPinDocsAndPicsFromQuickAccess", -removed?
     "disableHomeGroup",
     "uninstallWMP",
     "uninstallOneDrive",
@@ -100,19 +101,13 @@ Function getSoftwareAnswers {
 
     #"pinStartMenuItemsAndInstallSoftware", # always run - prompt - prompt if you want to install software and pin apps to the start menu
     #Prompt the user to select software here
-        #Install for every image
-        $global:7zip = $true
-        $global:hwinfo = $true
-        $global:vlc = $true
-        $global:windirstat = $true
-
         ################
         # Web Browsers #
         ################
         do {
             $browserPrompt = 
 "
-[18] Install Web Browsers: 
+[19] Install Web Browsers: 
 [1] for Google Chrome
 [2] for FireFox
 [3] for Both
@@ -150,7 +145,7 @@ Function getSoftwareAnswers {
         do {
             $storagePrompt = 
 "
-[17] Install Cloud Storage: 
+[18] Install Cloud Storage: 
 [1] for Dropbox
 [2] for Google Drive
 [3] for Both
@@ -187,7 +182,7 @@ Function getSoftwareAnswers {
         do {
             $textPrompt = 
 "
-[16] Install Text Editors: 
+[17] Install Text Editors: 
 [1] for Notepad++
 [2] for SublimeText3
 [3] for Both
@@ -214,6 +209,38 @@ Function getSoftwareAnswers {
             else {
                 $doneUser = $false
                 Write-Host "Please input [1] [2] or [3] for selection" -ForegroundColor Red -BackgroundColor Black
+            }
+        }
+        while ($doneUser -eq $false)
+
+        ##############
+        # Base Utils #
+        ##############
+        #IMG Burn
+        do {
+            $utilityPrompt = 
+"
+[16] Utilities: Install Recommended Utilities?: 7-Zip, HWiNFO, WinDirStat:
+[y] for yes
+[n] for no
+"
+            $doneUser = $false
+            $SoftwareType = Read-Host -Prompt $utilityPrompt
+            if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
+                $doneUser = $true
+                $global:7zip = $true
+                $global:hwinfo = $true
+                $global:windirstat = $true
+            }
+            elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "0")){
+                $doneUser = $true
+                $global:7zip = $false
+                $global:hwinfo = $false
+                $global:windirstat = $false
+            }
+            else {
+                $doneUser = $false
+                Write-Host "Please input 'y' or 'n' for selection" -ForegroundColor Red -BackgroundColor Black
             }
         }
         while ($doneUser -eq $false)
@@ -377,11 +404,36 @@ Function getSoftwareAnswers {
         #########################
         # Everyday Applications #
         #########################
+        #VLC
+        do {
+            $vlcPrompt = 
+"
+[9] Multimedia: Install VLC Media Player?: Video player program
+[y] for yes
+[n] for no
+"
+            $doneUser = $false
+            $SoftwareType = Read-Host -Prompt $vlcPrompt
+            if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
+                $doneUser = $true
+                $global:vlc = $true
+            }
+            elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "N") -or ($SoftwareType -eq "0")){
+                $doneUser = $true
+                $global:vlc = $false
+            }
+            else {
+                $doneUser = $false
+                Write-Host "Please input 'y' or 'n' for selection" -ForegroundColor Red -BackgroundColor Black
+            }
+        }
+        while ($doneUser -eq $false)
+
         #Spotify
         do {
             $spotifyPrompt = 
 "
-[9] Multimedia: Install Spotify?: Music streaming platform
+[8] Multimedia: Install Spotify?: Music streaming platform
 [y] for yes
 [n] for no
 "
@@ -401,6 +453,8 @@ Function getSoftwareAnswers {
             }
         }
         while ($doneUser -eq $false)
+
+<#
         #Skype
         do {
             $skypePrompt = 
@@ -425,6 +479,7 @@ Function getSoftwareAnswers {
             }
         }
         while ($doneUser -eq $false)
+#>
 
         ##########
         # Gaming #
@@ -750,7 +805,8 @@ Function getSoftwareAnswers {
 #   Enable legacy F8 boot menu
     Function enableLegacyF8Boot {
         Write-Host "Enabling F8 boot menu options..." -ForegroundColor Green -BackgroundColor Black
-        bcdedit /set `{current`} bootmenupolicy Legacy
+        #bcdedit /set `{current`} bootmenupolicy Legacy
+        bcdedit /set "{current}" bootmenupolicy Legacy
     }
 #   Delete hibernation file -- (cmd)
     Function deleteHibernationFile{
@@ -953,15 +1009,15 @@ Function getSoftwareAnswers {
     }
 #   Optional windows 10 Settings - include more apps as needed
     Function uninstallOptionalApps {
-        Write-Host "Uninstalling Windows 10 Optional Apps..." -ForegroundColor Green -BackgroundColor Black
-        Write-Host "Removing QuickAssist..." -ForegroundColor Green -BackgroundColor Black
-        Get-WindowsCapability -online | ? {$_.Name -like '*QuickAssist*'} | Remove-WindowsCapability -online
-        Write-Host "Removing ContactSupport..." -ForegroundColor Green -BackgroundColor Black
-        Get-WindowsCapability -online | ? {$_.Name -like '*ContactSupport*'} | Remove-WindowsCapability -online
+        #Write-Host "Uninstalling Windows 10 Optional Apps..." -ForegroundColor Green -BackgroundColor Black
+        #Write-Host "Removing QuickAssist..." -ForegroundColor Green -BackgroundColor Black
+        #Get-WindowsCapability -online | ? {$_.Name -like '*QuickAssist*'} | Remove-WindowsCapability -online
+        #Write-Host "Removing ContactSupport..." -ForegroundColor Green -BackgroundColor Black
+        #Get-WindowsCapability -online | ? {$_.Name -like '*ContactSupport*'} | Remove-WindowsCapability -online
         Write-Host "Removing all Demo apps..." -ForegroundColor Green -BackgroundColor Black
         Get-WindowsCapability -online | ? {$_.Name -like '*Demo*'} | Remove-WindowsCapability -online
-        Write-Host "Removing Windows Hello Face..." -ForegroundColor Green -BackgroundColor Black
-        Get-WindowsCapability -online | ? {$_.Name -like '*Face*'} | Remove-WindowsCapability -online
+        #Write-Host "Removing Windows Hello Face..." -ForegroundColor Green -BackgroundColor Black
+        #Get-WindowsCapability -online | ? {$_.Name -like '*Face*'} | Remove-WindowsCapability -online
     }
 #   HomeGroup
     Function disableHomeGroup {
@@ -1515,7 +1571,7 @@ Function optionTwo {
     getPromptAnswers
     getSoftwareAnswers
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
-    $powerUserAutomated | ForEach { Invoke-Expression $_ }
+    $regularUserAutomated | ForEach { Invoke-Expression $_ }
     # Attempt to hide OneDrive a second time since the first time doesn't stick
     #hideOneDrive
     $allUsersPrompted | ForEach { Invoke-Expression $_ }
@@ -1526,12 +1582,12 @@ Function optionTwo {
 Function optionSeven {
     $global:isAustin = $false
     Write-Host "[7] Re-run w/ prompts & aggressive preset | Semi-Auto # My preferred" -ForegroundColor Green -BackgroundColor Black
-    getPromptAnswers
+    #getPromptAnswers
     $allUsersAutomated | ForEach { Invoke-Expression $_ }
-    $powerUserAutomated | ForEach { Invoke-Expression $_ }
+    $regularUserAutomated | ForEach { Invoke-Expression $_ }
     # Attempt to hide OneDrive a second time since the first time doesn't stick
     #hideOneDrive
-    $allUsersPrompted | ForEach { Invoke-Expression $_ }
+    #$allUsersPrompted | ForEach { Invoke-Expression $_ }
     disableTeamViewerPrompt
 }
 Function optionFirstSpecial {
