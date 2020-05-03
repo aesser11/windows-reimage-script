@@ -29,7 +29,7 @@ $allUsersPrompted = @(
     #"configureNightLight", # user preference - prompt - removed for now due to complexity
 )
 $regularUserAutomated = @(
-    "endUserDeleteApps"
+    # "endUserDeleteApps"
 )
 # maybe make a separate section and call it austinPowerUserAutomated instead of calling extra functions at the bottom?
 $powerUserAutomated = @(
@@ -1093,12 +1093,39 @@ Function getSoftwareAnswers {
     }
 #   Uninstall windows 10 apps
     Function powerUserDeleteApps {
-        Write-Host "Nuking out all Windows 10 apps except Calculator" -ForegroundColor Green -BackgroundColor Black
-        Get-AppxPackage -AllUsers | Where-Object {$_.name -notlike "*WindowsCalculator*"} | Where-Object {$_.name -notlike "*Store*"} | Where-Object {$_.name -notlike "*Photos*"} | Where-Object {$_.name -notlike "*Paint*"} | Where-Object {$_.name -notlike "*ScreenSketch*"} | Remove-AppxPackage -ErrorAction SilentlyContinue
+        Write-Host "Nuking out all Windows 10 apps except whitelisted apps" -ForegroundColor Green -BackgroundColor Black
+        Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "*WindowsCalculator*"} | Where-Object {$_.Name -notlike "*Photos*"} | Where-Object {$_.Name -notlike "*Paint*"} | Where-Object {$_.Name -notlike "*ScreenSketch*"} | Remove-AppxPackage -ErrorAction SilentlyContinue
+        Get-AppXProvisionedPackage -Online | Where-Object $_.DisplayName -notlike "*WindowsCalculator*" | Where-Object {$_.DisplayName -notlike "*Photos*"} | Where-Object {$_.DisplayName -notlike "*Paint*"} | Where-Object {$_.DisplayName -notlike "*ScreenSketch*"} | Remove-AppxProvisionedPackage -Online
+        <#
+        $appWhiteList = @(
+            "*WindowsCalculator*",
+            "*Photos*",
+            "*Paint*",
+            "*ScreenSketch*"
+        )
+        #>
+        # unfinished
+        <#
+        $powerUserAppWhiteList | ForEach { Invoke-Expression $_ }
+        foreach($app in $appWhiteList){
+
+            if ($app.Name -notlike $appWhiteList){
+                try{
+                    Remove-AppxPackage $app -ErrorAction SilentlyContinue
+                    Remove-AppxProvisionedPackage $app -Online
+                    Write-Host "`t$app was removed" -ForegroundColor DarkGreen
+                }
+                catch{
+                    Write-Host "`t$app couldn't be removed" -ForegroundColor Red 
+                }
+            }
+
+        }
+        #>
     }    
     Function endUserDeleteApps { 
-        Write-Host "Nuking out all Windows 10 apps except Calculator and Windows Store" -ForegroundColor Green -BackgroundColor Black
-        Get-AppxPackage -AllUsers | Where-Object {$_.name -notlike "*WindowsCalculator*"} | Where-Object {$_.name -notlike "*Store*"} | Where-Object {$_.name -notlike "*Photos*"} | Where-Object {$_.name -notlike "*Paint*"} | Where-Object {$_.name -notlike "*ScreenSketch*"} | Remove-AppxPackage -ErrorAction SilentlyContinue
+        # Write-Host "Nuking out all Windows 10 apps except Calculator and Windows Store" -ForegroundColor Green -BackgroundColor Black
+        # Get-AppxPackage -AllUsers | Where-Object {$_.name -notlike "*WindowsCalculator*"} | Where-Object {$_.name -notlike "*Store*"} | Where-Object {$_.name -notlike "*Photos*"} | Where-Object {$_.name -notlike "*Paint*"} | Where-Object {$_.name -notlike "*ScreenSketch*"} | Remove-AppxPackage -ErrorAction SilentlyContinue
         #needs improvement - only delete packages that can be deleted by clicking the uninstall button in the app menu. do they have a property like that?
 
     }
