@@ -1,9 +1,4 @@
 ##############################################################################################################
-# set auto update scheduled task only for power user
-# pin-add all apps for regular Users
-# simplify app setup (make more maintainable, app sections:[selection, install, text append])
-# implement (if command not successful -- append action name to output.txt file)
-
 # Relaunch the script with administrator privileges and bypass execution-policy if it isn't already
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
     Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File $PSCommandPath" -Verb RunAs

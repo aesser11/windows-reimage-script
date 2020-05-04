@@ -34,3 +34,85 @@ Function getUserInput {
         }
     }
 }
+
+
+# LISTS
+###################
+# Windows 10 Apps #
+###################
+$powerUserWin10AppWhiteList = @(
+    "*WindowsCalculator*",
+    "*Photos*",
+    "*Paint*",
+    "*ScreenSketch*"
+)
+$regularUserWin10AppBlacklist = @(
+    "*Solitaire*",
+    "*SkypeApp*",
+    "*Minecraft*",
+    "*Twitter*",
+    "*CandyCrush*",
+    "*LinkedIn*",
+    "*DisneyMagicKingdoms*",
+    "*MarchofEmpires*",
+    "*iHeartRadio*",
+    "*FarmVille*",
+    "*Duolingo*",
+    "*CyberLink*",
+    "*Facebook*",
+    "*Asphalt8Airborne*",
+    "*CookingFever*",
+    "*Pandora*",
+    "*FreeCasino*",
+    "*Shazam*",
+    "*SlingTV*",
+    "*Spotify*",
+    "*NYTCrossword*",
+    "*TuneInRadio*",
+    "*Xing*",
+    "*RoyalRevolt2*",
+    "*BubbleWitch3Saga*",
+    "*PetRescueSaga*",
+    "*FarmHeroesSaga*",
+    "*Netflix*",
+    "*king.com.*",
+    "*Sketchable*",
+    "*HotSpotShield*",
+    "*WhatsApp*",
+    "*PicsArt-PhotoStudio*",
+    "*EclipseManager*",
+    "*PolarrPhotoEditorAcademicEdition*",
+    "*Wunderlist*",
+    "*AutodeskSketchBook*",
+    "*ActiproSoftwareLLC*",
+    "*Plex*",
+    "*DolbyAccess*",
+    "*Drawboard*",
+    "*Fitbit*",
+    "*Flipboard*",
+    "*Keeper*",
+    "*PhototasticCollage*",
+    "*WinZipUniversal*"
+)
+
+#############
+# Functions #
+#############
+$allUsersFirstRunFunctions = @(
+
+)
+
+$allUsersFunctions = @(
+
+)
+
+$regularUserFunctions = @(
+
+)
+$powerUserFunctions = @(
+
+)
+
+
+
+
