@@ -1,9 +1,68 @@
 ##############################################################################################################
+# set auto update scheduled task only for power user
+# pin-add all apps for regular Users
+# simplify app setup (make more maintainable, app sections:[selection, install, text append])
+# implement (if command not successful -- append action name to output.txt file)
+
 # Relaunch the script with administrator privileges and bypass execution-policy if it isn't already
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
     Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File $PSCommandPath" -Verb RunAs
     exit
 }
+$regularUserAppBlacklist = @(
+    "*Solitaire*",
+    "*SkypeApp*",
+    "*Minecraft*",
+    "*Twitter*",
+    "*CandyCrush*",
+    "*LinkedIn*",
+    "*DisneyMagicKingdoms*",
+    "*MarchofEmpires*",
+    "*iHeartRadio*",
+    "*FarmVille*",
+    "*Duolingo*",
+    "*CyberLink*",
+    "*Facebook*",
+    "*Asphalt8Airborne*",
+    "*CookingFever*",
+    "*Pandora*",
+    "*FreeCasino*",
+    "*Shazam*",
+    "*SlingTV*",
+    "*Spotify*",
+    "*NYTCrossword*",
+    "*TuneInRadio*",
+    "*Xing*",
+    "*RoyalRevolt2*",
+    "*BubbleWitch3Saga*",
+    "*PetRescueSaga*",
+    "*FarmHeroesSaga*",
+    "*Netflix*",
+    "*king.com.*",
+    "*Sketchable*",
+    "*HotSpotShield*",
+    "*WhatsApp*",
+    "*PicsArt-PhotoStudio*",
+    "*EclipseManager*",
+    "*PolarrPhotoEditorAcademicEdition*",
+    "*Wunderlist*",
+    "*AutodeskSketchBook*",
+    "*ActiproSoftwareLLC*",
+    "*Plex*",
+    "*DolbyAccess*",
+    "*Drawboard*",
+    "*Fitbit*",
+    "*Flipboard*",
+    "*Keeper*",
+    "*PhototasticCollage*",
+    "*WinZipUniversal*"
+)
+$powerUserAppWhiteList = @(
+    "*WindowsCalculator*",
+    "*Photos*",
+    "*Paint*",
+    "*ScreenSketch*"
+)
 $allUsersAutomated = @(
     "disableNvidiaTelemetry",
     "disableTelemetry",
@@ -29,7 +88,7 @@ $allUsersPrompted = @(
     #"configureNightLight", # user preference - prompt - removed for now due to complexity
 )
 $regularUserAutomated = @(
-    # "endUserDeleteApps"
+    # "regularUserDeleteApps"
 )
 # maybe make a separate section and call it austinPowerUserAutomated instead of calling extra functions at the bottom?
 $powerUserAutomated = @(
@@ -707,6 +766,31 @@ Function getSoftwareAnswers {
         }
         while ($doneUser -eq $false)
 
+        #Microsoft PowerToys
+        do {
+            $powertoysprompt = 
+"
+[0] Utilities: Install Mirosoft PowerToys?: Power user utility package - https://github.com/microsoft/PowerToys
+[y] for yes
+[n] for no
+"
+            $doneUser = $false
+            $SoftwareType = Read-Host -Prompt $powertoysprompt
+            if (($SoftwareType -eq "y") -or ($SoftwareType -eq "Y") -or ($SoftwareType -eq "1")) {
+                $doneUser = $true
+                $global:powertoys = $true
+            }
+            elseif (($SoftwareType -eq "n") -or ($SoftwareType -eq "N") -or ($SoftwareType -eq "0")){
+                $doneUser = $true
+                $global:powertoys = $false
+            }
+            else {
+                $doneUser = $false
+                Write-Host "Please input 'y' or 'n' for selection" -ForegroundColor Red -BackgroundColor Black
+            }
+        }
+        while ($doneUser -eq $false)
+
     #"setDefaultPrograms"
 }
 #   Disable Nvidia Telemetry
@@ -1094,40 +1178,21 @@ Function getSoftwareAnswers {
 #   Uninstall windows 10 apps
     Function powerUserDeleteApps {
         Write-Host "Nuking out all Windows 10 apps except whitelisted apps" -ForegroundColor Green -BackgroundColor Black
-        Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "*WindowsCalculator*"} | Where-Object {$_.Name -notlike "*Photos*"} | Where-Object {$_.Name -notlike "*Paint*"} | Where-Object {$_.Name -notlike "*ScreenSketch*"} | Remove-AppxPackage -ErrorAction SilentlyContinue
-        Get-AppXProvisionedPackage -Online | Where-Object $_.DisplayName -notlike "*WindowsCalculator*" | Where-Object {$_.DisplayName -notlike "*Photos*"} | Where-Object {$_.DisplayName -notlike "*Paint*"} | Where-Object {$_.DisplayName -notlike "*ScreenSketch*"} | Remove-AppxProvisionedPackage -Online
-        <#
-        $appWhiteList = @(
-            "*WindowsCalculator*",
-            "*Photos*",
-            "*Paint*",
-            "*ScreenSketch*"
-        )
-        #>
-        # unfinished
-        <#
-        $powerUserAppWhiteList | ForEach { Invoke-Expression $_ }
-        foreach($app in $appWhiteList){
-
-            if ($app.Name -notlike $appWhiteList){
-                try{
-                    Remove-AppxPackage $app -ErrorAction SilentlyContinue
-                    Remove-AppxProvisionedPackage $app -Online
-                    Write-Host "`t$app was removed" -ForegroundColor DarkGreen
-                }
-                catch{
-                    Write-Host "`t$app couldn't be removed" -ForegroundColor Red 
-                }
-            }
-
+        foreach ($app in $powerUserAppWhiteList) {
+            Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "$app"} | Remove-AppxPackage -ErrorAction SilentlyContinue
+            Get-AppXProvisionedPackage -Online | Where-Object $_.DisplayName -notlike "$app" | Remove-AppxProvisionedPackage -Online
         }
-        #>
+        # Reinstall all apps 
+        # Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
     }    
-    Function endUserDeleteApps { 
-        # Write-Host "Nuking out all Windows 10 apps except Calculator and Windows Store" -ForegroundColor Green -BackgroundColor Black
-        # Get-AppxPackage -AllUsers | Where-Object {$_.name -notlike "*WindowsCalculator*"} | Where-Object {$_.name -notlike "*Store*"} | Where-Object {$_.name -notlike "*Photos*"} | Where-Object {$_.name -notlike "*Paint*"} | Where-Object {$_.name -notlike "*ScreenSketch*"} | Remove-AppxPackage -ErrorAction SilentlyContinue
-        #needs improvement - only delete packages that can be deleted by clicking the uninstall button in the app menu. do they have a property like that?
-
+    Function regularUserDeleteApps { 
+        Write-Host "Nuking out all blacklisted Windows 10 trash apps" -ForegroundColor Green -BackgroundColor Black
+        foreach ($app in $regularUserAppBlacklist) {
+            Get-AppxPackage -AllUsers | Where-Object {$_.Name -like "$app"} | Remove-AppxPackage -ErrorAction SilentlyContinue
+            Get-AppXProvisionedPackage -Online | Where-Object $_.DisplayName -like "$app" | Remove-AppxProvisionedPackage -Online
+        }
+        # Reinstall all apps 
+        # Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
     }
 #   Optional windows 10 Settings - include more apps as needed
     Function uninstallOptionalApps {
@@ -1689,9 +1754,11 @@ Documents, Downloads, Music, Pictures, Videos
             choco install spotify -y --ignore-checksums
             choco pin add -n=spotify
         }
-        if ($global:skype){
-            choco install skype -y
-            choco pin add -n=skype
+        if ($global:powertoys){
+            choco install powertoys -y
+            choco pin add -n=powertoys
+            $global:appendPowerToys = "https://github.com/microsoft/PowerToys"
+            <#
             #Close out of skype after install finishes
             while (!(Get-Process *skype*)) {
                 Start-Sleep -m 10
@@ -1700,6 +1767,7 @@ Documents, Downloads, Music, Pictures, Videos
                 #exit out of skype program here
                 Get-Process *skype* | Stop-Process
             }
+            #>
         }
         ##########
         # Gaming #
@@ -1925,6 +1993,7 @@ $global:appendImgburn
 $global:appendRufus
 $global:appendTeamviewer
 $global:appendMsiafterburner
+$global:appendPowerToys
 ##########################################################################
 "
     $outString | Out-File -FilePath $outputFile -Width 200
@@ -2041,6 +2110,7 @@ $global:appendImgburn
 $global:appendRufus
 $global:appendTeamviewer
 $global:appendMsiafterburner
+$global:appendPowerToys
 ##########################################################################
 "
     $outString | Out-File -FilePath $outputFile -Width 200
