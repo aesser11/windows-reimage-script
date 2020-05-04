@@ -3,11 +3,11 @@
 ###########################
 # bypass execution policy - good
 
-# lists - good
+# function and app lists - good
 
-# prompts -- find new/smaller/maintainable way to add prompt with the same functionality
+# prompts -- find new/smaller/maintainable way to user-input prompt with the same functionality
 
-# functions -- add logging/status capture functionality
+# functions -- add logging/status capture functionality in output.txt
 
 # specific functions needing review
 <#
@@ -21,4 +21,16 @@
 
 # start function list selection state - reposition and update same as "# prompts" section
 
-
+# build software list
+Function getUserInput {
+    foreach ($software in $softwareList) {
+        Switch (Read-Host 'Enter One or Two') {
+            'One' {Write-Output 'User entered One'}
+            'Two' {Write-Output 'User entered Two'}
+            default {
+                Write-host "Invalid input. Please enter XXXX" -ForegroundColor Yellow
+                . getUserInput
+            }
+        }
+    }
+}

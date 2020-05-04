@@ -1616,7 +1616,7 @@ Function getSoftwareAnswers {
             }
             $previousDiskSize = $diskSize
         }
-        if (($diskCount -gt 1) -and ($greatestDiskSize -gt 400000000000)) {
+        if (($diskCount -gt 1) -and ($greatestDiskSize -gt 900000000000)) {
             $global:personalFolderTargets = 
 "
 #############################
