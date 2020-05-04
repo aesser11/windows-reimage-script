@@ -2197,6 +2197,7 @@ $global:appendImgburn = $null
 $global:appendRufus = $null
 $global:appendTeamviewer = $null
 $global:appendMsiafterburner = $null
+$global:appendPowerToys = $null
 #function calls
 #selectionMenu
 #promptForSelection
