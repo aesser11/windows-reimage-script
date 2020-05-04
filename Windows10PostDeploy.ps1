@@ -36,7 +36,7 @@ Function getUserInput {
 }
 
 
-# LISTS
+# Lists
 ###################
 # Windows 10 Apps #
 ###################
@@ -47,6 +47,7 @@ $powerUserWin10AppWhiteList = @(
     "*ScreenSketch*"
 )
 $regularUserWin10AppBlacklist = @(
+    # non-microsoft as of 1909
     "*Solitaire*",
     "*SkypeApp*",
     "*Minecraft*",
@@ -93,6 +94,13 @@ $regularUserWin10AppBlacklist = @(
     "*Keeper*",
     "*PhototasticCollage*",
     "*WinZipUniversal*"
+)
+
+#############################
+# 3rd Party Apps to Install #
+#############################
+$applicationsToInstall = @(
+
 )
 
 #############
