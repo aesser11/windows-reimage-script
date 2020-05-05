@@ -1003,6 +1003,7 @@ Function remainingStepsToText {
 ################
 10GbE
 map network drives
+adjust focus assist?
 
 ################
 # Quick Access #
