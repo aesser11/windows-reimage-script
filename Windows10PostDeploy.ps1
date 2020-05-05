@@ -1003,7 +1003,7 @@ Function disableLocalIntranetFileWarnings {
     $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Ranges\Range1"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     Set-ItemProperty $path -Name "*" -Type DWord -Value 1 -Force
-    Set-ItemProperty $path -Name ":Range" -Type String -Value "192.168.*.*" -Force
+    Set-ItemProperty $path -Name ":Range" -Type String -Value "file://192.168.*.*" -Force
 }
 
 Function disableBackgroundApplications {
