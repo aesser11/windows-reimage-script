@@ -1031,6 +1031,10 @@ $global:appendOutputSteps
 $global:appendOutputSoftware
 
 ###################################################################################################
+Error Count: $error.count
+
+Error List:
+
 $error
 
 "
