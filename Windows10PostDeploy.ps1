@@ -40,11 +40,11 @@ $applicationsToInstall = @(
     "epicgameslauncher",
 
     # requires case statements
-    "spotify", #--ignore-checksums
-    "origin", #--ignore-checksums
-    "teamviewer", #append-software
-    "7zip", #no pin && #append-software
-    "windirstat", #no pin
+    "spotify",#--ignore-checksums
+    "origin",#--ignore-checksums
+    "teamviewer",#append-software
+    "7zip",#no pin && #append-software
+    "windirstat",#no pin
 
     # manual installs
     "battle.net" #append-software
@@ -55,58 +55,58 @@ $applicationsToInstall = @(
 #################
 $myFirstRunFunctions = @(
     # user input required
-    "renameComputer",#append-output
+    "renameComputer",#change-prompt-logic
     # automated
     "installSoftware",#append-software
-    "personalFolderTargetSteps"#append-output
+    "personalFolderTargetSteps"
 )
 
 $myFunctions = @(
     # universal functions
-    "disableTelemetry",#append-output 
-    "uninstallOptionalApps",#append-output 
-    "setWindowsTimeZone",#append-output 
-    "enableLegacyF8Boot",#append-output 
-    "deleteHibernationFile",#append-output
-    "setPowerProfile",#append-output
-    "configureWindowsUpdates", #append-output
-    "configurePrivacy",#append-output
-    "explorerHideSyncNotifications",#append-output
-    "explorerSetExplorerThisPC",#append-output
-    "disableStickyKeys",#append-output
-    "setPageFileToC",#append-output
-    "disableMouseAcceleration",#append-output
-    "soundCommsAttenuation",#append-output
+    "disableTelemetry",
+    "uninstallOptionalApps",
+    "setWindowsTimeZone",
+    "enableLegacyF8Boot",
+    "deleteHibernationFile",
+    "setPowerProfile",
+    "configureWindowsUpdates",
+    "configurePrivacy",
+    "explorerHideSyncNotifications",
+    "explorerSetExplorerThisPC",
+    "disableStickyKeys",
+    "setPageFileToC",
+    "disableMouseAcceleration",
+    "soundCommsAttenuation",
 
     # my functions
-    "powerUserDeleteApps",#append-output
-    "uninstallWindowsFeatures",#append-output
-    "removePrinters",#append-output
-    "disableRemoteAssistance",#append-output
-    "disableAeroShake",#append-output
-    "enableGuestSMBShares",#append-output
-    #"disableHomeGroup",#append-output
-    "uninstallWMP",#append-output
-    "uninstallOneDrive",#append-output
-    "setVisualFXAppearance",#append-output
-    "taskbarCombineWhenFull",#append-output
-    "taskbarShowTrayIcons",#append-output
-    "taskbarHideSearch",#append-output
-    "taskbarHideTaskView",#append-output
-    "taskbarHidePeopleIcon",#append-output
-    "taskbarHideInkWorkspace",#append-output
-    "taskbarMMSteps",#append-output
-    "disableBingWebSearch",#append-output
-    "disableLockScreenTips",#append-output
-    "explorerShowKnownExtensions",#append-output
-    "explorerShowHiddenFiles",#append-output
-    "explorerHideRecentShortcuts",#append-output
-    "explorerSetControlPanelLargeIcons",#append-output
-    "enableDarkMode",#append-output
-    "mkdirGodMode",#append-output
-    "disableSharedExperiences",#append-output
-    "disableWifiSense",#append-output
-    "disableWindowsDefenderSampleSubmission",#append-output
+    "powerUserDeleteApps",
+    "uninstallWindowsFeatures",
+    "removePrinters",
+    "disableRemoteAssistance",
+    "disableAeroShake",
+    "enableGuestSMBShares",
+    #"disableHomeGroup",
+    "uninstallWMP",
+    "uninstallOneDrive",
+    "setVisualFXAppearance",
+    "taskbarCombineWhenFull",
+    "taskbarShowTrayIcons",
+    "taskbarHideSearch",
+    "taskbarHideTaskView",
+    "taskbarHidePeopleIcon",
+    "taskbarHideInkWorkspace",
+    "taskbarMMSteps",
+    "disableBingWebSearch",
+    "disableLockScreenTips",
+    "explorerShowKnownExtensions",
+    "explorerShowHiddenFiles",
+    "explorerHideRecentShortcuts",
+    "explorerSetControlPanelLargeIcons",
+    "enableDarkMode",
+    "mkdirGodMode",
+    "disableSharedExperiences",
+    "disableWifiSense",
+    "disableWindowsDefenderSampleSubmission",
     "promptForRestart"
 )
 
