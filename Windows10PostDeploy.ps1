@@ -1056,6 +1056,11 @@ To Disable Background Apps:
 Reg Add HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications /v GlobalUserDisabled /t REG_DWORD /d 1 /f
 https://troubleshooter.xyz/wiki/how-to-disable-background-apps-in-windows-10/
 
+disable privacy diagnostic data (set to basic at the moment)
+
+set night light
+
+enable clipboard history?
 
 suppress warnings for:
 'These files might be harmful to your computer, Your internet security settings suggest that one or more files may be harmful. Do you want to use it anyway?'
@@ -1064,7 +1069,6 @@ https://superuser.com/questions/149056/disable-these-files-might-be-harmful-to-y
 create cup all -y ; pause script with shortcut (pin to start menu manually)
 
 map network drives (input username and password to map drives as)
-https://superuser.com/questions/149056/disable-these-files-might-be-harmful-to-your-computer-warning
 
 192.168.2.?
 Hackerman
