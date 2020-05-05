@@ -1028,6 +1028,8 @@ Function remainingStepsToText {
 ################
 # Manual Steps #
 ################
+https://github.com/aesser11/home-lab/wiki/Windows-10
+
 10GbE
 
 map network drives
