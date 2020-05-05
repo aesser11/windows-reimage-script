@@ -1,6 +1,3 @@
-# functions -- add logging/status capture functionality in output.txt
-
-
 ###########################
 # Windows10PostDeploy.ps1 #
 ###########################
@@ -10,7 +7,6 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     exit
 }
 
-# Lists
 ################################
 # Windows 10 Apps to Whitelist #
 ################################
@@ -47,8 +43,6 @@ $applicationsToInstall = @(
     # requires case statements
     "windirstat", #no pin
     "spotify", #--ignore-checksums
-
-    # post install steps required
     "teamviewer", #append-software
     "7zip", #no pin && #append-software
 
@@ -56,9 +50,9 @@ $applicationsToInstall = @(
     "battle.net" #append-software
 )
 
-#############
-# Functions #
-#############
+#################
+# Reimage Steps #
+#################
 $myFirstRunFunctions = @(
     # user input required
     "renameComputer",#append-output
@@ -118,6 +112,9 @@ $myFunctions = @(
     "promptForRestart"
 )
 
+#############
+# Functions #
+#############
 Function installSoftware {
     #Disable File Security Checks for this PowerShell instance
     $env:SEE_MASK_NOZONECHECKS = 1
@@ -140,13 +137,13 @@ Function installSoftware {
             "teamviewer" {
                 choco install $software -y
                 choco pin add -n=$software
-                $global:appendOutputSteps += "
+                $global:appendOutputSoftware += "
 
 "
             }
             "7zip" {
                 choco install $software -y
-                $global:appendOutputSteps += "
+                $global:appendOutputSoftware += "
 
 "
             }
