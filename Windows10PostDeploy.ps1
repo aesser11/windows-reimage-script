@@ -36,15 +36,15 @@ $applicationsToInstall = @(
     "discord",
     "steam",
     "goggalaxy",
-    "origin",
     "uplay",
     "epicgameslauncher",
 
     # requires case statements
-    "windirstat", #no pin
     "spotify", #--ignore-checksums
+    "origin", #--ignore-checksums
     "teamviewer", #append-software
     "7zip", #no pin && #append-software
+    "windirstat", #no pin
 
     # manual installs
     "battle.net" #append-software
@@ -132,6 +132,10 @@ Function installSoftware {
     foreach ($software in $applicationsToInstall) {
         Switch ($software) {
             "spotify" {
+                choco install $software -y --ignore-checksums
+                choco pin add -n="$software"
+            }
+            "origin" {
                 choco install $software -y --ignore-checksums
                 choco pin add -n="$software"
             }
