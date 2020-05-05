@@ -727,7 +727,7 @@ Function powerUserDeleteApps {
     Write-Host "Nuking out all Windows 10 apps except whitelisted apps" -ForegroundColor Green -BackgroundColor Black
     foreach ($app in $win10AppWhitelist) {
         Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "$app"} | Remove-AppxPackage -ErrorAction SilentlyContinue
-        Get-AppXProvisionedPackage -Online | Where-Object $_.DisplayName -notlike "$app" | Remove-AppxProvisionedPackage -Online
+        Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -notlike "$app"} | Remove-AppxProvisionedPackage -Online
     }
     # Reinstall all apps 
     # Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
