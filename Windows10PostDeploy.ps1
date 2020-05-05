@@ -1023,6 +1023,7 @@ map network drives
 adjust focus assist?
 adjust task manager columns and logical processors
 create cup all -y script with shortcut on the start menu
+plug mic into all usb ports to disable speaker device and set mic settings
 
 ################
 # Quick Access #
