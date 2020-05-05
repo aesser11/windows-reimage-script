@@ -71,8 +71,6 @@ $myFunctions = @(
     "setPowerProfile",
     "configureWindowsUpdates",
     "configurePrivacy",
-    "explorerHideSyncNotifications",
-    "explorerSetExplorerThisPC",
     "disableStickyKeys",
     "setPageFileToC",
     "disableMouseAcceleration",
@@ -83,23 +81,17 @@ $myFunctions = @(
     "uninstallWindowsFeatures",
     "removePrinters",
     "disableRemoteAssistance",
-    "disableAeroShake",
     "enableGuestSMBShares",
     #"disableHomeGroup",
     "uninstallWMP",
     "uninstallOneDrive",
     "setVisualFXAppearance",
-    "taskbarCombineWhenFull",
     "taskbarShowTrayIcons",
     "taskbarHideSearch",
-    "taskbarHideTaskView",
     "taskbarHidePeopleIcon",
     "taskbarHideInkWorkspace",
-    "taskbarMMSteps",
     "disableBingWebSearch",
     "disableLockScreenTips",
-    "explorerShowKnownExtensions",
-    "explorerShowHiddenFiles",
     "explorerHideRecentShortcuts",
     "explorerSetControlPanelLargeIcons",
     "enableDarkMode",
@@ -109,6 +101,7 @@ $myFunctions = @(
     "disableWindowsDefenderSampleSubmission",
     "disableLocalIntranetFileWarnings",
     "disableBackgroundApplications",
+    "fileExplorerSettings",
     "promptForRestart"
 )
 
@@ -668,19 +661,6 @@ Function configurePrivacy {
 #disable background apps 
 }
 
-# Hide sync provider notifications
-Function explorerHideSyncNotifications {
-    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty -Path $path -Name "ShowSyncProviderNotifications" -Type DWord -Value 0 -Force
-}
-
-# Change default Explorer view to This PC
-Function explorerSetExplorerThisPC {
-    Write-Host "Changing default Explorer view to This PC..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
-
-}
 # Disable Sticky keys -------------- (explorer)
 Function disableStickyKeys {
     Write-Host "Disabling Sticky keys prompt..." -ForegroundColor Green -BackgroundColor Black
@@ -758,12 +738,6 @@ Function disableRemoteAssistance {
     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowFullControl" -Type DWord -Value 0
 }
 
-#   Disable Windows aero shake to minimize gesture
-Function disableAeroShake{
-    Write-Host "Disabling Windows shake to minimize gesture..." -ForegroundColor Green -BackgroundColor Black      
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisallowShaking" -Type DWord -Value 1
-}
-
 # Enable Guest SMB shares
 Function enableGuestSMBShares {
     Write-Host "Enabling Guest SMB Share Access" -ForegroundColor Green -BackgroundColor Black
@@ -814,13 +788,6 @@ Function setVisualFXAppearance {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Type DWord -Value 1
 }
 
-# Taskbar settings
-# Set taskbar buttons to show labels and combine when taskbar is full
-Function taskbarCombineWhenFull {
-    Write-Host "Setting taskbar buttons to combine when taskbar is full..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarGlomLevel" -Type DWord -Value 1
-}
-
 #Show all notification icons on the taskbar
 Function taskbarShowTrayIcons {
     Write-Host "Showing all tray icons..." -ForegroundColor Green -BackgroundColor Black
@@ -831,12 +798,6 @@ Function taskbarShowTrayIcons {
 Function taskbarHideSearch {
     Write-Host "Hiding Taskbar Search icon & box..." -ForegroundColor Green -BackgroundColor Black
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0
-}
-
-# Hide Task View button
-Function taskbarHideTaskView {
-    Write-Host "Hiding Task View button..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
 }
 
 # Hide Taskbar People icon
@@ -850,17 +811,6 @@ Function taskbarHidePeopleIcon {
 Function taskbarHideInkWorkspace {
     Write-Host "Hiding windows ink workspace..." -ForegroundColor Green -BackgroundColor Black
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PenWorkspace" -Name "PenWorkspaceButtonDesiredVisibility" -Type DWord -Value 0
-}
-
-# Taskbar multi monitor steps
-Function taskbarMMSteps {
-    #Multiple Display Taskbar Settings:
-    Write-Host "Show taskbar on all displays" -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MMTaskbarEnabled" -Type DWord -Value 1
-    Write-Host "Show taskbar buttons on taskbar display only where the windows is open" -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MMTaskbarMode" -Type DWord -Value 2
-    Write-Host "Combine taskbar buttons: Only when taskbar is full" -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MMTaskbarGlomLevel" -Type DWord -Value 1
 }
 
 # Prevent bing search within using cortana
@@ -884,21 +834,6 @@ Function disableLockScreenTips {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "RotatingLockScreenEnabled" -Type DWord -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "RotatingLockScreenOverlayEnabled" -Type DWord -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0
-}
-
-# Configure folder options - (explorer)
-# Show known file extensions
-Function explorerShowKnownExtensions { 
-    Write-Host "Showing known file extensions..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
-
-}
-
-# Show hidden files
-Function explorerShowHiddenFiles {
-    Write-Host "Showing hidden files..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1
-
 }
 
 # Hide recently and frequently used item shortcuts in Explorer
@@ -990,14 +925,39 @@ Function disableWindowsDefenderSampleSubmission {
 Function disableLocalIntranetFileWarnings {
     $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Ranges\Range1"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty $path -Name "*" -Type DWord -Value 1 -Force
-    Set-ItemProperty $path -Name ":Range" -Type String -Value "192.168.*.*" -Force
+    Set-ItemProperty -Path $path -Name "*" -Type DWord -Value 1 -Force
+    Set-ItemProperty -Path $path -Name ":Range" -Type String -Value "192.168.*.*" -Force
 }
 
 Function disableBackgroundApplications {
     $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty $path -Name "GlobalUserDisabled" -Type DWord -Value 1 -Force
+    Set-ItemProperty -Path $path -Name "GlobalUserDisabled" -Type DWord -Value 1 -Force
+}
+
+Function fileExplorerSettings {
+    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # hide sync provider notifications
+    Set-ItemProperty -Path $path -Name "ShowSyncProviderNotifications" -Type DWord -Value 0 -Force
+    # change default Explorer view to this pc
+    Set-ItemProperty -Path $path -Name "LaunchTo" -Type DWord -Value 1 -Force
+    # disable windows aero shake
+    Set-ItemProperty -Path $path -Name "DisallowShaking" -Type DWord -Value 1 -Force
+    # set taskbar buttons to show labels and combine when taskbar is full
+    Set-ItemProperty -Path $path -Name "TaskbarGlomLevel" -Type DWord -Value 1 -Force
+    # hide task view button
+    Set-ItemProperty -Path $path -Name "ShowTaskViewButton" -Type DWord -Value 0 -Force
+    # show taskbar on all displays
+    Set-ItemProperty -Path $path -Name "MMTaskbarEnabled" -Type DWord -Value 1 -Force
+    # show taskbar buttons on taskbar display only where the windows is open
+    Set-ItemProperty -Path $path -Name "MMTaskbarMode" -Type DWord -Value 2 -Force
+    # combine taskbar buttons: only when taskbar is full
+    Set-ItemProperty -Path $path -Name "MMTaskbarGlomLevel" -Type DWord -Value 1 -Force
+    # show known file extensions
+    Set-ItemProperty -Path $path -Name "HideFileExt" -Type DWord -Value 0 -Force
+    # show hidden files
+    Set-ItemProperty -Path $path -Name "Hidden" -Type DWord -Value 1 -Force
 }
 
 ##################
