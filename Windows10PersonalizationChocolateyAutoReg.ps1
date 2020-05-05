@@ -9,7 +9,11 @@ $regularUserAppBlacklist = @(
     "*SkypeApp*",
     "*Minecraft*",
     "*Twitter*",
+    "*BubbleWitch3Saga*",
+    "*PetRescueSaga*",
+    "*FarmHeroesSaga*",
     "*CandyCrush*",
+    "*king.com.*",
     "*LinkedIn*",
     "*DisneyMagicKingdoms*",
     "*MarchofEmpires*",
@@ -29,11 +33,7 @@ $regularUserAppBlacklist = @(
     "*TuneInRadio*",
     "*Xing*",
     "*RoyalRevolt2*",
-    "*BubbleWitch3Saga*",
-    "*PetRescueSaga*",
-    "*FarmHeroesSaga*",
     "*Netflix*",
-    "*king.com.*",
     "*Sketchable*",
     "*HotSpotShield*",
     "*WhatsApp*",
@@ -1374,7 +1374,6 @@ Function getSoftwareAnswers {
     Function explorerHideSyncNotifications {
         Write-Host "Hiding sync provider notifications..." -ForegroundColor Green -BackgroundColor Black
         Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSyncProviderNotifications" -Type DWord -Value 0
-    
     }
     # Change default Explorer view to This PC
     Function explorerSetExplorerThisPC {
@@ -2156,7 +2155,7 @@ Function optionRerunSpecial {
     # insert function calls here
 }
 ####################
-# Restart computer # 
+# Restart computer #
 ####################
 Function promptForRestart {
     $restartState = $false
