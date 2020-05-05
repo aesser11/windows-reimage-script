@@ -1,12 +1,12 @@
 ###########################
 # Windows10PostDeploy.ps1 #
 ###########################
+try {
 # Relaunch the script with administrator privileges and bypass execution-policy if it isn't already
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
     Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File $PSCommandPath" -Verb RunAs
     exit
 }
-
 ################################
 # Windows 10 Apps to Whitelist #
 ################################
@@ -251,7 +251,7 @@ Function disableTelemetry {
     Set-Service dmwappushservice -Status Stopped
     Set-Service DiagTrack -StartupType Disabled
     #Usually errors out, not a big deal since after reboot it will be disabled
-    Set-Service DiagTrack -Status Stopped
+    Set-Service DiagTrack -Status Stopped -ErrorAction Ignore
     echo "" > C:\ProgramData\Microsoft\Diagnosis\ETLLogs\AutoLogger\AutoLogger-Diagtrack-Listener.etl
 }
 
@@ -730,8 +730,8 @@ Function powerUserDeleteApps {
     # suppress errors for these cmdlets, very noisy and never looked at
     Write-Host "Nuking out all Windows 10 apps except whitelisted apps" -ForegroundColor Green -BackgroundColor Black
     foreach ($app in $win10AppWhitelist) {
-        Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "$app"} | Remove-AppxPackage -ErrorAction SilentlyContinue
-        Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -notlike "$app"} | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
+        Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "$app"} | Remove-AppxPackage -ErrorAction Ignore
+        Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -notlike "$app"} | Remove-AppxProvisionedPackage -Online -ErrorAction Ignore
     }
     # Reinstall all apps 
     # Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
@@ -1032,25 +1032,28 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 
 10GbE
 
-map network drives
-
-adjust focus assist?
-
 adjust task manager columns and logical processors
-
-create cup all -y script with shortcut on the start menu
 
 plug mic into all usb ports to disable speaker device and set mic settings
 
 unpin default groups from start menu 
     - pin control panel, this pc, recycle bin, others?
 
+fyi: for chocolatey logs see -- C:\ProgramData\chocolatey\logs
+
+#####################
+# Automatable Steps #
+#####################
+uncheck background apps
+
 suppress warnings for:
 'These files might be harmful to your computer, Your internet security settings suggest that one or more files may be harmful. Do you want to use it anyway?'
 
-for chocolatey logs see -- C:\ProgramData\chocolatey\logs
+create cup all -y ; pause script with shortcut (pin to start menu manually)
 
-uncheck background apps
+map network drives (input username and password to map drives as)
+
+adjust focus assist?
 
 ################
 # Quick Access #
@@ -1103,3 +1106,7 @@ Function promptFreshInstall {
     }
 }
 promptFreshInstall
+}
+catch {
+    $error | Out-File -FilePath "C:\Users\$env:username\Desktop\CrashLog.txt" -Width 200
+}
