@@ -542,22 +542,27 @@ Function setPowerProfile {
     }
 }
 
-# Configure windows updates
+# configure windows updates
 Function configureWindowsUpdates {
-    #set active hours 8am-2am
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursStart" -Type DWord -Value 8
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursEnd" -Type DWord -Value 2
-    #set update branch to avoid the buggy (Targeted) releases
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "BranchReadinessLevel" -Type DWord -Value 32
+    $path1="HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings"
+    if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
+    # set active hours 8am-2am
+    Set-ItemProperty -Path $path1 -Name "ActiveHoursStart" -Type DWord -Value 8 -Force
+    Set-ItemProperty -Path $path1 -Name "ActiveHoursEnd" -Type DWord -Value 2 -Force
+    # set update branch to avoid the buggy (Targeted) releases
+    Set-ItemProperty -Path $path1 -Name "BranchReadinessLevel" -Type DWord -Value 32 -Force
+    # disable windows insider preview builds
+    Set-ItemProperty -Path $path1 -Name "InsiderProgramEnabled" -Type DWord -Value 0 -Force
+    
+    $path2="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config"
+    if (!(Test-Path $path2)) { New-Item -Path $path2 -Force }
     # set to allow downloads from other PCs on my local network only
-    if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1
-    # Disable windows insider preview builds
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "InsiderProgramEnabled" -Type DWord -Value 0        
-    # Disalbe Edge desktop shortcut creation
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "DisableEdgeDesktopShortcutCreation" -Type DWord -Value 1 
+    Set-ItemProperty -Path $path2 -Name "DODownloadMode" -Type DWord -Value 1 -Force
+
+    $path3="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
+    if (!(Test-Path $path3)) { New-Item -Path $path3 -Force }
+    # disable edge desktop shortcut creation
+    Set-ItemProperty -Path $path3 -Name "DisableEdgeDesktopShortcutCreation" -Type DWord -Value 1 -Force
 }
 
 # Disable all privacy settings
