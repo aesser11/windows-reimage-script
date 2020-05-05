@@ -995,39 +995,6 @@ Function disableWindowsDefenderSampleSubmission {
     Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Function remainingStepsToText {
     $outputFile = "C:\Users\$env:username\Desktop\Remaining Steps.txt"
     $outString = "
