@@ -107,7 +107,6 @@ $myFunctions = @(
     "disableSharedExperiences",#append-output
     "disableWifiSense",#append-output
     "disableWindowsDefenderSampleSubmission",#append-output
-    "remainingStepsToText",
     "promptForRestart"
 )
 
@@ -252,7 +251,7 @@ Function disableTelemetry {
     Set-Service dmwappushservice -Status Stopped
     Set-Service DiagTrack -StartupType Disabled
     #Usually errors out, not a big deal since after reboot it will be disabled
-    Set-Service DiagTrack -Status Stopped -ErrorAction SilentlyContinue
+    Set-Service DiagTrack -Status Stopped
     echo "" > C:\ProgramData\Microsoft\Diagnosis\ETLLogs\AutoLogger\AutoLogger-Diagtrack-Listener.etl
 }
 
@@ -730,7 +729,7 @@ Function soundCommsAttenuation {
 Function powerUserDeleteApps {
     Write-Host "Nuking out all Windows 10 apps except whitelisted apps" -ForegroundColor Green -BackgroundColor Black
     foreach ($app in $win10AppWhitelist) {
-        Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "$app"} | Remove-AppxPackage -ErrorAction SilentlyContinue
+        Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "$app"} | Remove-AppxPackage
         Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -notlike "$app"} | Remove-AppxProvisionedPackage -Online
     }
     # Reinstall all apps 
@@ -1005,13 +1004,23 @@ Function disableWindowsDefenderSampleSubmission {
     Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1
 }
 
-<#
-Ex:
-Function appendSteps1 {
-    $global:appendOutputSteps += "
-step 1 step output"
+##################
+# Restart Prompt #
+##################
+Function promptForRestart {
+    Switch (Read-Host "Restart? [y]/[n]") {
+        'y' {Restart-Computer}
+        'n' {Write-host "Exiting" -ForegroundColor Yellow}
+        default {
+            Write-host "Invalid input. Please enter [y]/[n]" -ForegroundColor Red
+            promptForRestart
+        }
+    }
 }
-#>
+
+####################
+# Output Text File #
+####################
 Function remainingStepsToText {
     $outputFile = "C:\Users\$env:username\Desktop\Remaining Steps.txt"
     $outString = "
@@ -1019,13 +1028,26 @@ Function remainingStepsToText {
 # Manual Steps #
 ################
 10GbE
+
 map network drives
+
 adjust focus assist?
+
 adjust task manager columns and logical processors
+
 create cup all -y script with shortcut on the start menu
+
 plug mic into all usb ports to disable speaker device and set mic settings
+
 unpin default groups from start menu 
     - pin control panel, this pc, recycle bin, others?
+
+suppress warnings for:
+'These files might be harmful to your computer, Your internet security settings suggest that one or more files may be harmful. Do you want to use it anyway?'
+
+for chocolatey logs see -- C:\ProgramData\chocolatey\logs
+
+uncheck background apps
 
 ################
 # Quick Access #
@@ -1033,31 +1055,22 @@ unpin default groups from start menu
 Pin GitHub to QuickAccess
 Pin watch to QuickAccess
 
+#########################
+# Appended Output Steps #
+#########################
 $global:appendOutputSteps
 ###################################################################################################
+###########################
+# Appended Software Steps #
+###########################
 $global:appendOutputSoftware
-
 ###################################################################################################
-Error List:
-
+##############
+# Error List #
+##############
 $error
-
 "
     $outString | Out-File -FilePath $outputFile -Width 200
-}
-
-####################
-# Restart computer #
-####################
-Function promptForRestart {
-    Switch (Read-Host "Restart? [y]/[n]") {
-        'y' {Restart-Computer ; break}
-        'n' {Write-host "Exiting" -ForegroundColor Yellow ; break}
-        default {
-            Write-host "Invalid input. Please enter [y]/[n]" -ForegroundColor Red
-            promptForRestart
-        }
-    }
 }
 
 ####################
@@ -1071,8 +1084,15 @@ $global:appendOutputSoftware = $null
 ##################
 Function promptFreshInstall {
     Switch (Read-Host "Fresh Install? [y]/[n]") {
-        'y' {$myFirstRunFunctions | ForEach { Invoke-Expression $_ }}
-        'n' {Write-host "Skipping first install steps" -ForegroundColor Yellow ; break}
+        'y' {
+            $myFirstRunFunctions | ForEach { Invoke-Expression $_ }
+            $myFunctions | ForEach { Invoke-Expression $_ }
+            remainingStepsToText
+        }
+        'n' {
+            Write-host "Skipping first install steps" -ForegroundColor Yellow
+            $myFunctions | ForEach { Invoke-Expression $_ }
+         }
         default {
             Write-host "Invalid input. Please enter [y]/[n]" -ForegroundColor Red
             promptFreshInstall
@@ -1080,5 +1100,3 @@ Function promptFreshInstall {
     }
 }
 promptFreshInstall
-
-$myFunctions | ForEach { Invoke-Expression $_ }
