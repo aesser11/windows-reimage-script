@@ -132,19 +132,19 @@ Function installSoftware {
         Switch ($software) {
             "spotify" {
                 choco install $software -y --ignore-checksums
-                choco pin add -n=$software
+                choco pin add -n="$software"
             }
             "teamviewer" {
                 choco install $software -y
-                choco pin add -n=$software
+                choco pin add -n="$software"
                 $global:appendOutputSoftware += "
-
+teamviewer steps to change
 "
             }
             "7zip" {
                 choco install $software -y
                 $global:appendOutputSoftware += "
-
+7zip steps to change
 "
             }
             "windirstat" {
@@ -163,7 +163,7 @@ Function installSoftware {
             }
             default {
                 choco install $software -y
-                choco pin add -n=$software
+                choco pin add -n="$software"
             }
         }
     }
@@ -997,7 +997,6 @@ Function disableWindowsDefenderSampleSubmission {
     Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1
 }
 
-
 <#
 Ex:
 Function appendSteps1 {
@@ -1054,5 +1053,16 @@ $global:appendErrors = $null
 ##################
 # Function Calls #
 ##################
-$myFirstRunFunctions | ForEach { Invoke-Expression $_ }
+Function promptFreshInstall {
+    Switch (Read-Host "Fresh Install? [y]/[n]") {
+        'y' {$myFirstRunFunctions | ForEach { Invoke-Expression $_ }}
+        'n' {Write-host "Skipping first install steps" -ForegroundColor Yellow ; break}
+        default {
+            Write-host "Invalid input. Please enter [y]/[n]" -ForegroundColor Red
+            promptFreshInstall
+        }
+    }
+}
+promptFreshInstall
+
 $myFunctions | ForEach { Invoke-Expression $_ }
