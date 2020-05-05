@@ -24,12 +24,12 @@ $win10AppWhitelist = @(
 $applicationsToInstall = @(
     # my chocolatey apps
     # auto run
+    "github-desktop",
     "hwinfo",
     "msiafterburner",
     "powertoys",
     "rufus",
     "putty",
-    "github-desktop",
     "sublimetext3",
     "vlc",
     "googlechrome",
@@ -56,10 +56,9 @@ $applicationsToInstall = @(
 $myFirstRunFunctions = @(
     # user input required
     "renameComputer",#append-output
-
     # automated
-    "personalFolderTargetSteps",#append-output
-    "installSoftware"#append-software
+    "installSoftware",#append-software
+    "personalFolderTargetSteps"#append-output
 )
 
 $myFunctions = @(
@@ -124,9 +123,11 @@ Function installSoftware {
     ##########################
     #Install Chocolatey package manager
     #PowerShell
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    #Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
     #PowerShell v3+
     #Invoke-WebRequest https://chocolatey.org/install.ps1 -UseBasicParsing | Invoke-Expression
+    #Pulled from https://chocolatey.org/install
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
     foreach ($software in $applicationsToInstall) {
         Switch ($software) {
@@ -152,13 +153,16 @@ teamviewer steps to change
             }
             "battle.net" {
                 #Download manually
-                if (!(Test-Path "C:\Users\$env:username\Downloads\*battle.net*")) {
+                if (!(Test-Path "C:\Users\$env:username\Desktop\*battle.net*")) {
                     Write-Host "Downloading: Battle.net" -ForegroundColor Green -BackgroundColor Black
                     $battlenetURL = "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP"
-                    $output = "C:\Users\$env:username\Downloads\Battle.net-Setup.exe"
+                    $output = "C:\Users\$env:username\Desktop\Battle.net-Setup.exe"
                     $start_time = Get-Date
                     (New-Object System.Net.WebClient).DownloadFile($battlenetURL, $output)
                     Write-Host "Waiting for Battle.net to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
+                    $global:appendOutputSoftware += "
+Battle.net-Setup.exe downloaded to desktop
+"
                 }
             }
             default {
@@ -1014,6 +1018,7 @@ Function remainingStepsToText {
 map network drives
 adjust focus assist?
 adjust task manager columns and logical processors
+create cup all -y script with shortcut on the start menu
 
 ################
 # Quick Access #
@@ -1066,3 +1071,24 @@ Function promptFreshInstall {
 promptFreshInstall
 
 $myFunctions | ForEach { Invoke-Expression $_ }
+
+<#
+see if i can append all errors in an array for the whole script
+$global:appendErrors = $null
+
+invokeInvisFunction
+if (!$?) {
+    $global:appendErrors += "INVIS ERROR: 
+$Error
+"
+}
+
+invokeInvisFunction2
+if (!$?) {
+    $global:appendErrors += "FUNCTION 2 ERROR: 
+$Error
+"
+}
+
+write-host "errorList: $global:appendErrors"
+#>
