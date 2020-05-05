@@ -256,14 +256,9 @@ Function disableTelemetry {
 }
 
 Function uninstallOptionalApps {
-    #Write-Host "Uninstalling Windows 10 Optional Apps..." -ForegroundColor Green -BackgroundColor Black
-    #Write-Host "Removing QuickAssist..." -ForegroundColor Green -BackgroundColor Black
     #Get-WindowsCapability -online | ? {$_.Name -like '*QuickAssist*'} | Remove-WindowsCapability -online
-    #Write-Host "Removing ContactSupport..." -ForegroundColor Green -BackgroundColor Black
     #Get-WindowsCapability -online | ? {$_.Name -like '*ContactSupport*'} | Remove-WindowsCapability -online
-    Write-Host "Removing all Demo apps..." -ForegroundColor Green -BackgroundColor Black
     Get-WindowsCapability -online | ? {$_.Name -like '*Demo*'} | Remove-WindowsCapability -online
-    #Write-Host "Removing Windows Hello Face..." -ForegroundColor Green -BackgroundColor Black
     #Get-WindowsCapability -online | ? {$_.Name -like '*Face*'} | Remove-WindowsCapability -online
 }
 
@@ -372,14 +367,12 @@ Function setWindowsTimeZone {
 
 # Enable legacy F8 boot menu
 Function enableLegacyF8Boot {
-    Write-Host "Enabling F8 boot menu options..." -ForegroundColor Green -BackgroundColor Black
     #bcdedit /set `{current`} bootmenupolicy Legacy
     bcdedit /set "{current}" bootmenupolicy Legacy
 }
 
 # Delete hibernation file -- (cmd)
 Function deleteHibernationFile{
-    Write-Host "Deleting hibernation file..." -ForegroundColor Green -BackgroundColor Black
     powercfg -h off
 }
 
@@ -562,25 +555,20 @@ Function configureWindowsUpdates {
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursStart" -Type DWord -Value 8
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursEnd" -Type DWord -Value 2
     #set update branch to avoid the buggy (Targeted) releases
-    Write-Host "Setting update branch to avoid the buggy (Targeted releases)" -ForegroundColor Green -BackgroundColor Black
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "BranchReadinessLevel" -Type DWord -Value 32
     # set to allow downloads from other PCs on my local network only
-    Write-Host "Restricting Windows Update P2P only to local network..." -ForegroundColor Green -BackgroundColor Black
     if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
         New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Force
     }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1
     # Disable windows insider preview builds
-    Write-Host "Disabling windows insider preview builds" -ForegroundColor Green -BackgroundColor Black
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "InsiderProgramEnabled" -Type DWord -Value 0        
     # Disalbe Edge desktop shortcut creation
-    Write-Host "Disabling Edge desktop shortcut creation" -ForegroundColor Green -BackgroundColor Black
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "DisableEdgeDesktopShortcutCreation" -Type DWord -Value 1 
 }
 
 # Disable all privacy settings
 Function configurePrivacy {
-    Write-Host "Disabling privacy settings..." -ForegroundColor Green -BackgroundColor Black
 # https://privacyamp.com/knowledge-base/windows-10-privacy-settings/
 #   General
     #Disable AdvertisingID
@@ -642,7 +630,6 @@ Function configurePrivacy {
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports" -Name "PreventHandwritingErrorReports" -Type DWord -Value 1
 #   Diagnostics & Feedback
     # Disable Feedback
-    #Write-Host "Disabling Feedback..." -ForegroundColor Green -BackgroundColor Black
     if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules")) {
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules" -Force
     }
@@ -683,8 +670,9 @@ Function configurePrivacy {
 
 # Hide sync provider notifications
 Function explorerHideSyncNotifications {
-    Write-Host "Hiding sync provider notifications..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSyncProviderNotifications" -Type DWord -Value 0
+    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty -Path $path -Name "ShowSyncProviderNotifications" -Type DWord -Value 0 -Force
 }
 
 # Change default Explorer view to This PC
@@ -1003,7 +991,7 @@ Function disableLocalIntranetFileWarnings {
     $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Ranges\Range1"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     Set-ItemProperty $path -Name "*" -Type DWord -Value 1 -Force
-    Set-ItemProperty $path -Name ":Range" -Type String -Value "file://192.168.*.*" -Force
+    Set-ItemProperty $path -Name ":Range" -Type String -Value "192.168.*.*" -Force
 }
 
 Function disableBackgroundApplications {
