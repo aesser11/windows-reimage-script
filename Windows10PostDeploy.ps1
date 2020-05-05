@@ -86,7 +86,7 @@ $myFunctions = @(
     "disableRemoteAssistance",#append-output
     "disableAeroShake",#append-output
     "enableGuestSMBShares",#append-output
-    "disableHomeGroup",#append-output
+    #"disableHomeGroup",#append-output
     "uninstallWMP",#append-output
     "uninstallOneDrive",#append-output
     "setVisualFXAppearance",#append-output
@@ -128,7 +128,7 @@ Function installSoftware {
     #PowerShell v3+
     #Invoke-WebRequest https://chocolatey.org/install.ps1 -UseBasicParsing | Invoke-Expression
 
-    foreach ($software in $softwareList) {
+    foreach ($software in $applicationsToInstall) {
         Switch ($software) {
             "spotify" {
                 choco install $software -y --ignore-checksums
@@ -784,6 +784,7 @@ Function enableGuestSMBShares {
 }
 
 # HomeGroup
+<#
 Function disableHomeGroup {
     Write-Host "Disabling HomeGroup through 'HomeGroup Provider' && 'HomeGroup Listener' services " -ForegroundColor Green -BackgroundColor Black 
     Set-Service HomeGroupListener -StartupType Disabled
@@ -791,6 +792,7 @@ Function disableHomeGroup {
     Set-Service HomeGroupListener -Status Stopped
     Set-Service HomeGroupProvider -Status Stopped
 }
+#>
 
 # Uninstall WMP
 Function uninstallWMP { 
@@ -995,6 +997,14 @@ Function disableWindowsDefenderSampleSubmission {
     Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1
 }
 
+
+<#
+Ex:
+Function appendSteps1 {
+    $global:appendOutputSteps += "
+step 1 step output"
+}
+#>
 Function remainingStepsToText {
     $outputFile = "C:\Users\$env:username\Desktop\Remaining Steps.txt"
     $outString = "
@@ -1004,6 +1014,7 @@ Function remainingStepsToText {
 10GbE
 map network drives
 adjust focus assist?
+adjust task manager columns and logical processors
 
 ################
 # Quick Access #
@@ -1019,26 +1030,6 @@ $global:appendOutputSoftware
     $outString | Out-File -FilePath $outputFile -Width 200
 }
 
-<#
-Ex:
-Function appendSteps1 {
-    $global:appendOutputSteps += "
-step 1 step output"
-}
-#>
-
-####################
-# Global Variables #
-####################
-$global:appendOutputSteps = $null
-$global:appendOutputSoftware = $null
-
-##################
-# Function Calls #
-##################
-$myFirstRunFunctions | ForEach { Invoke-Expression $_ }
-$myFunctions | ForEach { Invoke-Expression $_ }
-
 ####################
 # Restart computer #
 ####################
@@ -1052,3 +1043,16 @@ Function promptForRestart {
         }
     }
 }
+
+####################
+# Global Variables #
+####################
+$global:appendOutputSteps = $null
+$global:appendOutputSoftware = $null
+$global:appendErrors = $null
+
+##################
+# Function Calls #
+##################
+$myFirstRunFunctions | ForEach { Invoke-Expression $_ }
+$myFunctions | ForEach { Invoke-Expression $_ }
