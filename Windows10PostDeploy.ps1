@@ -107,6 +107,8 @@ $myFunctions = @(
     "disableSharedExperiences",
     "disableWifiSense",
     "disableWindowsDefenderSampleSubmission",
+    "disableLocalIntranetFileWarnings",
+    "disableBackgroundApplications",
     "promptForRestart"
 )
 
@@ -244,9 +246,7 @@ Function renameComputer {
     }
 }
 
-# Windows Update control panel may show message "Your device is at risk...", -- try to disable maximum telemetry without triggering this error
 Function disableTelemetry {
-    Write-Host "Disabling Telemetry..." -ForegroundColor Green -BackgroundColor Black
     Set-Service dmwappushservice -StartupType Disabled
     Set-Service dmwappushservice -Status Stopped
     Set-Service DiagTrack -StartupType Disabled
@@ -255,7 +255,6 @@ Function disableTelemetry {
     echo "" > C:\ProgramData\Microsoft\Diagnosis\ETLLogs\AutoLogger\AutoLogger-Diagtrack-Listener.etl
 }
 
-# Optional windows 10 Settings - include more apps as needed
 Function uninstallOptionalApps {
     #Write-Host "Uninstalling Windows 10 Optional Apps..." -ForegroundColor Green -BackgroundColor Black
     #Write-Host "Removing QuickAssist..." -ForegroundColor Green -BackgroundColor Black
@@ -560,13 +559,8 @@ Function setPowerProfile {
 # Configure windows updates
 Function configureWindowsUpdates {
     #set active hours 8am-2am
-    Write-Host "Configuring Windows Updates..." -ForegroundColor Green -BackgroundColor Black
-    Write-Host "Setting active hours 8am-2am" -ForegroundColor Green -BackgroundColor Black
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursStart" -Type DWord -Value 8
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ActiveHoursEnd" -Type DWord -Value 2
-    #show additoinal reminders for update restarts (checkbox to ON)
-    #Write-Host "Showing additional notifications for restarts" -ForegroundColor Green -BackgroundColor Black
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "RestartNotificationsAllowed" -Type DWord -Value 1
     #set update branch to avoid the buggy (Targeted) releases
     Write-Host "Setting update branch to avoid the buggy (Targeted releases)" -ForegroundColor Green -BackgroundColor Black
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "BranchReadinessLevel" -Type DWord -Value 32
@@ -999,10 +993,23 @@ Function disableWindowsDefenderSampleSubmission {
     #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -Type DWord -Value 0
     # Disable M$ account sign in prompt
     Write-Host "Hiding microsoft Account Sign-In Protection warning..." -ForegroundColor Green -BackgroundColor Black
-    If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State")) {
+    if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State")) {
         New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State" -Force
     }
     Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1
+}
+
+Function disableLocalIntranetFileWarnings {
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Ranges\Range1"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty $path -Name "*" -Type DWord -Value 1 -Force
+    Set-ItemProperty $path -Name ":Range" -Type String -Value "192.168.*.*" -Force
+}
+
+Function disableBackgroundApplications {
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty $path -Name "GlobalUserDisabled" -Type DWord -Value 1 -Force
 }
 
 ##################
@@ -1045,13 +1052,30 @@ fyi: for chocolatey logs see -- C:\ProgramData\chocolatey\logs
 # Automatable Steps #
 #####################
 uncheck background apps
+To Disable Background Apps: 
+Reg Add HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications /v GlobalUserDisabled /t REG_DWORD /d 1 /f
+https://troubleshooter.xyz/wiki/how-to-disable-background-apps-in-windows-10/
+
 
 suppress warnings for:
 'These files might be harmful to your computer, Your internet security settings suggest that one or more files may be harmful. Do you want to use it anyway?'
+https://superuser.com/questions/149056/disable-these-files-might-be-harmful-to-your-computer-warning
 
 create cup all -y ; pause script with shortcut (pin to start menu manually)
 
 map network drives (input username and password to map drives as)
+https://superuser.com/questions/149056/disable-these-files-might-be-harmful-to-your-computer-warning
+
+192.168.2.?
+Hackerman
+pw=
+apps
+downloads
+flash?
+media
+share
+store
+timemachine
 
 adjust focus assist?
 
