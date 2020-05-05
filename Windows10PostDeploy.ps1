@@ -1035,8 +1035,6 @@ $global:appendOutputSteps
 $global:appendOutputSoftware
 
 ###################################################################################################
-Error Count: $error.count
-
 Error List:
 
 $error
@@ -1064,7 +1062,6 @@ Function promptForRestart {
 ####################
 $global:appendOutputSteps = $null
 $global:appendOutputSoftware = $null
-$global:appendErrors = $null
 
 ##################
 # Function Calls #
@@ -1082,24 +1079,3 @@ Function promptFreshInstall {
 promptFreshInstall
 
 $myFunctions | ForEach { Invoke-Expression $_ }
-
-<#
-see if i can append all errors in an array for the whole script
-$global:appendErrors = $null
-
-invokeInvisFunction
-if (!$?) {
-    $global:appendErrors += "INVIS ERROR: 
-$Error
-"
-}
-
-invokeInvisFunction2
-if (!$?) {
-    $global:appendErrors += "FUNCTION 2 ERROR: 
-$Error
-"
-}
-
-write-host "errorList: $global:appendErrors"
-#>
