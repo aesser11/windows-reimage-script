@@ -1035,6 +1035,11 @@ catch {
 
 <#
 notes for later:
+###################################################################################################
+# block privacy crap at pfsense level
+https://www.google.com/search?q=block+data+collection+windows+10+pfsense+%3F&rlz=1C1GCEA_enUS829US829&oq=block+data+collection+windows+10+pfsense+%3F&aqs=chrome..69i57.4605j0j4&sourceid=chrome&ie=UTF-8
+
+###################################################################################################
 
 # disable privacy diagnostic data (set to basic at the moment) - https://www.tecklyfe.com/how-to-disable-telemetry-and-data-collection-in-windows-10-regain-your-privacy/
 Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\DataCollection -Name AllowTelemetry -Type DWord -Value 0 -Force
