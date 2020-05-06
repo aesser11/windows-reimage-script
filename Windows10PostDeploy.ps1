@@ -1046,6 +1046,7 @@ Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\DataCollection 
 
 ###################################################################################################
 # enable clipboard history
+https://www.tenforums.com/tutorials/110039-enable-disable-clipboard-history-windows-10-a.html
 HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System
 
 AllowClipboardHistory DWORD
