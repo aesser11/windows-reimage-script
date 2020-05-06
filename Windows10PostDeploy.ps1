@@ -47,6 +47,7 @@ $applicationsToInstall = @(
 
     # manual installs
     "battle.net" #append-software
+    #"electrum" #append-software
 )
 
 #################
@@ -148,19 +149,27 @@ teamviewer steps to change
                 choco install $software -y
             }
             "battle.net" {
-                #Download manually
+                # download manually
                 if (!(Test-Path "C:\Users\$env:username\Desktop\*battle.net*")) {
                     Write-Host "Downloading: Battle.net" -ForegroundColor Green -BackgroundColor Black
-                    $battlenetURL = "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP"
+                    $url = "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP"
                     $output = "C:\Users\$env:username\Desktop\Battle.net-Setup.exe"
                     $start_time = Get-Date
-                    (New-Object System.Net.WebClient).DownloadFile($battlenetURL, $output)
+                    (New-Object System.Net.WebClient).DownloadFile($url, $output)
                     Write-Host "Waiting for Battle.net to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
                     $global:appendOutputSoftware += "
 Battle.net-Setup.exe downloaded to desktop
 "
                 }
             }
+            <#
+            "electrum" {
+                # download manually - get hardcoded version in download
+                # https://electrum.org/#download
+                # https://download.electrum.org/3.3.8/electrum-3.3.8-setup.exe
+                # $version = (Invoke-WebRequest -Uri "https://download.electrum.org/" -UseBasicParsing).Links.Href | %{ new-object System.Version ($_) } | sort
+            }
+            #>
             default {
                 choco install $software -y
                 choco pin add -n="$software"
@@ -948,32 +957,23 @@ Function remainingStepsToText {
 ################
 https://github.com/aesser11/home-lab/wiki/Reimaging-General
 https://github.com/aesser11/home-lab/wiki/Windows-10
-# 10GbE
+# disable GeForce Experience game optimization (install bundled w/ nvidia drivers)
+
+# 10GbE -> https://github.com/aesser11/home-lab/wiki/10GbE#windows-desktop
+
 # plug mic into all usb ports to disable speaker device and set mic settings
-# disable all apps from running at boot
-# adjust task manager columns and logical processors
+
+# set task manager columns [process name, cpu, memory, disk, network, gpu]
+# set task manager cpu to logical processors
+# set task manager startup apps to disabled from running at boot
+
 # show details during file transfers
-# unpin default groups from start menu 
+
+# unpin default groups from start menu
 # remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
 
-# Install GeForce Experience w/ nvidia drivers
-    # disable game optimization
-# Install Electrum -> https://electrum.org/#download
-
-##############
-# Start Menu #
-##############
-Calculator
-Snipping Tool (to be replaced by Snip & Sketch)
-Paint (to be replaced by Paint 3D)
-Remote Desktop
-Internet Exploder
-Windows Sandbox
-
-This PC
-Control Panel
-Recycle Bin
-Local Games -> C:\Users\Hackerman\Local Games
+# pin GitHub to QuickAccess
+# pin watch to QuickAccess
 
 #####################
 # Automatable Steps #
@@ -997,9 +997,6 @@ X: \\192.168.2.3\media
 W: \\192.168.2.3\share
 V: \\192.168.2.3\store
 ######################
-
-# Pin GitHub to QuickAccess
-# Pin watch to QuickAccess
 
 #########################
 # Appended Output Steps #
