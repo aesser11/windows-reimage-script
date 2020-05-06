@@ -1066,8 +1066,6 @@ New-PSDrive -Name "V" -Root "\\$server\store" -Persist -PSProvider "FileSystem" 
 
 ###################################################################################################
 
-"HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
-
 #Template for changing registry
 reg functions to combine 
 
