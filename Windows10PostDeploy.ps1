@@ -45,7 +45,7 @@ $applicationsToInstall = @(
     "7zip",#no pin && #append-software
     "windirstat",#no pin
 
-    # manual installs
+    # manual downloads
     "battle.net" #append-software
     #"electrum" #append-software
 )
@@ -972,31 +972,16 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # unpin default groups from start menu
 # remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
 
+# adjust focus assist
+
 # pin GitHub to QuickAccess
 # pin watch to QuickAccess
 
 #####################
 # Automatable Steps #
 #####################
-# disable privacy diagnostic data (set to basic at the moment)
-# set night light?
-# enable clipboard history?
+# https://electrum.org/#download
 # create cup all -y ; pause script with shortcut (pin to start menu manually)
-# adjust focus assist?
-
-######################
-# map network drives #
-######################
-# input username and password to map drives as, 10gbe must be configred first, maybe have a prompt for dest IPs -- 192.168.2.3 default
-Hackerman
-password in lastpass
-
-Z: \\192.168.2.3\apps
-Y: \\192.168.2.3\downloads
-X: \\192.168.2.3\media
-W: \\192.168.2.3\share
-V: \\192.168.2.3\store
-######################
 
 #########################
 # Appended Output Steps #
@@ -1050,9 +1035,25 @@ catch {
 
 <#
 notes for later:
+
+# disable privacy diagnostic data (set to basic at the moment) - https://www.tecklyfe.com/how-to-disable-telemetry-and-data-collection-in-windows-10-regain-your-privacy/
+Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\DataCollection -Name AllowTelemetry -Type DWord -Value 0 -Force
+
+###################################################################################################
+# enable clipboard history
+HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System
+
+AllowClipboardHistory DWORD
+
+(delete) = Enable
+0 = Disable
+
 ###################################################################################################
 # map network drives #
 ######################
+# input username and password to map drives as, 10gbe must be configred first, maybe have a prompt for dest IPs -- 192.168.2.3 default
+Hackerman
+password in lastpass
 $server = Read-Host -Prompt "enter ip for mapped drives - [enter] for default of 192.168.2.3"
 $cred = Get-Credential
 New-PSDrive -Name "Z" -Root "\\$server\apps" -Persist -PSProvider "FileSystem" -Credential $cred
@@ -1066,8 +1067,55 @@ New-PSDrive -Name "V" -Root "\\$server\store" -Persist -PSProvider "FileSystem" 
 #Template for changing registry
 reg functions to combine 
 
+# try to find some commonality between these reg keys -- possible to "disable all privacy only"?
 "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
      #Software
 "HKLM:SOFTWARE\Policies\Microsoft\Windows\System"
 "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+
+
+# set night light
+Function configureNightLight {
+    if ($global:changeNightLight -eq $true) {
+        Function Set-BlueLightReductionSettings {
+            # Source
+            # https://superuser.com/questions/1200222/configure-windows-creators-update-night-light-via-registry
+            [CmdletBinding()]
+            Param (
+                [Parameter(Mandatory=$true)] [ValidateRange(0, 23)] [int]$StartHour,
+                [Parameter(Mandatory=$true)] [ValidateSet(0, 15, 30, 45)] [int]$StartMinutes,
+                [Parameter(Mandatory=$true)] [ValidateRange(0, 23)] [int]$EndHour,
+                [Parameter(Mandatory=$true)] [ValidateSet(0, 15, 30, 45)] [int]$EndMinutes,
+                [Parameter(Mandatory=$true)] [bool]$Enabled,
+                [Parameter(Mandatory=$true)] [ValidateRange(1200, 6500)] [int]$NightColorTemperature
+            )
+            $data = (2, 0, 0, 0)
+            $data += [BitConverter]::GetBytes((Get-Date).ToFileTime())
+            $data += (0, 0, 0, 0, 0x43, 0x42, 1, 0)
+            If ($Enabled) {$data += (2, 1)}
+            $data += (0xCA, 0x14, 0x0E)
+            $data += $StartHour
+            $data += 0x2E
+            $data += $StartMinutes
+            $data += (0, 0xCA, 0x1E, 0x0E)
+            $data += $EndHour
+            $data += 0x2E
+            $data += $EndMinutes
+            $data += (0, 0xCF, 0x28)
+            $tempHi = [Math]::Floor($NightColorTemperature / 64)
+            $tempLo = (($NightColorTemperature - ($tempHi * 64)) * 2) + 128
+            $data += ($tempLo, $tempHi)
+            $data += (0xCA, 0x32, 0, 0xCA, 0x3C, 0, 0)
+            Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\$$windows.data.bluelightreduction.settings\Current' -Name 'Data' -Value ([byte[]]$data) -Type Binary
+        }
+        Set-BlueLightReductionSettings -StartHour 21 -StartMinutes 30 -EndHour 8 -EndMinutes 0 -Enabled $true -NightColorTemperature 3400
+        $global:skipFlux = $true
+    }
+    else {
+        Write-Host "Night light not set" -ForegroundColor Yellow -BackgroundColor Black
+        $global:skipFlux = $false
+    }
+}
+
+
 #>
