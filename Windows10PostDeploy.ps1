@@ -77,20 +77,19 @@ $myFunctions = @(
     "soundCommsAttenuation",
 
     # my functions
-    "powerUserDeleteApps",
+    "removeWin10Apps",
     "uninstallWindowsFeatures",
     "removePrinters",
     "disableRemoteAssistance",
     "enableGuestSMBShares",
     #"disableHomeGroup",
-    "uninstallWMP",
     "uninstallOneDrive",
     "setVisualFXAppearance",
     "taskbarShowTrayIcons",
     "taskbarHideSearch",
     "taskbarHidePeopleIcon",
     "taskbarHideInkWorkspace",
-    "disableBingWebSearch",
+    "disableWebSearch",
     "disableLockScreenTips",
     "explorerHideRecentShortcuts",
     "explorerSetControlPanelLargeIcons",
@@ -254,6 +253,7 @@ Function uninstallOptionalApps {
     #Get-WindowsCapability -online | ? {$_.Name -like '*ContactSupport*'} | Remove-WindowsCapability -online
     Get-WindowsCapability -online | ? {$_.Name -like '*Demo*'} | Remove-WindowsCapability -online
     #Get-WindowsCapability -online | ? {$_.Name -like '*Face*'} | Remove-WindowsCapability -online
+    Get-WindowsCapability -online | ? {$_.Name -like '*WindowsMediaPlayer*'} | Remove-WindowsCapability -online
 }
 
 # Sync windows time -------- (explorer)
@@ -667,90 +667,83 @@ Function configurePrivacy {
 #disable background apps 
 }
 
-# Disable Sticky keys -------------- (explorer)
 Function disableStickyKeys {
-    Write-Host "Disabling Sticky keys prompt..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\Control Panel\Accessibility\StickyKeys" -Name "Flags" -Type String -Value "506"
-
+    $path="HKCU:\Control Panel\Accessibility\StickyKeys"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # disable stickykeys
+    Set-ItemProperty -Path $path -Name "Flags" -Type String -Value "506" -Force
 }
-# Adjust page filing settings to C: drive specifically with 'system managed size'
+
 Function setPageFileToC {
-    Write-Host "Adjust page filing settings to C: drive specifically with 'system managed size'" -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\" -Name "PagingFiles" -Type MultiString -Value "c:\pagefile.sys 0 0"
+    $path="HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # set page file settings to C: drive with "system managed size"
+    Set-ItemProperty -Path $path -Name "PagingFiles" -Type MultiString -Value "C:\pagefile.sys 0 0" -Force
 }
 
-# Disable mouse acceleration (ctrl pan)
 Function disableMouseAcceleration {
-    #control.exe mouse
-    Write-Host "Disabling mouse acceleration" -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Type String -Value 0
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Type String -Value 0
-    Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Type String -Value 0
+    $path="HKCU:\Control Panel\Mouse"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # disable mouse acceleration
+    Set-ItemProperty -Path $path -Name "MouseSpeed" -Type String -Value 0 -Force
+    Set-ItemProperty -Path $path -Name "MouseThreshold1" -Type String -Value 0 -Force
+    Set-ItemProperty -Path $path -Name "MouseThreshold2" -Type String -Value 0 -Force
 }
 
 Function soundCommsAttenuation {
-    Write-Host "Setting Communications tab to 'do nothing'" -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Multimedia\Audio" -Name "UserDuckingPreference" -Type DWord -Value 3
+    $path="HKCU:\Software\Microsoft\Multimedia\Audio"
+    # set communications tab to "do nothing"
+    Set-ItemProperty -Path $path -Name "UserDuckingPreference" -Type DWord -Value 3 -Force
 }
 
-# Uninstall windows 10 apps
-Function powerUserDeleteApps {
+Function removeWin10Apps {
     # suppress errors for these cmdlets, very noisy and never looked at
-    Write-Host "Nuking out all Windows 10 apps except whitelisted apps" -ForegroundColor Green -BackgroundColor Black
     foreach ($app in $win10AppWhitelist) {
         Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "$app"} | Remove-AppxPackage -ErrorAction Ignore
         Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -notlike "$app"} | Remove-AppxProvisionedPackage -Online -ErrorAction Ignore
     }
-    # Reinstall all apps 
+    # reinstall all apps 
     # Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 }
 
-# Remove windows features (# Get-WindowsOptionalFeature -online)
 Function uninstallWindowsFeatures {
-    # Disable PowerShellv2
-    Write-Host "Uninstalling PowerShellv2..." -ForegroundColor Green -BackgroundColor Black
+    # disable PowerShellv2
     Disable-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2" -NoRestart
     Disable-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2Root" -NoRestart
-    # Disable SMBv1
-    Write-Host "Uninstalling SMBv1..." -ForegroundColor Green -BackgroundColor Black
+    # disable SMBv1
     Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol" -NoRestart
     Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol-Client" -NoRestart
     Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol-Server" -NoRestart
-    # Disable Telnet 
-    Write-Host "Uninstalling Telnet..." -ForegroundColor Green -BackgroundColor Black
+    # disable Telnet
     Disable-WindowsOptionalFeature -Online -FeatureName "TelnetClient" -NoRestart
-    # Uninstall windows fax and scan Services
-    Write-Host "Uninstalling Windows Fax and Scan Services..." -ForegroundColor Green -BackgroundColor Black
+    # uninstall windows fax and scan services
     Disable-WindowsOptionalFeature -Online -FeatureName "FaxServicesClientPackage" -NoRestart
-    # Uninstall Microsoft XPS Document Writer
-    Write-Host "Uninstalling Microsoft XPS Document Writer..." -ForegroundColor Green -BackgroundColor Black
+    # uninstall microsoft xps document writer
     Disable-WindowsOptionalFeature -Online -FeatureName "Printing-XPSServices-Features" -NoRestart
+    # windows media player
+    Disable-WindowsOptionalFeature -Online -FeatureName "MediaPlayback" -NoRestart
+    Disable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoRestart
 }
 
-# Remove Default Fax and XPS Printers
 Function removePrinters {
-    Write-Host "Removing Default Fax and XPS Printers..." -ForegroundColor Green -BackgroundColor Black
+    # remove default fax and xps printers    
     Remove-Printer -Name "Fax"
     Remove-Printer -Name "Microsoft XPS Document Writer"
 }
 
-# Disable allow remote assistance connections to this computer automatically
 Function disableRemoteAssistance {
-    Write-Host "Disabling remote assistance" -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance")){
-        New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowFullControl" -Type DWord -Value 0
+    $path="HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # disable allow remote assistance connections to this computer automatically
+    Set-ItemProperty -Path $path -Name "fAllowToGetHelp" -Type DWord -Value 0 -Force
+    Set-ItemProperty -Path $path -Name "fAllowFullControl" -Type DWord -Value 0 -Force
 }
 
-# Enable Guest SMB shares
 Function enableGuestSMBShares {
-    Write-Host "Enabling Guest SMB Share Access" -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LanmanWorkstation")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LanmanWorkstation" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LanmanWorkstation" -Name "AllowInsecureGuestAuth" -Type DWord -Value 1
+    $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\LanmanWorkstation"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # enable guest SMB shares
+    Set-ItemProperty -Path $path -Name "AllowInsecureGuestAuth" -Type DWord -Value 1
 }
 
 # HomeGroup
@@ -764,54 +757,42 @@ Function disableHomeGroup {
 }
 #>
 
-# Uninstall WMP
-Function uninstallWMP { 
-    Write-Host "Uninstalling WMP..." -ForegroundColor Green -BackgroundColor Black
-    Disable-WindowsOptionalFeature -Online -FeatureName "MediaPlayback" -NoRestart
-    Disable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoRestart
-    Write-Host "Removing WMP from win10 settings..." -ForegroundColor Green -BackgroundColor Black
-    Get-WindowsCapability -online | ? {$_.Name -like '*WindowsMediaPlayer*'} | Remove-WindowsCapability -online
-}
-# OneDrive removal
-# Uninstall OneDrive
 Function uninstallOneDrive {
-    Write-Host "Uninstalling OneDrive..." -ForegroundColor Green -BackgroundColor Black
+    # uninstall onedrive
     Stop-Process -Name "OneDrive" -Force
-
-    $onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-    if (!(Test-Path $onedrive)) {
-        $onedrive = "$env:SYSTEMROOT\System32\OneDriveSetup.exe"
-    }
-    Start-Process $onedrive "/uninstall"
+    $path = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
+    if (!(Test-Path $path)) { $path = "$env:SYSTEMROOT\System32\OneDriveSetup.exe" }
+    Start-Process $path "/uninstall"
 }
 
-# Adjusts visual effects for "Appearance" mode
 Function setVisualFXAppearance {
-    Write-Host "Adjusting visual effects for appearance..." -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects")) {
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Force
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Type DWord -Value 1
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # set visual effects for "appearance" mode
+    Set-ItemProperty -Path $path -Name "VisualFXSetting" -Type DWord -Value 1 -Force
 }
 
-#Show all notification icons on the taskbar
 Function taskbarShowTrayIcons {
-    Write-Host "Showing all tray icons..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "EnableAutoTray" -Type DWord -Value 0
+    # show all tray notification icons on the taskbar
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty -Path $path -Name "EnableAutoTray" -Type DWord -Value 0 -Force
 }
 
-# Hide Taskbar Search icon / box
 Function taskbarHideSearch {
-    Write-Host "Hiding Taskbar Search icon & box..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Type DWord -Value 0
+    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # hide taskbar search icon / box
+    Set-ItemProperty -Path $path -Name "SearchboxTaskbarMode" -Type DWord -Value 0 -Force
+    # disable bing web search
+    Set-ItemProperty -Path $path -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
+    Set-ItemProperty -Path $path -Name "CortanaConsent" -Type DWord -Value 0 -Force
 }
 
-# Hide Taskbar People icon
 Function taskbarHidePeopleIcon {
-    Write-Host "Hiding People icon..." -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People")) {
-        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Force
-    }
+    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # hide taskbar people icon
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0
 }
 Function taskbarHideInkWorkspace {
@@ -819,15 +800,11 @@ Function taskbarHideInkWorkspace {
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PenWorkspace" -Name "PenWorkspaceButtonDesiredVisibility" -Type DWord -Value 0
 }
 
-# Prevent bing search within using cortana
-Function disableBingWebSearch {
-    Write-Host "Disabling Bing Search in Start Menu..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "BingSearchEnabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" -Name "CortanaConsent" -Type DWord -Value 0
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name "DisableWebSearch" -Type DWord -Value 1
+Function disableWebSearch {
+    $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search\"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # disable web search 
+    Set-ItemProperty -Path $path -Name "DisableWebSearch" -Type DWord -Value 1 -Force
 }
 
 # Disable fun facts and tips on lock screen and remove spotlight
@@ -843,34 +820,32 @@ Function disableLockScreenTips {
 }
 
 # Hide recently and frequently used item shortcuts in Explorer
+# leave this alone?/comment it out?
 Function explorerHideRecentShortcuts {
     Write-Host "Hiding recent shortcuts from file explorer context..." -ForegroundColor Green -BackgroundColor Black
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Type DWord -Value 0
     Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -Type DWord -Value 0
 }
 
-# Set Control Panel view to Large icons (Classic)
 Function explorerSetControlPanelLargeIcons {
-    Write-Host "Setting Control Panel view to large icons..." -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel")) {
-        New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" -Force
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" -Name "StartupPage" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel" -Name "AllItemsIconView" -Type DWord -Value 0
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # set control panel view to large icons
+    Set-ItemProperty -Path $path -Name "StartupPage" -Type DWord -Value 1 -Force
+    Set-ItemProperty -Path $path -Name "AllItemsIconView" -Type DWord -Value 0 -Force
 }
 
-# Switch to start menu dark theme for power user
 Function enableDarkMode {
-    Write-Host "Enabling dark mode..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Type DWord -Value 0
+    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # enable dark mode
+    Set-ItemProperty -Path $path -Name "AppsUseLightTheme" -Type DWord -Value 0 -Force
 }
 
-# Create a power user folder
 Function mkdirGodMode {
-    Write-Host "Creating GodMode directory in user context and pinning it to QuickAccess" -ForegroundColor Green -BackgroundColor Black
-    New-Item -ItemType Directory -Path "C:\Users\$env:username\GodMode.{ED7BA470-8E54-465E-825C-99712043E01C}" -Force
-    
+    # create god mode folder in home directory and pin shortcut to quick access
     $Path = "C:\Users\$env:username\GodMode.{ED7BA470-8E54-465E-825C-99712043E01C}"
+    New-Item -ItemType Directory -Path $Path -Force
     $QuickAccess = New-Object -ComObject shell.application 
     $TargetObject = $QuickAccess.Namespace("shell:::{679f85cb-0220-4080-b29b-5540cc05aab6}").Items() | where {$_.Path -eq "$Path"} 
     
@@ -1092,3 +1067,20 @@ promptFreshInstall
 catch {
     $error | Out-File -FilePath "C:\Users\$env:username\Desktop\CrashLog.txt" -Width 200
 }
+
+<#
+
+Template for changing registry
+
+"HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
+Function newFunction {
+    $path=""
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    #example
+    Set-ItemProperty -Path $path -Name "ExampleNameABC123!@#" -Type DWord -Value 0 -Force
+}
+
+"HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+"SOFTWARE\Policies\Microsoft\Windows\System"
+
+#>
