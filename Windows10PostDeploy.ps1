@@ -26,7 +26,6 @@ $applicationsToInstall = @(
     # auto run
     "github-desktop",
     "hwinfo",
-    "msiafterburner",
     "powertoys",
     "rufus",
     "putty",
@@ -169,15 +168,6 @@ Battle.net-Setup.exe downloaded to desktop
             }
         }
     }
-
-    #Extras:
-    #append-software
-    # install later - write to commands to text file - pin = y
-    #"imgburn"
-    # "electrum" - myself only write w/ url to output.txt
-    # "geforce experience" - myself only write to output.txt
-
-    # - disable all from running at boot
 }
 
 # Append disk steps to the text file if applicable
@@ -793,11 +783,13 @@ Function taskbarHidePeopleIcon {
     $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     # hide taskbar people icon
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0 -Force
 }
 Function taskbarHideInkWorkspace {
-    Write-Host "Hiding windows ink workspace..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PenWorkspace" -Name "PenWorkspaceButtonDesiredVisibility" -Type DWord -Value 0
+    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PenWorkspace"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # hide windows ink workspace
+    Set-ItemProperty -Path $path -Name "PenWorkspaceButtonDesiredVisibility" -Type DWord -Value 0 -Force
 }
 
 Function disableWebSearch {
@@ -807,8 +799,8 @@ Function disableWebSearch {
     Set-ItemProperty -Path $path -Name "DisableWebSearch" -Type DWord -Value 1 -Force
 }
 
-# Disable fun facts and tips on lock screen and remove spotlight
 Function disableLockScreenTips {
+# disable fun facts and tips on lock screen and remove spotlight
 #start ms-settings:lockscreen
     Write-Host "Disabling More fun facts and tips on lock screen" -ForegroundColor Green -BackgroundColor Black
     if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
@@ -819,12 +811,12 @@ Function disableLockScreenTips {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0
 }
 
-# Hide recently and frequently used item shortcuts in Explorer
-# leave this alone?/comment it out?
 Function explorerHideRecentShortcuts {
-    Write-Host "Hiding recent shortcuts from file explorer context..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -Type DWord -Value 0
+    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # hide recent shortcuts from file explorer/quick access context
+    Set-ItemProperty -Path $path -Name "ShowRecent" -Type DWord -Value 0 -Force
+    Set-ItemProperty -Path $path -Name "ShowFrequent" -Type DWord -Value 0 -Force
 }
 
 Function explorerSetControlPanelLargeIcons {
@@ -867,43 +859,39 @@ Function disableSharedExperiences {
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableCdp" -Type DWord -Value 0
 }
 
-# Disable hot spots and wifi sense
 Function disableWifiSense {
-    Write-Host "Disabling Wi-Fi Sense..." -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWifiHotSpotReporting")) {
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWifiHotSpotReporting" -Force
-    }
-    if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowAutoConnectToWifiSenseHotspots")) {
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowAutoConnectToWifiSenseHotspots" -Force
-    }
-    if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config")) {
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWifiHotSpotReporting" -Name "Value" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowAutoConnectToWifiSenseHotspots" -Name "Value" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "AutoConnectAllowedOEM" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "WifISenseAllowed" -Type DWord -Value 0
+    # disable hot spots and wifi sense
+    $path1="HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWifiHotSpotReporting"
+    if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWifiHotSpotReporting" -Name "Value" -Type DWord -Value 0 -Force
+
+    $path2="HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowAutoConnectToWifiSenseHotspots"
+    if (!(Test-Path $path2)) { New-Item -Path $path2 -Force }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowAutoConnectToWifiSenseHotspots" -Name "Value" -Type DWord -Value 0 -Force
+
+    $path3="HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config"
+    if (!(Test-Path $path3)) { New-Item -Path $path3 -Force }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "AutoConnectAllowedOEM" -Type DWord -Value 0 -Force
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "WifISenseAllowed" -Type DWord -Value 0 -Force
 }
 
-# Configure Windows Defender
 Function disableWindowsDefenderSampleSubmission {
-    Write-Host "Disabling windows defender sample submission" -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Force
-    }
-    #Disable automatic sample submission (also seems to suppress automatic sample submission alerts)
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SubmitSamplesConsent" -Type DWord -Value 2
-    #Disable cloud based protection
-    #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name "SpynetReporting" -Type DWord -Value 0
-    # Disable M$ account sign in prompt
-    Write-Host "Hiding microsoft Account Sign-In Protection warning..." -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State")) {
-        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State" -Force
-    }
-    Set-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1
+    # configure windows defender
+    $path1="HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet"
+    if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
+    # disable windows defender automatic sample submission - (also seems to suppress automatic sample submission alerts)
+    Set-ItemProperty -Path $path1 -Name "SubmitSamplesConsent" -Type DWord -Value 2 -Force
+    # disable cloud based protection
+    #Set-ItemProperty -Path $path1 -Name "SpynetReporting" -Type DWord -Value 0
+
+    $path2="HKCU:\SOFTWARE\Microsoft\Windows Security Health\State"
+    if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
+    # hide m$ account sign in warning
+    Set-ItemProperty $path2 -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1 -Force
 }
 
 Function disableLocalIntranetFileWarnings {
+    # disable for 192.168.*.* - "These files might be harmful to your computer, Your internet security settings suggest that one or more files may be harmful. Do you want to use it anyway?"
     $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Ranges\Range1"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     Set-ItemProperty -Path $path -Name "*" -Type DWord -Value 1 -Force
@@ -964,59 +952,60 @@ Function remainingStepsToText {
 ################
 # Manual Steps #
 ################
+https://github.com/aesser11/home-lab/wiki/Reimaging-General
 https://github.com/aesser11/home-lab/wiki/Windows-10
+# 10GbE
+# plug mic into all usb ports to disable speaker device and set mic settings
+# disable all apps from running at boot
+# adjust task manager columns and logical processors
+# show details during file transfers
+# unpin default groups from start menu 
+# remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
 
-10GbE
+# Install GeForce Experience w/ nvidia drivers
+    # disable game optimization
+# Install Electrum -> https://electrum.org/#download
 
-adjust task manager columns and logical processors
+##############
+# Start Menu #
+##############
+Calculator
+Snipping Tool (to be replaced by Snip & Sketch)
+Paint (to be replaced by Paint 3D)
+Remote Desktop
+Internet Exploder
+Windows Sandbox
 
-plug mic into all usb ports to disable speaker device and set mic settings
-
-unpin default groups from start menu 
-    - pin control panel, this pc, recycle bin, others?
-
-fyi: for chocolatey logs see -- C:\ProgramData\chocolatey\logs
+This PC
+Control Panel
+Recycle Bin
+Local Games -> C:\Users\Hackerman\Local Games
 
 #####################
 # Automatable Steps #
 #####################
-uncheck background apps
-To Disable Background Apps: 
-Reg Add HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications /v GlobalUserDisabled /t REG_DWORD /d 1 /f
-https://troubleshooter.xyz/wiki/how-to-disable-background-apps-in-windows-10/
+# disable privacy diagnostic data (set to basic at the moment)
+# set night light?
+# enable clipboard history?
+# create cup all -y ; pause script with shortcut (pin to start menu manually)
+# adjust focus assist?
 
-disable privacy diagnostic data (set to basic at the moment)
-
-set night light
-
-enable clipboard history?
-
-suppress warnings for:
-'These files might be harmful to your computer, Your internet security settings suggest that one or more files may be harmful. Do you want to use it anyway?'
-https://superuser.com/questions/149056/disable-these-files-might-be-harmful-to-your-computer-warning
-
-create cup all -y ; pause script with shortcut (pin to start menu manually)
-
-map network drives (input username and password to map drives as)
-
-192.168.2.?
+######################
+# map network drives #
+######################
+# input username and password to map drives as, 10gbe must be configred first, maybe have a prompt for dest IPs -- 192.168.2.3 default
 Hackerman
-pw=
-apps
-downloads
-flash?
-media
-share
-store
-timemachine
+password in lastpass
 
-adjust focus assist?
+Z: \\192.168.2.3\apps
+Y: \\192.168.2.3\downloads
+X: \\192.168.2.3\media
+W: \\192.168.2.3\share
+V: \\192.168.2.3\store
+######################
 
-################
-# Quick Access #
-################
-Pin GitHub to QuickAccess
-Pin watch to QuickAccess
+# Pin GitHub to QuickAccess
+# Pin watch to QuickAccess
 
 #########################
 # Appended Output Steps #
@@ -1053,7 +1042,7 @@ Function promptFreshInstall {
             remainingStepsToText
         }
         'n' {
-            Write-host "Skipping first install steps" -ForegroundColor Yellow
+            Write-host "Skipping first install steps..." -ForegroundColor Yellow
             $myFunctions | ForEach { Invoke-Expression $_ }
          }
         default {
@@ -1069,18 +1058,13 @@ catch {
 }
 
 <#
+notes for later:
 
-Template for changing registry
-
-"HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
-Function newFunction {
-    $path=""
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    #example
-    Set-ItemProperty -Path $path -Name "ExampleNameABC123!@#" -Type DWord -Value 0 -Force
-}
-
-"HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
-"SOFTWARE\Policies\Microsoft\Windows\System"
-
+$server = Read-Host -Prompt "enter ip for mapped drives - [enter] for default of 192.168.2.3"
+$cred = Get-Credential
+New-PSDrive -Name "Z" -Root "\\$server\apps" -Persist -PSProvider "FileSystem" -Credential $cred
+New-PSDrive -Name "Y" -Root "\\$server\downloads" -Persist -PSProvider "FileSystem" -Credential $cred
+New-PSDrive -Name "X" -Root "\\$server\media" -Persist -PSProvider "FileSystem" -Credential $cred
+New-PSDrive -Name "W" -Root "\\$server\share" -Persist -PSProvider "FileSystem" -Credential $cred
+New-PSDrive -Name "V" -Root "\\$server\store" -Persist -PSProvider "FileSystem" -Credential $cred
 #>
