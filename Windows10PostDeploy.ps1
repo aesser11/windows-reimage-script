@@ -84,13 +84,12 @@ $myFunctions = @(
     #"disableHomeGroup",
     "uninstallOneDrive",
     "setVisualFXAppearance",
-    "taskbarShowTrayIcons",
+    "explorerSettings",
     "taskbarHideSearch",
     "taskbarHidePeopleIcon",
     "taskbarHideInkWorkspace",
     "disableWebSearch",
     "disableLockScreenTips",
-    "explorerHideRecentShortcuts",
     "explorerSetControlPanelLargeIcons",
     "enableDarkMode",
     "mkdirGodMode",
@@ -99,7 +98,7 @@ $myFunctions = @(
     "disableWindowsDefenderSampleSubmission",
     "disableLocalIntranetFileWarnings",
     "disableBackgroundApplications",
-    "fileExplorerSettings",
+    "advancedExplorerSettings",
     "promptForRestart"
 )
 
@@ -762,11 +761,14 @@ Function setVisualFXAppearance {
     Set-ItemProperty -Path $path -Name "VisualFXSetting" -Type DWord -Value 1 -Force
 }
 
-Function taskbarShowTrayIcons {
-    # show all tray notification icons on the taskbar
+Function explorerSettings {
     $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # show all tray notification icons on the taskbar
     Set-ItemProperty -Path $path -Name "EnableAutoTray" -Type DWord -Value 0 -Force
+    # hide recent shortcuts from file explorer/quick access context
+    Set-ItemProperty -Path $path -Name "ShowRecent" -Type DWord -Value 0 -Force
+    Set-ItemProperty -Path $path -Name "ShowFrequent" -Type DWord -Value 0 -Force
 }
 
 Function taskbarHideSearch {
@@ -809,14 +811,6 @@ Function disableLockScreenTips {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "RotatingLockScreenEnabled" -Type DWord -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "RotatingLockScreenOverlayEnabled" -Type DWord -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0
-}
-
-Function explorerHideRecentShortcuts {
-    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # hide recent shortcuts from file explorer/quick access context
-    Set-ItemProperty -Path $path -Name "ShowRecent" -Type DWord -Value 0 -Force
-    Set-ItemProperty -Path $path -Name "ShowFrequent" -Type DWord -Value 0 -Force
 }
 
 Function explorerSetControlPanelLargeIcons {
@@ -904,7 +898,7 @@ Function disableBackgroundApplications {
     Set-ItemProperty -Path $path -Name "GlobalUserDisabled" -Type DWord -Value 1 -Force
 }
 
-Function fileExplorerSettings {
+Function advancedExplorerSettings {
     $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     # hide sync provider notifications
@@ -1059,7 +1053,9 @@ catch {
 
 <#
 notes for later:
-
+###################################################################################################
+# map network drives #
+######################
 $server = Read-Host -Prompt "enter ip for mapped drives - [enter] for default of 192.168.2.3"
 $cred = Get-Credential
 New-PSDrive -Name "Z" -Root "\\$server\apps" -Persist -PSProvider "FileSystem" -Credential $cred
@@ -1067,4 +1063,16 @@ New-PSDrive -Name "Y" -Root "\\$server\downloads" -Persist -PSProvider "FileSyst
 New-PSDrive -Name "X" -Root "\\$server\media" -Persist -PSProvider "FileSystem" -Credential $cred
 New-PSDrive -Name "W" -Root "\\$server\share" -Persist -PSProvider "FileSystem" -Credential $cred
 New-PSDrive -Name "V" -Root "\\$server\store" -Persist -PSProvider "FileSystem" -Credential $cred
+
+###################################################################################################
+
+"HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
+
+#Template for changing registry
+reg functions to combine 
+
+"HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+     #Software
+"HKLM:SOFTWARE\Policies\Microsoft\Windows\System"
+"HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
 #>
