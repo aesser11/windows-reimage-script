@@ -53,7 +53,7 @@ $applicationsToInstall = @(
 #################
 # Reimage Steps #
 #################
-$myFirstRunFunctions = @(
+$myFirstRunFunctions1 = @(
     # user input required
     "renameComputer",#change-prompt-logic
     # automated
@@ -61,7 +61,12 @@ $myFirstRunFunctions = @(
     "personalFolderTargetSteps"
 )
 
-$myFunctions = @(
+$myFinalFirstRunFunctions3 = @(
+    "mapNetworkDrives",
+    "remainingStepsToText"
+)
+
+$myEveryRunFunctions2 = @(
     # universal functions
     "disableTelemetry",
     "uninstallOptionalApps",
@@ -100,8 +105,13 @@ $myFunctions = @(
     "disableLocalIntranetFileWarnings",
     "disableBackgroundApplications",
     "advancedExplorerSettings",
+    "enableClipboardHistory"
+)
+
+myFinalEveryRunFunctions4 = @(
     "promptForRestart"
 )
+
 
 #############
 # Functions #
@@ -894,7 +904,8 @@ Function disableWindowsDefenderSampleSubmission {
 }
 
 Function disableLocalIntranetFileWarnings {
-    # disable for 192.168.*.* - "These files might be harmful to your computer, Your internet security settings suggest that one or more files may be harmful. Do you want to use it anyway?"
+    # disable "These files might be harmful to your computer, Your internet security settings suggest that one or more files may be harmful. Do you want to use it anyway?"
+    # for 192.168.*.*
     $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Ranges\Range1"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     Set-ItemProperty -Path $path -Name "*" -Type DWord -Value 1 -Force
@@ -932,6 +943,27 @@ Function advancedExplorerSettings {
     Set-ItemProperty -Path $path -Name "Hidden" -Type DWord -Value 1 -Force
 }
 
+Function enableClipboardHistory {
+    $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    # enable clipboard history
+    Set-ItemProperty -Path $path -Name "AllowClipboardHistory" -Type DWord -Value 1 -Force
+}
+
+Function mapNetworkDrives {
+    $server = "192.168.2.3"
+    Write-Host  "Assuming $server for server IP" -ForegroundColor Yellow
+    Write-Host  "Ensure 10GbE is configured before continuing!!!" -ForegroundColor Red
+    #$cred = Get-Credential
+    $cred = $host.ui.PromptForCredential("Ensure 10+GbE is configured before continuing!!!", "UnRaider user/pass", "Test3rdBox", "Hackerman")
+
+    New-PSDrive -Name "Z" -Root "\\$server\apps" -Persist -PSProvider "FileSystem" -Credential $cred
+    New-PSDrive -Name "Y" -Root "\\$server\downloads" -Persist -PSProvider "FileSystem" -Credential $cred
+    New-PSDrive -Name "X" -Root "\\$server\media" -Persist -PSProvider "FileSystem" -Credential $cred
+    New-PSDrive -Name "W" -Root "\\$server\share" -Persist -PSProvider "FileSystem" -Credential $cred
+    New-PSDrive -Name "V" -Root "\\$server\store" -Persist -PSProvider "FileSystem" -Credential $cred
+}
+
 ##################
 # Restart Prompt #
 ##################
@@ -966,7 +998,6 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # set task manager columns [process name, cpu, memory, disk, network, gpu]
 # set task manager cpu to logical processors
 # set task manager startup apps to disabled from running at boot
-
 # show details during file transfers
 
 # unpin default groups from start menu
@@ -1013,13 +1044,16 @@ $global:appendOutputSoftware = $null
 Function promptFreshInstall {
     Switch (Read-Host "Fresh Install? [y]/[n]") {
         'y' {
-            $myFirstRunFunctions | ForEach { Invoke-Expression $_ }
-            $myFunctions | ForEach { Invoke-Expression $_ }
-            remainingStepsToText
+            Write-host "Including first install steps..." -ForegroundColor Yellow
+            $myFirstRunFunctions1 | ForEach { Invoke-Expression $_ }
+            $myEveryRunFunctions2 | ForEach { Invoke-Expression $_ }
+            $myFinalFirstRunFunctions3 | ForEach { Invoke-Expression $_ }
+            $myFinalEveryRunFunctions4 | ForEach { Invoke-Expression $_ }
         }
         'n' {
             Write-host "Skipping first install steps..." -ForegroundColor Yellow
-            $myFunctions | ForEach { Invoke-Expression $_ }
+            $myEveryRunFunctions2 | ForEach { Invoke-Expression $_ }
+            $myFinalEveryRunFunctions4 | ForEach { Invoke-Expression $_ }
          }
         default {
             Write-host "Invalid input. Please enter [y]/[n]" -ForegroundColor Red
@@ -1036,49 +1070,23 @@ catch {
 <#
 notes for later:
 ###################################################################################################
+##############
+# Privacy BS #
+##############
 # block privacy crap at pfsense level
 https://www.google.com/search?q=block+data+collection+windows+10+pfsense+%3F&rlz=1C1GCEA_enUS829US829&oq=block+data+collection+windows+10+pfsense+%3F&aqs=chrome..69i57.4605j0j4&sourceid=chrome&ie=UTF-8
-
-###################################################################################################
 
 # disable privacy diagnostic data (set to basic at the moment) - https://www.tecklyfe.com/how-to-disable-telemetry-and-data-collection-in-windows-10-regain-your-privacy/
 Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\DataCollection -Name AllowTelemetry -Type DWord -Value 0 -Force
 
-###################################################################################################
-# enable clipboard history
-https://www.tenforums.com/tutorials/110039-enable-disable-clipboard-history-windows-10-a.html
-HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System
-
-AllowClipboardHistory DWORD
-
-(delete) = Enable
-0 = Disable
-
-###################################################################################################
-# map network drives #
-######################
-# input username and password to map drives as, 10gbe must be configred first, maybe have a prompt for dest IPs -- 192.168.2.3 default
-Hackerman
-password in lastpass
-$server = Read-Host -Prompt "enter ip for mapped drives - [enter] for default of 192.168.2.3"
-$cred = Get-Credential
-New-PSDrive -Name "Z" -Root "\\$server\apps" -Persist -PSProvider "FileSystem" -Credential $cred
-New-PSDrive -Name "Y" -Root "\\$server\downloads" -Persist -PSProvider "FileSystem" -Credential $cred
-New-PSDrive -Name "X" -Root "\\$server\media" -Persist -PSProvider "FileSystem" -Credential $cred
-New-PSDrive -Name "W" -Root "\\$server\share" -Persist -PSProvider "FileSystem" -Credential $cred
-New-PSDrive -Name "V" -Root "\\$server\store" -Persist -PSProvider "FileSystem" -Credential $cred
-
-###################################################################################################
-
-#Template for changing registry
-reg functions to combine 
-
+#reg functions to combine 
 # try to find some commonality between these reg keys -- possible to "disable all privacy only"?
-"HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
-     #Software
+#rename SOFTWARE to Software? what is registry default?
 "HKLM:SOFTWARE\Policies\Microsoft\Windows\System"
 "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+"HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
 
+###################################################################################################
 
 # set night light
 Function configureNightLight {
@@ -1122,6 +1130,5 @@ Function configureNightLight {
         $global:skipFlux = $false
     }
 }
-
 
 #>
