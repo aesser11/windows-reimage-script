@@ -56,12 +56,14 @@ $applicationsToInstall = @(
 $firstRunFunctions1 = @(
     # user input required
     "renameComputer",#change-prompt-logic
-    # automated
-    "installSoftware",#append-software
+    "installSoftware"#append-software
+
+    # automated and universal
     "personalFolderTargetSteps"
 )
 
 $finalFirstRunFunctions3 = @(
+    # tailored to my desired settings
     "mapNetworkDrives",
     "remainingStepsToText"
 )
@@ -69,29 +71,33 @@ $finalFirstRunFunctions3 = @(
 $everyRunFunctions2 = @(
     # universal functions
     "disableTelemetry",
-    "uninstallOptionalApps",
     "setWindowsTimeZone",
     "enableLegacyF8Boot",
-    "deleteHibernationFile",
-    "setPowerProfile",
-    "configureWindowsUpdates",
-    "configurePrivacy",
+    "configurePrivacy",#needs updates
     "disableStickyKeys",
     "setPageFileToC",
-    "disableMouseAcceleration",
     "soundCommsAttenuation",
+    "disableWindowsDefenderSampleSubmission",
+    "disableBackgroundApplications",
+    "disableMouseAcceleration",
 
-    # my functions
+    # tailored to my desired settings
+    "uninstallWindowsFeatures",#nuke all trash
+    "configureWindowsUpdates",#double check if needs updates
+    "deleteHibernationFile",#don't use this for AllUsers
+    "uninstallOptionalApps",#this one but only *DEMO*
+    "setPowerProfile",#what about plans like "DellOptimized"? set logic to check if GUID for Power Saver || Balanced || High Performance, is set, else leave alone
+    "taskbarHideSearch",#this one - set search to icon (not hidden but minimized -- val = 1)
+
+    # functions exclusively for myself
     "removeWin10Apps",
-    "uninstallWindowsFeatures",
+    #"disableHomeGroup",
     "removePrinters",
     "disableRemoteAssistance",
     "enableGuestSMBShares",
-    #"disableHomeGroup",
     "uninstallOneDrive",
     "setVisualFXAppearance",
     "explorerSettings",
-    "taskbarHideSearch",
     "taskbarHidePeopleIcon",
     "taskbarHideInkWorkspace",
     "disableWebSearch",
@@ -101,9 +107,7 @@ $everyRunFunctions2 = @(
     "mkdirGodMode",
     "disableSharedExperiences",
     "disableWifiSense",
-    "disableWindowsDefenderSampleSubmission",
     "disableLocalIntranetFileWarnings",
-    "disableBackgroundApplications",
     "advancedExplorerSettings",
     "enableClipboardHistory"
 )
@@ -132,8 +136,8 @@ Function installSoftware {
     Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
     foreach ($software in $applicationsToInstall) {
-        # exception cases
         Switch ($software) {
+            # exception cases
             "spotify" {
                 choco install $software -y --ignore-checksums
                 choco pin add -n="$software"
@@ -180,6 +184,7 @@ Battle.net-Setup.exe downloaded to desktop
                 # $version = (Invoke-WebRequest -Uri "https://download.electrum.org/" -UseBasicParsing).Links.Href | %{ new-object System.Version ($_) } | sort
             }
             #>
+            # default behavior for all other apps
             default {
                 choco install $software -y
                 choco pin add -n="$software"
@@ -257,14 +262,14 @@ Function disableTelemetry {
 }
 
 Function uninstallOptionalApps {
-    #Get-WindowsCapability -online | ? {$_.Name -like '*QuickAssist*'} | Remove-WindowsCapability -online
-    #Get-WindowsCapability -online | ? {$_.Name -like '*ContactSupport*'} | Remove-WindowsCapability -online
+    Get-WindowsCapability -online | ? {$_.Name -like '*QuickAssist*'} | Remove-WindowsCapability -online
+    Get-WindowsCapability -online | ? {$_.Name -like '*ContactSupport*'} | Remove-WindowsCapability -online
     Get-WindowsCapability -online | ? {$_.Name -like '*Demo*'} | Remove-WindowsCapability -online
     #Get-WindowsCapability -online | ? {$_.Name -like '*Face*'} | Remove-WindowsCapability -online
     Get-WindowsCapability -online | ? {$_.Name -like '*WindowsMediaPlayer*'} | Remove-WindowsCapability -online
 }
 
-# Sync windows time -------- (explorer)
+# Sync windows time
 Function setWindowsTimeZone {
     #$currentTimeZone.StandardName #Time Zone Name
     #$ipinfo.ip #Public IP address
@@ -521,7 +526,7 @@ Function setPowerProfile {
     }
     # powercfg reference https://docs.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options
     Write-Host "Power: Selecting and configuring power profile" -ForegroundColor Green -BackgroundColor Black
-    powercfg -h off
+    #powercfg -h off
     $cpu = Get-WMIObject Win32_Processor
     $cpuName = $cpu.name
 
@@ -705,7 +710,7 @@ Function soundCommsAttenuation {
 }
 
 Function removeWin10Apps {
-    # suppress errors for these cmdlets, very noisy and never looked at
+    # suppress errors for these cmdlets, very noisy when working with a whitelist
     foreach ($app in $win10AppWhitelist) {
         Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "$app"} | Remove-AppxPackage -ErrorAction Ignore
         Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -notlike "$app"} | Remove-AppxProvisionedPackage -Online -ErrorAction Ignore
@@ -1011,8 +1016,9 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 #####################
 # Automatable Steps #
 #####################
-# https://electrum.org/#download
-# create cup all -y ; pause script with shortcut (pin to start menu manually)
+# install powertoys choco install powertoys -y ; pin add n=powertoys
+# install electrum -> https://electrum.org/#download
+# create cup all -y ; pause -> script with shortcut (pin to start menu manually)
 
 #########################
 # Appended Output Steps #
