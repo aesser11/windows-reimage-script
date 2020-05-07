@@ -26,7 +26,7 @@ $applicationsToInstall = @(
     # auto run
     "github-desktop",
     "hwinfo",
-    "powertoys",
+    #"powertoys",
     "rufus",
     "putty",
     "sublimetext3",
@@ -53,7 +53,7 @@ $applicationsToInstall = @(
 #################
 # Reimage Steps #
 #################
-$myFirstRunFunctions1 = @(
+$firstRunFunctions1 = @(
     # user input required
     "renameComputer",#change-prompt-logic
     # automated
@@ -61,12 +61,12 @@ $myFirstRunFunctions1 = @(
     "personalFolderTargetSteps"
 )
 
-$myFinalFirstRunFunctions3 = @(
+$finalFirstRunFunctions3 = @(
     "mapNetworkDrives",
     "remainingStepsToText"
 )
 
-$myEveryRunFunctions2 = @(
+$everyRunFunctions2 = @(
     # universal functions
     "disableTelemetry",
     "uninstallOptionalApps",
@@ -108,7 +108,7 @@ $myEveryRunFunctions2 = @(
     "enableClipboardHistory"
 )
 
-myFinalEveryRunFunctions4 = @(
+$finalEveryRunFunctions4 = @(
     "promptForRestart"
 )
 
@@ -1045,15 +1045,15 @@ Function promptFreshInstall {
     Switch (Read-Host "Fresh Install? [y]/[n]") {
         'y' {
             Write-host "Including first install steps..." -ForegroundColor Yellow
-            $myFirstRunFunctions1 | ForEach { Invoke-Expression $_ }
-            $myEveryRunFunctions2 | ForEach { Invoke-Expression $_ }
-            $myFinalFirstRunFunctions3 | ForEach { Invoke-Expression $_ }
-            $myFinalEveryRunFunctions4 | ForEach { Invoke-Expression $_ }
+            $firstRunFunctions1 | ForEach { Invoke-Expression $_ }
+            $everyRunFunctions2 | ForEach { Invoke-Expression $_ }
+            $finalFirstRunFunctions3 | ForEach { Invoke-Expression $_ }
+            $finalEveryRunFunctions4 | ForEach { Invoke-Expression $_ }
         }
         'n' {
             Write-host "Skipping first install steps..." -ForegroundColor Yellow
-            $myEveryRunFunctions2 | ForEach { Invoke-Expression $_ }
-            $myFinalEveryRunFunctions4 | ForEach { Invoke-Expression $_ }
+            $everyRunFunctions2 | ForEach { Invoke-Expression $_ }
+            $finalEveryRunFunctions4 | ForEach { Invoke-Expression $_ }
          }
         default {
             Write-host "Invalid input. Please enter [y]/[n]" -ForegroundColor Red
