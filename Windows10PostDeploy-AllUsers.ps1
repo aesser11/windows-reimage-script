@@ -74,7 +74,7 @@ $applicationsToInstall = @(
     "7zip",#no pin && #append-software
     "windirstat"#no pin
 
-    #choice: a,b,none
+    #choice: a,b,both,none
     #"googlechrome",
     #"firefox"
 )
@@ -113,7 +113,7 @@ $everyRunFunctions2 = @(
 
     # tailored for AllUsers
     "uninstallWindowsFeatures",
-    "configureWindowsUpdates",
+    "configureWindowsUpdates",#port any new changes over from main script
     "uninstallOptionalApps",
     "setPowerProfile",#template for now #what about plans like "DellOptimized"? set logic to check if GUID for Power Saver || Balanced || High Performance, is set, else leave alone
     "taskbarHideSearch",
@@ -186,7 +186,7 @@ Function installSoftware {
             "7zip" {
                 choco install $software -y
                 $global:appendOutputSoftware += "
-7zip steps to change
+7zip: change file type associations, reduce context menus to extract files, check hash, and add to archive
 "
             }
             "windirstat" {
