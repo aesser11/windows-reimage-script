@@ -461,7 +461,7 @@ Function taskbarHideSearch {
 
 Function removeWin10Apps {
     # check if error suppression is required for these commands (might be noisy) "-ErrorAction Ignore"
-    foreach ($app in $win10AppWhitelist) {
+    foreach ($app in $win10AppBlacklist) {
         Get-AppxPackage -AllUsers | Where-Object {$_.Name -like "$app"} | Remove-AppxPackage
         Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -like "$app"} | Remove-AppxProvisionedPackage -Online
     }
