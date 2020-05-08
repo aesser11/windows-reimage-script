@@ -957,10 +957,10 @@ Function enableClipboardHistory {
 
 Function mapNetworkDrives {
     $server = "192.168.2.3"
-    Write-Host  "Assuming $server for server IP" -ForegroundColor Yellow
+    Write-Host  "Assuming a server IP of $server" -ForegroundColor Yellow
     Write-Host  "Ensure 10GbE is configured before continuing!!!" -ForegroundColor Red
-    #$cred = Get-Credential
-    $cred = $host.ui.PromptForCredential("Ensure 10+GbE is configured before continuing!!!", "UnRaider user/pass", "Test3rdBox", "Hackerman")
+    #$cred = Get-Credential (string caption, string message, string userName, string targetName);
+    $cred = $host.ui.PromptForCredential("Credentials to Map Network Drives", "Ensure 10+GbE is configured before continuing!!!", "Hackerman", "NetBiosUserName")
 
     New-PSDrive -Name "Z" -Root "\\$server\apps" -Persist -PSProvider "FileSystem" -Credential $cred
     New-PSDrive -Name "Y" -Root "\\$server\downloads" -Persist -PSProvider "FileSystem" -Credential $cred
