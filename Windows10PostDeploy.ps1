@@ -56,7 +56,7 @@ $applicationsToInstall = @(
 $firstRunFunctions1 = @(
     # user input required
     "renameComputer",#change-prompt-logic
-    "installSoftware"#append-software
+    "installSoftware",#append-software
 
     # automated and universal
     "personalFolderTargetSteps"
