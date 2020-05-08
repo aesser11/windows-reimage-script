@@ -59,6 +59,7 @@ $firstRunFunctions1 = @(
     "installSoftware",#append-software
 
     # automated and universal
+    "configureNightLight",
     "personalFolderTargetSteps"
 )
 
@@ -975,6 +976,41 @@ Function mapNetworkDrives {
     #New-PSDrive -Name "V" -Root "\\$server\store" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
 }
 
+Function configureNightLight {
+    Function Set-BlueLightReductionSettings {
+        # Source
+        # https://superuser.com/questions/1200222/configure-windows-creators-update-night-light-via-registry
+        [CmdletBinding()]
+        Param (
+            [Parameter(Mandatory=$true)] [ValidateRange(0, 23)] [int]$StartHour,
+            [Parameter(Mandatory=$true)] [ValidateSet(0, 15, 30, 45)] [int]$StartMinutes,
+            [Parameter(Mandatory=$true)] [ValidateRange(0, 23)] [int]$EndHour,
+            [Parameter(Mandatory=$true)] [ValidateSet(0, 15, 30, 45)] [int]$EndMinutes,
+            [Parameter(Mandatory=$true)] [bool]$Enabled,
+            [Parameter(Mandatory=$true)] [ValidateRange(1200, 6500)] [int]$NightColorTemperature
+        )
+        $data = (2, 0, 0, 0)
+        $data += [BitConverter]::GetBytes((Get-Date).ToFileTime())
+        $data += (0, 0, 0, 0, 0x43, 0x42, 1, 0)
+        If ($Enabled) {$data += (2, 1)}
+        $data += (0xCA, 0x14, 0x0E)
+        $data += $StartHour
+        $data += 0x2E
+        $data += $StartMinutes
+        $data += (0, 0xCA, 0x1E, 0x0E)
+        $data += $EndHour
+        $data += 0x2E
+        $data += $EndMinutes
+        $data += (0, 0xCF, 0x28)
+        $tempHi = [Math]::Floor($NightColorTemperature / 64)
+        $tempLo = (($NightColorTemperature - ($tempHi * 64)) * 2) + 128
+        $data += ($tempLo, $tempHi)
+        $data += (0xCA, 0x32, 0, 0xCA, 0x3C, 0, 0)
+        Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\$$windows.data.bluelightreduction.settings\Current' -Name 'Data' -Value ([byte[]]$data) -Type Binary
+    }
+    Set-BlueLightReductionSettings -StartHour 21 -StartMinutes 00 -EndHour 7 -EndMinutes 0 -Enabled $true -NightColorTemperature 3400
+}
+
 ##################
 # Restart Prompt #
 ##################
@@ -1099,48 +1135,4 @@ Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\DataCollection 
 "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
 
 ###################################################################################################
-
-# set night light
-Function configureNightLight {
-    if ($global:changeNightLight -eq $true) {
-        Function Set-BlueLightReductionSettings {
-            # Source
-            # https://superuser.com/questions/1200222/configure-windows-creators-update-night-light-via-registry
-            [CmdletBinding()]
-            Param (
-                [Parameter(Mandatory=$true)] [ValidateRange(0, 23)] [int]$StartHour,
-                [Parameter(Mandatory=$true)] [ValidateSet(0, 15, 30, 45)] [int]$StartMinutes,
-                [Parameter(Mandatory=$true)] [ValidateRange(0, 23)] [int]$EndHour,
-                [Parameter(Mandatory=$true)] [ValidateSet(0, 15, 30, 45)] [int]$EndMinutes,
-                [Parameter(Mandatory=$true)] [bool]$Enabled,
-                [Parameter(Mandatory=$true)] [ValidateRange(1200, 6500)] [int]$NightColorTemperature
-            )
-            $data = (2, 0, 0, 0)
-            $data += [BitConverter]::GetBytes((Get-Date).ToFileTime())
-            $data += (0, 0, 0, 0, 0x43, 0x42, 1, 0)
-            If ($Enabled) {$data += (2, 1)}
-            $data += (0xCA, 0x14, 0x0E)
-            $data += $StartHour
-            $data += 0x2E
-            $data += $StartMinutes
-            $data += (0, 0xCA, 0x1E, 0x0E)
-            $data += $EndHour
-            $data += 0x2E
-            $data += $EndMinutes
-            $data += (0, 0xCF, 0x28)
-            $tempHi = [Math]::Floor($NightColorTemperature / 64)
-            $tempLo = (($NightColorTemperature - ($tempHi * 64)) * 2) + 128
-            $data += ($tempLo, $tempHi)
-            $data += (0xCA, 0x32, 0, 0xCA, 0x3C, 0, 0)
-            Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\$$windows.data.bluelightreduction.settings\Current' -Name 'Data' -Value ([byte[]]$data) -Type Binary
-        }
-        Set-BlueLightReductionSettings -StartHour 21 -StartMinutes 30 -EndHour 8 -EndMinutes 0 -Enabled $true -NightColorTemperature 3400
-        $global:skipFlux = $true
-    }
-    else {
-        Write-Host "Night light not set" -ForegroundColor Yellow -BackgroundColor Black
-        $global:skipFlux = $false
-    }
-}
-
 #>
