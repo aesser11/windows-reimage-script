@@ -957,16 +957,23 @@ Function enableClipboardHistory {
 
 Function mapNetworkDrives {
     $server = "192.168.2.3"
-    Write-Host  "Assuming a server IP of $server" -ForegroundColor Yellow
-    Write-Host  "Ensure 10GbE is configured before continuing!!!" -ForegroundColor Red
-    #$cred = Get-Credential (string caption, string message, string userName, string targetName);
-    $cred = $host.ui.PromptForCredential("Credentials to Map Network Drives", "Ensure 10+GbE is configured before continuing!!!", "Hackerman", "NetBiosUserName")
+    Write-Host  "Assuming a server ip of $server" -ForegroundColor Yellow
+    Write-Host  "Ensure 10+GbE is configured before continuing!!!" -ForegroundColor Red
 
-    New-PSDrive -Name "Z" -Root "\\$server\apps" -Persist -PSProvider "FileSystem" -Credential $cred
-    New-PSDrive -Name "Y" -Root "\\$server\downloads" -Persist -PSProvider "FileSystem" -Credential $cred
-    New-PSDrive -Name "X" -Root "\\$server\media" -Persist -PSProvider "FileSystem" -Credential $cred
-    New-PSDrive -Name "W" -Root "\\$server\share" -Persist -PSProvider "FileSystem" -Credential $cred
-    New-PSDrive -Name "V" -Root "\\$server\store" -Persist -PSProvider "FileSystem" -Credential $cred
+    #check for error handling?
+    net use Z: \\$server\apps /savecred /persistent:Yes
+    net use Y: \\$server\downloads /savecred /persistent:Yes
+    net use X: \\$server\media /savecred /persistent:Yes
+    net use W: \\$server\share /savecred /persistent:Yes
+    net use V: \\$server\store /savecred /persistent:Yes
+
+    #$cred = Get-Credential (string caption, string message, string userName, string targetName);
+    #$cred = $host.ui.PromptForCredential("Credentials to Map Network Drives", "Ensure 10+GbE is configured before continuing!!!", "Hackerman", "NetBiosUserName")
+    #New-PSDrive -Name "Z" -Root "\\$server\apps" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
+    #New-PSDrive -Name "Y" -Root "\\$server\downloads" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
+    #New-PSDrive -Name "X" -Root "\\$server\media" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
+    #New-PSDrive -Name "W" -Root "\\$server\share" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
+    #New-PSDrive -Name "V" -Root "\\$server\store" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
 }
 
 ##################
@@ -1091,6 +1098,17 @@ Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\DataCollection 
 "HKLM:SOFTWARE\Policies\Microsoft\Windows\System"
 "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
 "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+
+###################################################################################################
+
+$c=get-credential
+try{
+    gwmi -ComputerName comp1 -Credential $c -Class win32_bios
+}
+catch [System.UnauthorizedAccessException]{
+    "wrong credential retry please"
+    $c=get-credential
+}
 
 ###################################################################################################
 
