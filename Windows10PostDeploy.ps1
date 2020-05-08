@@ -82,12 +82,12 @@ $everyRunFunctions2 = @(
     "disableMouseAcceleration",
 
     # tailored to my desired settings
-    "uninstallWindowsFeatures",#nuke all trash
+    "uninstallWindowsFeatures",
     "configureWindowsUpdates",#double check if needs updates
-    "deleteHibernationFile",#don't use this for AllUsers
-    "uninstallOptionalApps",#this one but only *DEMO*
+    "deleteHibernationFile",
+    "uninstallOptionalApps",
     "setPowerProfile",#what about plans like "DellOptimized"? set logic to check if GUID for Power Saver || Balanced || High Performance, is set, else leave alone
-    "taskbarHideSearch",#this one - set search to icon (not hidden but minimized -- val = 1)
+    "taskbarHideSearch",
 
     # functions exclusively for myself
     "removeWin10Apps",
@@ -150,13 +150,13 @@ Function installSoftware {
                 choco install $software -y
                 choco pin add -n="$software"
                 $global:appendOutputSoftware += "
-teamviewer steps to change
+teamviewer: whitelist my account, disable random password generation, assign to my account, anything else?
 "
             }
             "7zip" {
                 choco install $software -y
                 $global:appendOutputSoftware += "
-7zip steps to change
+7zip: change file type associations, reduce context menus to extract files, check hash, and add to archive
 "
             }
             "windirstat" {
