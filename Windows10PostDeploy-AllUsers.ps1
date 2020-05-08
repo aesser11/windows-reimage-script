@@ -87,7 +87,7 @@ $firstRunFunctions1 = @(
     "renameComputer",#change-prompt-logic #missing (fix on main script first)
 
     # tailored for AllUsers (choice for browser)
-    "installSoftware",#append-software 7zip (finish on main script first)
+    "installSoftware",
 
     # automated and universal
     "personalFolderTargetSteps"
