@@ -960,7 +960,6 @@ Function mapNetworkDrives {
     Write-Host  "Assuming a server ip of $server" -ForegroundColor Yellow
     Write-Host  "Ensure 10+GbE is configured before continuing!!!" -ForegroundColor Red
 
-    #check for error handling?
     net use Z: \\$server\apps /savecred /persistent:Yes
     net use Y: \\$server\downloads /savecred /persistent:Yes
     net use X: \\$server\media /savecred /persistent:Yes
@@ -1098,17 +1097,6 @@ Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\DataCollection 
 "HKLM:SOFTWARE\Policies\Microsoft\Windows\System"
 "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
 "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
-
-###################################################################################################
-
-$c=get-credential
-try{
-    gwmi -ComputerName comp1 -Credential $c -Class win32_bios
-}
-catch [System.UnauthorizedAccessException]{
-    "wrong credential retry please"
-    $c=get-credential
-}
 
 ###################################################################################################
 
