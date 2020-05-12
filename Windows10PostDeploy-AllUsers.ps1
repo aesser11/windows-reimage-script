@@ -429,7 +429,7 @@ Function disableWindowsDefenderSampleSubmission {
     # disable cloud based protection
     #Set-ItemProperty -Path $path1 -Name "SpynetReporting" -Type DWord -Value 0
 
-    $path2="HKCU:\SOFTWARE\Microsoft\Windows Security Health\State"
+    $path2="HKCU:\Software\Microsoft\Windows Security Health\State"
     if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
     # hide m$ account sign in warning
     Set-ItemProperty $path2 -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1 -Force
@@ -499,7 +499,7 @@ Function setPowerProfile {
 }
 
 Function taskbarHideSearch {
-    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search"
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     # hide taskbar search icon / box
     Set-ItemProperty -Path $path -Name "SearchboxTaskbarMode" -Type DWord -Value 1 -Force
