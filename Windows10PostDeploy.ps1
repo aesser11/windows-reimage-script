@@ -79,12 +79,11 @@ $everyRunFunctions2 = @(
     "setPageFileToC",
     "soundCommsAttenuation",
     "disableWindowsDefenderSampleSubmission",
-    "disableBackgroundApplications",
     "disableMouseAcceleration",
 
     # tailored to my desired settings
     "uninstallWindowsFeatures",
-    "configureWindowsUpdates",#double check if needs updates
+    "configureWindowsUpdates",
     "deleteHibernationFile",
     "uninstallOptionalApps",
     "setPowerProfile",#what about plans like "DellOptimized"? set logic to check if GUID for Power Saver || Balanced || High Performance, is set, else leave alone
@@ -102,7 +101,6 @@ $everyRunFunctions2 = @(
     "taskbarHidePeopleIcon",
     "taskbarHideInkWorkspace",
     "disableWebSearch",
-    "disableLockScreenTips",
     "explorerSetControlPanelLargeIcons",
     "enableDarkMode",
     "mkdirGodMode",
@@ -166,12 +164,12 @@ teamviewer: whitelist my account, disable random password generation, assign to 
             "battle.net" {
                 # download manually
                 if (!(Test-Path "C:\Users\$env:username\Desktop\*battle.net*")) {
-                    Write-Host "Downloading: Battle.net" -ForegroundColor Green -BackgroundColor Black
+                    Write-Host "Downloading: Battle.net" -ForegroundColor Green
                     $url = "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP"
                     $output = "C:\Users\$env:username\Desktop\Battle.net-Setup.exe"
                     $start_time = Get-Date
                     (New-Object System.Net.WebClient).DownloadFile($url, $output)
-                    Write-Host "Waiting for Battle.net to finish downloading..." -ForegroundColor Yellow -BackgroundColor Black
+                    Write-Host "Waiting for Battle.net to finish downloading..." -ForegroundColor Yellow
                     $global:appendOutputSoftware += "
 Battle.net-Setup.exe downloaded to desktop
 "
@@ -220,36 +218,36 @@ Documents, Downloads, Music, Pictures, Videos
 # Rename computer to something a little more personal if the name contains a default generic name
 Function renameComputer {
     if ($env:computername -like "*DESKTOP-*") {
-        Write-Host "Rename your PC, current name: $env:computername" -ForegroundColor Green -BackgroundColor Black
-        Write-Host "Press [Enter] to continue without renaming" -ForegroundColor Yellow -BackgroundColor Black
+        Write-Host "Rename your PC, current name: $env:computername" -ForegroundColor Green
+        Write-Host "Press [Enter] to continue without renaming" -ForegroundColor Yellow
         $newCompName = Read-Host -Prompt "Enter in a new computer name, limit 15 characters"
         $newCompNameLength = $newCompName.length
         while (($newCompNameLength -gt 15) -or ($newCompName -eq "y") -or ($newCompName -eq "Y") -or ($newCompName -eq "n") -or ($newCompName -eq "N")) {
-            Write-Host "The name specified is $newCompNameLength character(s) long" -ForegroundColor Red -BackgroundColor Black
+            Write-Host "The name specified is $newCompNameLength character(s) long" -ForegroundColor Red
             $renameComputer = Read-Host -Prompt "Do you wish to rename from $newCompName : [y]/[n]?"
             if (($renameComputer -eq "y") -or ($renameComputer -eq "Y") -or ($renameComputer -eq "1")) {
-                Write-Host "Getting a new name... Limit 15 characters" -ForegroundColor Green -BackgroundColor Black
-                Write-Host "Press [Enter] to continue without renaming" -ForegroundColor Yellow -BackgroundColor Black
+                Write-Host "Getting a new name... Limit 15 characters" -ForegroundColor Green
+                Write-Host "Press [Enter] to continue without renaming" -ForegroundColor Yellow
                 $newCompName = Read-Host -Prompt "Enter in a new computer name, limit 15 characters"
                 $newCompNameLength = $newCompName.length
             }
             elseif (($renameComputer -eq "n") -or ($renameComputer -eq "N") -or ($renameComputer -eq "0")) {
-                Write-Host "Proceeding..." -ForegroundColor Yellow -BackgroundColor Black
+                Write-Host "Proceeding..." -ForegroundColor Yellow
                 $newCompNameLength = 0
             }
             else {
-                Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red -BackgroundColor Black
+                Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red
             }
         }
         if (!$newCompName) {
-            Write-Host "Skipping new name since no input was specified" -ForegroundColor Green -BackgroundColor Black
+            Write-Host "Skipping new name since no input was specified" -ForegroundColor Green
         }
         else {
             Rename-Computer -NewName $newCompName 
         }
     }
     else {
-        Write-Host "A personalized computer name already exists: $env:computername | Skipping the renaming section" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "A personalized computer name already exists: $env:computername | Skipping the renaming section" -ForegroundColor Green
     }
 }
 
@@ -292,22 +290,22 @@ Function setWindowsTimeZone {
     
     #Washington, Nevada, California
     if (($currentTimeZone -ne "Pacific Standard Time") -and ($ipState -eq "Washington" -or $ipState -eq "Nevada" -or $ipState -eq "California")) {
-        Write-Host "Region doesn't match current time zone, setting to Pacific Standard Time" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Region doesn't match current time zone, setting to Pacific Standard Time" -ForegroundColor Green
         Set-TimeZone -Name "Pacific Standard Time"
     }
     #Montana, Wyoming, Colorado, Utah, New Mexico                                           
     elseif (($currentTimeZone -ne "Mountain Standard Time") -and ($ipState -eq "Montana" -or $ipState -eq "Wyoming" -or $ipState -eq "Colorado" -or $ipState -eq "Utah" -or $ipState -eq "New Mexico")) {
-        Write-Host "Region doesn't match current time zone, setting to Mountain Standard Time" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Region doesn't match current time zone, setting to Mountain Standard Time" -ForegroundColor Green
         Set-TimeZone -Name "Mountain Standard Time"
     }
     #Minnesota, Wisconsin, Iowa, Illinois, Missouri, Arkansas, Oklahoma, Mississippi, Alabama, Louisiana
     elseif (($currentTimeZone -ne "Central Standard Time") -and ($ipState -eq "Minnesota" -or $ipState -eq "Wisconsin" -or $ipState -eq "Iowa" -or $ipState -eq "Illinois" -or $ipState -eq "Missouri" -or $ipState -eq "Arkansas" -or $ipState -eq "Oklahoma" -or $ipState -eq "Mississippi" -or $ipState -eq "Alabama" -or $ipState -eq "Louisiana")) {
-        Write-Host "Region doesn't match current time zone, setting to Central Standard Time" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Region doesn't match current time zone, setting to Central Standard Time" -ForegroundColor Green
         Set-TimeZone -Name "Central Standard Time"
     }
     #Georgia, South Carolina, North Carolina, Virginia, West Virginia, Ohio, Pennsylvania, New York, Maine, Vermont, New Hampshire, Massachusetts, Rhode Island, Connecticut, New Jersey, Delaware, Maryland, District of Columbia
     elseif (($currentTimeZone -ne "Eastern Standard Time") -and ($ipState -eq "Georgia" -or $ipState -eq "South Carolina" -or $ipState -eq "North Carolina" -or $ipState -eq "Virginia" -or $ipState -eq "West Virginia" -or $ipState -eq "Ohio" -or $ipState -eq "Pennsylvania" -or $ipState -eq "New York" -or $ipState -eq "Maine" -or $ipState -eq "Vermont" -or $ipState -eq "New Hampshire" -or $ipState -eq "Massachusetts" -or $ipState -eq "Rhode Island" -or $ipState -eq "Connecticut" -or $ipState -eq "New Jersey" -or $ipState -eq "Delaware" -or $ipState -eq "Maryland" -or $ipState -eq "District of Columbia")) {
-        Write-Host "Region doesn't match current time zone, setting to Eastern Standard Time" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Region doesn't match current time zone, setting to Eastern Standard Time" -ForegroundColor Green
         Set-TimeZone -Name "Eastern Standard Time"
     }
     #Multi-zone-states
@@ -315,17 +313,17 @@ Function setWindowsTimeZone {
     elseif ($ipState -eq "Florida") {
         if (($currentTimeZone -ne "Central Standard Time") -and (($ipLat -ge 29.55) -and ($ipLon -lt -85.5835))) {
             #CST
-            Write-Host "Region doesn't match current time zone, setting to Central Standard Time" -ForegroundColor Green -BackgroundColor Black
+            Write-Host "Region doesn't match current time zone, setting to Central Standard Time" -ForegroundColor Green
             Set-TimeZone -Name "Central Standard Time"
         }
         elseif (($currentTimeZone -ne "Eastern Standard Time") -and (($ipLat -le 31.00) -and ($ipLon -ge -85.5835))) {
             #EST
-            Write-Host "Region doesn't match current time zone, setting to Eastern Standard Time" -ForegroundColor Green -BackgroundColor Black
+            Write-Host "Region doesn't match current time zone, setting to Eastern Standard Time" -ForegroundColor Green
             Set-TimeZone -Name "Eastern Standard Time"
         }
         else {
-            Write-Host "Time Zone location could not be determined for Florida, Input a time zone manually" -ForegroundColor Red -BackgroundColor Black
-            Write-Host "Enter either 'Central Standard Time' or 'Eastern Standard Time'" -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Time Zone location could not be determined for Florida, Input a time zone manually" -ForegroundColor Red
+            Write-Host "Enter either 'Central Standard Time' or 'Eastern Standard Time'" -ForegroundColor Yellow
             Set-TimeZone
         }
     }
@@ -366,9 +364,9 @@ Function setWindowsTimeZone {
      #Alaska -special time zone and multi-timezone state
      #Hawaii -special time zone
     else {
-        Write-Host "Region already matches current time zone, skipping and continuing with time sync" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Region already matches current time zone, skipping and continuing with time sync" -ForegroundColor Green
     }
-    Write-Host "Syncing windows time" -ForegroundColor Green -BackgroundColor Black
+    Write-Host "Syncing windows time" -ForegroundColor Green
     net start w32time
     w32tm /resync
 }
@@ -432,9 +430,9 @@ Function setPowerProfile {
         # (Hibernate after)
         powercfg -setacvalueindex SCHEME_CURRENT SUB_SLEEP HIBERNATEIDLE 0
         powercfg -setdcvalueindex SCHEME_CURRENT SUB_SLEEP HIBERNATEIDLE 0
-        # (Allow wake timers)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_SLEEP RTCWAKE 2
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_SLEEP RTCWAKE 0
+        ## (Allow wake timers)
+        #powercfg -setacvalueindex SCHEME_CURRENT SUB_SLEEP RTCWAKE 2
+        #powercfg -setdcvalueindex SCHEME_CURRENT SUB_SLEEP RTCWAKE 0
 
         # (USB settings)
         # (USB selective suspend setting)
@@ -448,7 +446,7 @@ Function setPowerProfile {
 
         # (Power buttons and lid)
         # (Lid close action)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS LIDACTION 1
+        powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS LIDACTION 0
         powercfg -setdcvalueindex SCHEME_CURRENT SUB_BUTTONS LIDACTION 1
         # (Power button action)
         powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS PBUTTONACTION 3
@@ -457,8 +455,8 @@ Function setPowerProfile {
         powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS SBUTTONACTION 1
         powercfg -setdcvalueindex SCHEME_CURRENT SUB_BUTTONS SBUTTONACTION 1
         # (Start menu power button)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS UIBUTTON_ACTION 0
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BUTTONS UIBUTTON_ACTION 0
+        #powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS UIBUTTON_ACTION 0
+        #powercfg -setdcvalueindex SCHEME_CURRENT SUB_BUTTONS UIBUTTON_ACTION 0
 
         # (PCI Express)
         # (Link State Power Management)
@@ -467,9 +465,9 @@ Function setPowerProfile {
 
         # (Processor power management)
         # (Minimum processor state)
-        # set minimum frequency
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 0
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 0
+        ## set minimum frequency
+        #powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 0
+        #powercfg -setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 0
         # (System cooling policy)
         powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR SYSCOOLPOL 1
         powercfg -setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR SYSCOOLPOL 0
@@ -492,15 +490,15 @@ Function setPowerProfile {
         powercfg -setdcvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 0
 
         # (Multimedia settings)
-        # (When sharing media)
-        powercfg -setacvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 03680956-93bc-4294-bba6-4e0f09bb717f 1
-        powercfg -setdcvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 03680956-93bc-4294-bba6-4e0f09bb717f 0
+        ## (When sharing media)
+        #powercfg -setacvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 03680956-93bc-4294-bba6-4e0f09bb717f 1
+        #powercfg -setdcvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 03680956-93bc-4294-bba6-4e0f09bb717f 0
         # (Video playback quality bias.)
         powercfg -setacvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 10778347-1370-4ee0-8bbd-33bdacaade49 1
         powercfg -setdcvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 10778347-1370-4ee0-8bbd-33bdacaade49 0
-        # (When playing video)
-        powercfg -setacvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 34c7b99f-9a6d-4b3c-8dc7-b6693b78cef4 0
-        powercfg -setdcvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 34c7b99f-9a6d-4b3c-8dc7-b6693b78cef4 2
+        ## (When playing video)
+        #powercfg -setacvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 34c7b99f-9a6d-4b3c-8dc7-b6693b78cef4 0
+        #powercfg -setdcvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 34c7b99f-9a6d-4b3c-8dc7-b6693b78cef4 2
 
         # (Battery)
         # (Critical battery notification)
@@ -526,7 +524,7 @@ Function setPowerProfile {
         powercfg -setdcvalueindex SCHEME_CURRENT SUB_BATTERY f3c5027d-cd16-4930-aa6b-90db844a8f00 7
     }
     # powercfg reference https://docs.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options
-    Write-Host "Power: Selecting and configuring power profile" -ForegroundColor Green -BackgroundColor Black
+    Write-Host "Power: Selecting and configuring power profile" -ForegroundColor Green
     #powercfg -h off
     $cpu = Get-WMIObject Win32_Processor
     $cpuName = $cpu.name
@@ -545,12 +543,12 @@ Function setPowerProfile {
         SocketDesignation : AM4
         Power Scheme GUID: 9897998c-92de-4669-853f-b7cd3ecb2790  (AMD Ryzen™ Balanced) *
         #>
-        Write-Host "Ryzen CPU Detected, selecting AMD Ryzen Balanced config" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Ryzen CPU Detected, selecting AMD Ryzen Balanced config" -ForegroundColor Green
         powercfg -setactive 9897998c-92de-4669-853f-b7cd3ecb2790
         powerSetings
     }
     else {
-        Write-Host "CPU is not AMD Ryzen, proceeding with standard config" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "CPU is not AMD Ryzen, proceeding with standard config" -ForegroundColor Green
         # GUID 381b4222-f694-41f0-9685-ff5bb260df2e
         powercfg -setactive SCHEME_BALANCED
         powerSetings
@@ -582,103 +580,175 @@ Function configureWindowsUpdates {
 
 # Disable all privacy settings
 Function configurePrivacy {
-# https://privacyamp.com/knowledge-base/windows-10-privacy-settings/
-#   General
-    #Disable AdvertisingID
-    #Write-Host "Disabling Advertising ID..." -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Type DWord -Value 0
-    #Disable website language list access
-    #Write-Host "Disabling Website Access to Language List..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut" -Type DWord -Value 1
-    #Let windows track app launches to imp. start and search results
-    #Write-Host "Disabling Let Windows Track App Launches for Start and Search..." -ForegroundColor Green -BackgroundColor Black
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Type DWord -Value 0
-    #Show me sugested content in settings app 
-    #Write-Host "Disabling Application suggestions..." -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
-        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force
-    }
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEnabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEverEnabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338388Enabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338389Enabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353698Enabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SystemPaneSuggestionsEnabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Type DWord -Value 0
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1
-#   Speech Inking and Typing - Disable speech, inking, and typing getting to know you
+<#
+#Windows permissions
+#General - Change privacy options
+    #Let apps use advertising ID to make ads more interesting to you based on your app activity
+        $adiPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+        if (!(Test-Path $adiPath)) { New-Item -Path $adiPath -Force }
+        Set-ItemProperty -Path $adiPath -Name "Enabled" -Type DWord -Value 0 -Force
+        $adiPath2="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+        if (!(Test-Path $adiPath2)) { New-Item -Path $adiPath2 -Force }
+        Set-ItemProperty -Path $adiPath2 -Name "Enabled" -Type DWord -Value 0 -Force
+    #Let websites provide locally relevant content by accessing my language list
+        $upPath="HKCU:\Control Panel\International\User Profile\"
+        if (!(Test-Path $upPath)) { New-Item -Path $upPath -Force }
+        Set-ItemProperty -Path $upPath -Name "HttpAcceptLanguageOptOut" -Type DWord -Value 1 -Force
+    #Let Windows track app launches to improve Start and search results
+        $expadvPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        if (!(Test-Path $expadvPath)) { New-Item -Path $expadvPath -Force }
+        Set-ItemProperty -Path $expadvPath -Name "Start_TrackProgs" -Type DWord -Value 0 -Force
+    #Show me suggested content in the Settings app
+        $cdmPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+        if (!(Test-Path $cdmPath)) { New-Item -Path $cdmPath -Force }
+        Set-ItemProperty -Path $cdmPath -Name "ContentDeliveryAllowed" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "PreInstalledAppsEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "PreInstalledAppsEverEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SystemPaneSuggestionsEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338388Enabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338389Enabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-353698Enabled" -Type DWord -Value 0 -Force
+    # disable fun facts and tips on lock screen and remove spotlight
+    #start ms-settings:lockscreen
+        Set-ItemProperty -Path $cdmPath -Name "RotatingLockScreenEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "RotatingLockScreenOverlayEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0 -Force
+#Speech - left off privacy adjustments here
+    #Online speech recognition
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0 -Force
+#Inking & typing personalization
+    #Getting to know you
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Input\TIPC" -Name "Enabled" -Type DWord -Value 0 -Force
+
 # Turn off automatic learning 
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0
-    if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore")) {
-        New-Item -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" -Force
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0 -Force
+    if (!(Test-Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore")) {
+        New-Item -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Force
     }
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value 0
-# Disallow input Personalization
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Type DWord -Value 1
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Type DWord -Value 1
-# Turn off updates to speech recognition and speech synthesis
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Speech_OneCore\Preferences" -Name "ModelDownloadAllowed" -Type DWord -Value 0
-# Turn off handwriting personalization data sharing
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC" -Name "PreventHandwritingDataSharing" -Type DWord -Value 1
-# Turn off handwriting recognition error reporting
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports" -Name "PreventHandwritingErrorReports" -Type DWord -Value 1
-#   Diagnostics & Feedback
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value 0 -Force
+#>
+#Diagnostics & feedback
+    #Diagnostic data
+    $dcPath="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+    if (!(Test-Path $dcPath)) { New-Item -Path $dcPath -Force }
+    Set-ItemProperty -Path $dcPath -Name "AllowTelemetry" -Type DWord -Value 0 -Force
+<#    
+    #Improving inking and typing
+        #?
+    #Tailored experiences
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type DWord -Value 0 -Force
+    #View diagnostic data
+    $etkPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey"
+    if (!(Test-Path $etkPath)) { New-Item -Path $etkPath -Force }
+    Set-ItemProperty -Path $etkPath -Name "EnableEventTranscript" -Type DWord -Value 0 -Force
+    #Delete diagnostic data
+        #?
+    #Feedback frequency
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0 -Force
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
+    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient"
+    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload"
+    #Recommended troubleshooting
+        #?
+#Activity history
+    #Store my activity history on this device
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0 -Force
+    #Send my activity history to Microsoft
+        #?
+    #Clear activity history
+        #?
+        #Disable activity feed | #Disable Let Windows collect activites from my PC
+        #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0 -Force
+        #Disable publishing of user activiites | #Disable Let windows sync activiites from my pc to the cloud
+        #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0 -Force
+#>
+
+<#
+#Other
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
+# Diagnostics & Feedback
     # Disable Feedback
-    if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules")) {
-        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules" -Force
+    if (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
+        New-Item -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Force
     }
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0 -Force
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient"
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload"
     #Disable Improv. inking and typing recognition
     if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput")) {
         New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput" -Force
     }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput" -Name "AllowLinguisticDataCollection" -Type DWord -Value 0
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput" -Name "AllowLinguisticDataCollection" -Type DWord -Value 0 -Force
+    
     #Disable Tailored experiences
     #Write-Host "Disabling Tailored Experiences..." -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent")) {
-        New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force
+    if (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\CloudContent")) {
+        New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows\CloudContent" -Force
     }
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableTailoredExperiencesWithDiagnosticData" -Type DWord -Value 1
-    #Disable diagnostic data viewer
-    if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey")) {
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey" -Name "EnableEventTranscript" -Type DWord -Value 0
-    
+    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\CloudContent" -Name "DisableTailoredExperiencesWithDiagnosticData" -Type DWord -Value 1 -Force
+
     #Feedback frequency
-    Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1
-#   Activity History
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
+# Activity History
     #Disable activity feed | #Disable Let Windows collect activites from my PC
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0 -Force
     #Disable publishing of user activiites | #Disable Let windows sync activiites from my pc to the cloud
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0 -Force
     #Disallow upload of User Activities
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0
-#   App permissions section... - (leave this manual (unchanged) to ensure system functionality?
-#Write-Host "Adjust permission settings manually" -ForegroundColor Yellow -BackgroundColor Black
-#disable background apps 
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0 -Force
+
+
+# Disallow input Personalization
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Type DWord -Value 1 -Force
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Type DWord -Value 1 -Force
+# Turn off updates to speech recognition and speech synthesis
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Speech_OneCore\Preferences" -Name "ModelDownloadAllowed" -Type DWord -Value 0 -Force
+# Turn off handwriting personalization data sharing
+    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC")) {
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC" -Force
+    }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC" -Name "PreventHandwritingDataSharing" -Type DWord -Value 1 -Force
+# Turn off handwriting recognition error reporting
+    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports")) {
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports" -Force
+    }
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports" -Name "PreventHandwritingErrorReports" -Type DWord -Value 1 -Force
+#>
+
+#App permissions
+    #Location
+        $lopath="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
+        if (!(Test-Path $lopath)) { New-Item -Path $lopath -Force }
+        #Allow access to location on this device
+        #Allow apps to access your location
+        #Location history
+        Set-ItemProperty -Path $lopath -Name "Value" -Type String -Value "Deny" -Force
+    #Voice activation
+        $vaPath="HKCU:\Software\Microsoft\Speech_OneCore\Settings\VoiceActivation\UserPreferenceForAllApps"
+        if (!(Test-Path $vaPath)) { New-Item -Path $vaPath -Force }
+        #Allow apps to use voice activation
+        Set-ItemProperty -Path $vaPath -Name "AgentActivationEnabled" -Type DWord -Value 2 -Force
+        #Allow apps to use voice activation when this device is locked
+        Set-ItemProperty -Path $vaPath -Name "AgentActivationOnLockScreenEnabled" -Type DWord -Value 2 -Force
+    #Radios
+        $raPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\radios"
+        if (!(Test-Path $raPath)) { New-Item -Path $raPath -Force }
+        Set-ItemProperty -Path $raPath -Name "Value" -Type String -Value "Deny" -Force
+    #Other devices - #Communicate with unpaired devices
+        $bsPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync"
+        if (!(Test-Path $bsPath)) { New-Item -Path $bsPath -Force }
+        Set-ItemProperty -Path $bsPath -Name "Value" -Type String -Value "Deny" -Force
+    #Background apps
+        $baPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"
+        if (!(Test-Path $baPath)) { New-Item -Path $baPath -Force }
+        #Let apps run in the background
+        Set-ItemProperty -Path $baPath -Name "GlobalUserDisabled" -Type DWord -Value 1 -Force
 }
 
 Function disableStickyKeys {
@@ -763,7 +833,7 @@ Function enableGuestSMBShares {
 # HomeGroup
 <#
 Function disableHomeGroup {
-    Write-Host "Disabling HomeGroup through 'HomeGroup Provider' && 'HomeGroup Listener' services " -ForegroundColor Green -BackgroundColor Black 
+    Write-Host "Disabling HomeGroup through 'HomeGroup Provider' && 'HomeGroup Listener' services " -ForegroundColor Green 
     Set-Service HomeGroupListener -StartupType Disabled
     Set-Service HomeGroupProvider -StartupType Disabled
     Set-Service HomeGroupListener -Status Stopped
@@ -774,8 +844,8 @@ Function disableHomeGroup {
 Function uninstallOneDrive {
     # uninstall onedrive
     Stop-Process -Name "OneDrive" -Force
-    $path = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
-    if (!(Test-Path $path)) { $path = "$env:SYSTEMROOT\System32\OneDriveSetup.exe" }
+    $path="$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
+    if (!(Test-Path $path)) { $path="$env:SYSTEMROOT\System32\OneDriveSetup.exe" }
     Start-Process $path "/uninstall"
 }
 
@@ -797,7 +867,7 @@ Function explorerSettings {
 }
 
 Function taskbarHideSearch {
-    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search"
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     # hide taskbar search icon / box
     Set-ItemProperty -Path $path -Name "SearchboxTaskbarMode" -Type DWord -Value 0 -Force
@@ -807,13 +877,13 @@ Function taskbarHideSearch {
 }
 
 Function taskbarHidePeopleIcon {
-    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People"
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     # hide taskbar people icon
-    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0 -Force
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0 -Force
 }
 Function taskbarHideInkWorkspace {
-    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PenWorkspace"
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\PenWorkspace"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     # hide windows ink workspace
     Set-ItemProperty -Path $path -Name "PenWorkspaceButtonDesiredVisibility" -Type DWord -Value 0 -Force
@@ -826,18 +896,6 @@ Function disableWebSearch {
     Set-ItemProperty -Path $path -Name "DisableWebSearch" -Type DWord -Value 1 -Force
 }
 
-Function disableLockScreenTips {
-# disable fun facts and tips on lock screen and remove spotlight
-#start ms-settings:lockscreen
-    Write-Host "Disabling More fun facts and tips on lock screen" -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager")) {
-        New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Force
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "RotatingLockScreenEnabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "RotatingLockScreenOverlayEnabled" -Type DWord -Value 0
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0
-}
-
 Function explorerSetControlPanelLargeIcons {
     $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
@@ -847,7 +905,7 @@ Function explorerSetControlPanelLargeIcons {
 }
 
 Function enableDarkMode {
-    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     # enable dark mode
     Set-ItemProperty -Path $path -Name "AppsUseLightTheme" -Type DWord -Value 0 -Force
@@ -855,13 +913,13 @@ Function enableDarkMode {
 
 Function mkdirGodMode {
     # create god mode folder in home directory and pin shortcut to quick access
-    $Path = "C:\Users\$env:username\GodMode.{ED7BA470-8E54-465E-825C-99712043E01C}"
+    $Path="C:\Users\$env:username\GodMode.{ED7BA470-8E54-465E-825C-99712043E01C}"
     New-Item -ItemType Directory -Path $Path -Force
     $QuickAccess = New-Object -ComObject shell.application 
     $TargetObject = $QuickAccess.Namespace("shell:::{679f85cb-0220-4080-b29b-5540cc05aab6}").Items() | where {$_.Path -eq "$Path"} 
     
     if ($TargetObject -ne $null) { 
-        Write-Host "GodMode Folder is already pinned to Quick Access" -ForegroundColor Yellow -BackgroundColor Black
+        Write-Host "GodMode Folder is already pinned to Quick Access" -ForegroundColor Yellow
         return 
     } 
     else { 
@@ -871,11 +929,9 @@ Function mkdirGodMode {
 
 # Disable shared experiences
 Function disableSharedExperiences {
-    Write-Host "Disabling shared experiences" -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System")){
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableCdp" -Type DWord -Value 0
+    $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty -Path $path -Name "EnableCdp" -Type DWord -Value 0 -Force
 }
 
 Function disableWifiSense {
@@ -903,29 +959,22 @@ Function disableWindowsDefenderSampleSubmission {
     # disable cloud based protection
     #Set-ItemProperty -Path $path1 -Name "SpynetReporting" -Type DWord -Value 0
 
-    $path2="HKCU:\SOFTWARE\Microsoft\Windows Security Health\State"
+    $path2="HKCU:\Software\Microsoft\Windows Security Health\State"
     if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
     # hide m$ account sign in warning
     Set-ItemProperty $path2 -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1 -Force
 }
 
 Function disableLocalIntranetFileWarnings {
-    # disable "These files might be harmful to your computer, Your internet security settings suggest that one or more files may be harmful. Do you want to use it anyway?"
-    # for 192.168.*.*
+    # disable for 192.168.*.* - "These files might be harmful to your computer, Your internet security settings suggest that one or more files may be harmful. Do you want to use it anyway?"
     $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Ranges\Range1"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     Set-ItemProperty -Path $path -Name "*" -Type DWord -Value 1 -Force
     Set-ItemProperty -Path $path -Name ":Range" -Type String -Value "192.168.*.*" -Force
 }
 
-Function disableBackgroundApplications {
-    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty -Path $path -Name "GlobalUserDisabled" -Type DWord -Value 1 -Force
-}
-
 Function advancedExplorerSettings {
-    $path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     # hide sync provider notifications
     Set-ItemProperty -Path $path -Name "ShowSyncProviderNotifications" -Type DWord -Value 0 -Force
@@ -1051,6 +1100,7 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
 
 # adjust focus assist
+# disable 5 tabs for windows permissions privacy settings manually
 
 # pin GitHub to QuickAccess
 # pin watch to QuickAccess
@@ -1125,16 +1175,5 @@ notes for later:
 ##############
 # block privacy crap at pfsense level
 https://www.google.com/search?q=block+data+collection+windows+10+pfsense+%3F&rlz=1C1GCEA_enUS829US829&oq=block+data+collection+windows+10+pfsense+%3F&aqs=chrome..69i57.4605j0j4&sourceid=chrome&ie=UTF-8
-
-# disable privacy diagnostic data (set to basic at the moment) - https://www.tecklyfe.com/how-to-disable-telemetry-and-data-collection-in-windows-10-regain-your-privacy/
-Set-ItemProperty -Path HKLM:\Software\Policies\Microsoft\Windows\DataCollection -Name AllowTelemetry -Type DWord -Value 0 -Force
-
-#reg functions to combine 
-# try to find some commonality between these reg keys -- possible to "disable all privacy only"?
-#rename SOFTWARE to Software? what is registry default?
-"HKLM:SOFTWARE\Policies\Microsoft\Windows\System"
-"HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
-"HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
-
 ###################################################################################################
 #>
