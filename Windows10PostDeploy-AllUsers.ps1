@@ -254,22 +254,22 @@ Function setWindowsTimeZone {
     
     #Washington, Nevada, California
     if (($currentTimeZone -ne "Pacific Standard Time") -and ($ipState -eq "Washington" -or $ipState -eq "Nevada" -or $ipState -eq "California")) {
-        Write-Host "Region doesn't match current time zone, setting to Pacific Standard Time" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Region doesn't match current time zone, setting to Pacific Standard Time" -ForegroundColor Green
         Set-TimeZone -Name "Pacific Standard Time"
     }
     #Montana, Wyoming, Colorado, Utah, New Mexico                                           
     elseif (($currentTimeZone -ne "Mountain Standard Time") -and ($ipState -eq "Montana" -or $ipState -eq "Wyoming" -or $ipState -eq "Colorado" -or $ipState -eq "Utah" -or $ipState -eq "New Mexico")) {
-        Write-Host "Region doesn't match current time zone, setting to Mountain Standard Time" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Region doesn't match current time zone, setting to Mountain Standard Time" -ForegroundColor Green
         Set-TimeZone -Name "Mountain Standard Time"
     }
     #Minnesota, Wisconsin, Iowa, Illinois, Missouri, Arkansas, Oklahoma, Mississippi, Alabama, Louisiana
     elseif (($currentTimeZone -ne "Central Standard Time") -and ($ipState -eq "Minnesota" -or $ipState -eq "Wisconsin" -or $ipState -eq "Iowa" -or $ipState -eq "Illinois" -or $ipState -eq "Missouri" -or $ipState -eq "Arkansas" -or $ipState -eq "Oklahoma" -or $ipState -eq "Mississippi" -or $ipState -eq "Alabama" -or $ipState -eq "Louisiana")) {
-        Write-Host "Region doesn't match current time zone, setting to Central Standard Time" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Region doesn't match current time zone, setting to Central Standard Time" -ForegroundColor Green
         Set-TimeZone -Name "Central Standard Time"
     }
     #Georgia, South Carolina, North Carolina, Virginia, West Virginia, Ohio, Pennsylvania, New York, Maine, Vermont, New Hampshire, Massachusetts, Rhode Island, Connecticut, New Jersey, Delaware, Maryland, District of Columbia
     elseif (($currentTimeZone -ne "Eastern Standard Time") -and ($ipState -eq "Georgia" -or $ipState -eq "South Carolina" -or $ipState -eq "North Carolina" -or $ipState -eq "Virginia" -or $ipState -eq "West Virginia" -or $ipState -eq "Ohio" -or $ipState -eq "Pennsylvania" -or $ipState -eq "New York" -or $ipState -eq "Maine" -or $ipState -eq "Vermont" -or $ipState -eq "New Hampshire" -or $ipState -eq "Massachusetts" -or $ipState -eq "Rhode Island" -or $ipState -eq "Connecticut" -or $ipState -eq "New Jersey" -or $ipState -eq "Delaware" -or $ipState -eq "Maryland" -or $ipState -eq "District of Columbia")) {
-        Write-Host "Region doesn't match current time zone, setting to Eastern Standard Time" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Region doesn't match current time zone, setting to Eastern Standard Time" -ForegroundColor Green
         Set-TimeZone -Name "Eastern Standard Time"
     }
     #Multi-zone-states
@@ -277,17 +277,17 @@ Function setWindowsTimeZone {
     elseif ($ipState -eq "Florida") {
         if (($currentTimeZone -ne "Central Standard Time") -and (($ipLat -ge 29.55) -and ($ipLon -lt -85.5835))) {
             #CST
-            Write-Host "Region doesn't match current time zone, setting to Central Standard Time" -ForegroundColor Green -BackgroundColor Black
+            Write-Host "Region doesn't match current time zone, setting to Central Standard Time" -ForegroundColor Green
             Set-TimeZone -Name "Central Standard Time"
         }
         elseif (($currentTimeZone -ne "Eastern Standard Time") -and (($ipLat -le 31.00) -and ($ipLon -ge -85.5835))) {
             #EST
-            Write-Host "Region doesn't match current time zone, setting to Eastern Standard Time" -ForegroundColor Green -BackgroundColor Black
+            Write-Host "Region doesn't match current time zone, setting to Eastern Standard Time" -ForegroundColor Green
             Set-TimeZone -Name "Eastern Standard Time"
         }
         else {
-            Write-Host "Time Zone location could not be determined for Florida, Input a time zone manually" -ForegroundColor Red -BackgroundColor Black
-            Write-Host "Enter either 'Central Standard Time' or 'Eastern Standard Time'" -ForegroundColor Yellow -BackgroundColor Black
+            Write-Host "Time Zone location could not be determined for Florida, Input a time zone manually" -ForegroundColor Red
+            Write-Host "Enter either 'Central Standard Time' or 'Eastern Standard Time'" -ForegroundColor Yellow
             Set-TimeZone
         }
     }
@@ -328,9 +328,9 @@ Function setWindowsTimeZone {
      #Alaska -special time zone and multi-timezone state
      #Hawaii -special time zone
     else {
-        Write-Host "Region already matches current time zone, skipping and continuing with time sync" -ForegroundColor Green -BackgroundColor Black
+        Write-Host "Region already matches current time zone, skipping and continuing with time sync" -ForegroundColor Green
     }
-    Write-Host "Syncing windows time" -ForegroundColor Green -BackgroundColor Black
+    Write-Host "Syncing windows time" -ForegroundColor Green
     net start w32time
     w32tm /resync
 }
