@@ -103,19 +103,18 @@ $everyRunFunctions2 = @(
     "disableTelemetry", 
     "setWindowsTimeZone",
     "enableLegacyF8Boot",
-    "configurePrivacy",#needs updates #missing, template function in-place
+    "configurePrivacy",
     "disableStickyKeys",
     "setPageFileToC",
     "soundCommsAttenuation",
     "disableWindowsDefenderSampleSubmission",
-    "disableBackgroundApplications",
     "disableMouseAcceleration",
 
     # tailored for AllUsers
     "uninstallWindowsFeatures",
-    "configureWindowsUpdates",#port any new changes over from main script
+    "configureWindowsUpdates",
     "uninstallOptionalApps",
-    "setPowerProfile",#template for now #what about plans like "DellOptimized"? set logic to check if GUID for Power Saver || Balanced || High Performance, is set, else leave alone
+    #"setPowerProfile",#template for now #what about plans like "DellOptimized"? set logic to check if GUID for Power Saver || Balanced || High Performance, is set, else leave alone
     "taskbarHideSearch",
     "removeWin10Apps"
 
@@ -342,8 +341,64 @@ Function enableLegacyF8Boot {
     bcdedit /set "{current}" bootmenupolicy Legacy
 }
 
+# Disable all privacy settings
 Function configurePrivacy {
+#Windows permissions
+#General - Change privacy options
+    #Let apps use advertising ID to make ads more interesting to you based on your app activity
+        #$adiPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+        #if (!(Test-Path $adiPath)) { New-Item -Path $adiPath -Force }
+        #Set-ItemProperty -Path $adiPath -Name "Enabled" -Type DWord -Value 0 -Force
+    #Let websites provide locally relevant content by accessing my language list
+        #Set-ItemProperty -Path "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut" -Type DWord -Value 1 -Force
+    #Let Windows track app launches to improve Start and search results
+        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Type DWord -Value 0 -Force
+    #Show me suggested content in the Settings app
+        #?
+#Speech
+    #Online speech recognition
+        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0 -Force
+#Inking & typing personalization
+    #Getting to know you
+        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Input\TIPC" -Name "Enabled" -Type DWord -Value 0 -Force
+#Diagnostics & feedback
+    #Diagnostic data
+    $dcPath="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+    if (!(Test-Path $dcPath)) { New-Item -Path $dcPath -Force }
+    Set-ItemProperty -Path $dcPath -Name "AllowTelemetry" -Type DWord -Value 0 -Force
+    #Improving inking and typing
+        #?
+    #Tailored experiences
+        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type DWord -Value 0 -Force
+    #View diagnostic data
+        #Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey" -Name "EnableEventTranscript" -Type DWord -Value 0 -Force
+    #Delete diagnostic data
+        #?
+    #Feedback frequency
+        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0 -Force
+        #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
+        #Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient"
+        #Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload"
+    #Recommended troubleshooting
+        #?
+#Activity history
+    #Store my activity history on this device
+        #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0 -Force
+    #Send my activity history to Microsoft
+        #?
+    #Clear activity history
+        #?
 
+#App permissions
+    #Other devices - #Communicate with unpaired devices
+    $bsPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync"
+    if (!(Test-Path $bsPath)) { New-Item -Path $bsPath -Force }
+    Set-ItemProperty -Path $bsPath -Name "Value" -Type String -Value "Deny" -Force
+    #Background apps
+    $baPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"
+    if (!(Test-Path $baPath)) { New-Item -Path $baPath -Force }
+    #Let apps run in the background
+    Set-ItemProperty -Path $baPath -Name "GlobalUserDisabled" -Type DWord -Value 1 -Force
 }
 
 Function disableStickyKeys {
@@ -378,12 +433,6 @@ Function disableWindowsDefenderSampleSubmission {
     if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
     # hide m$ account sign in warning
     Set-ItemProperty $path2 -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1 -Force
-}
-
-Function disableBackgroundApplications {
-    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty -Path $path -Name "GlobalUserDisabled" -Type DWord -Value 1 -Force
 }
 
 Function disableMouseAcceleration {
@@ -494,6 +543,7 @@ Function remainingStepsToText {
 ################
 # set task manager startup apps to disabled from running at boot
 # unpin default groups from start menu
+# disable 5 tabs for windows permissions privacy settings manually
 
 #########################
 # Appended Output Steps #
