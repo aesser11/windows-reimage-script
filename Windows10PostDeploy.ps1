@@ -403,9 +403,9 @@ Function setPowerProfile {
         powercfg -setdcvalueindex scheme_current sub_processor PERFBOOSTMODE 3
         #>
     ###############################################################################################################################################
-        # (Hard Disk)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE 1200
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE 1200
+        ## (Hard Disk)
+        #powercfg -setacvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE 1200
+        #powercfg -setdcvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE 1200
 
         # (Internet Explorer)
         powercfg -setacvalueindex SCHEME_CURRENT 02f815b5-a5cf-4c84-bf20-649d1f75d3d8 4c793e7d-a264-42e1-87d3-7a0d2f523ccd 1
@@ -439,10 +439,10 @@ Function setPowerProfile {
         powercfg -setacvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0
         powercfg -setdcvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1
 
-        # (Intel(R) Graphics Settings)
-        # (Intel(R) Graphics Power Plan)
-        powercfg -setacvalueindex SCHEME_CURRENT 44f3beca-a7c0-460e-9df2-bb8b99e0cba6 3619c3f2-afb2-4afc-b0e9-e7fef372de36 2
-        powercfg -setdcvalueindex SCHEME_CURRENT 44f3beca-a7c0-460e-9df2-bb8b99e0cba6 3619c3f2-afb2-4afc-b0e9-e7fef372de36 0
+        ## (Intel(R) Graphics Settings)
+        ## (Intel(R) Graphics Power Plan)
+        #powercfg -setacvalueindex SCHEME_CURRENT 44f3beca-a7c0-460e-9df2-bb8b99e0cba6 3619c3f2-afb2-4afc-b0e9-e7fef372de36 2
+        #powercfg -setdcvalueindex SCHEME_CURRENT 44f3beca-a7c0-460e-9df2-bb8b99e0cba6 3619c3f2-afb2-4afc-b0e9-e7fef372de36 0
 
         # (Power buttons and lid)
         # (Lid close action)
@@ -1097,6 +1097,8 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # show details during file transfers
 
 # unpin default groups from start menu
+# set which folders appear on start: file explorer, and user folders
+# set notification center icons
 # remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
 
 # adjust focus assist
