@@ -10,12 +10,69 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 ################################
 # Windows 10 Apps to Whitelist #
 ################################
+<#
 $win10AppWhitelist = @(
     # as of 1909
     "*WindowsCalculator*",
     "*Photos*",
     "*Paint*",
+    "*NVIDIA*",
+    "*Store*",
     "*ScreenSketch*"
+)
+#>
+
+################################
+# Windows 10 Apps to Blacklist #
+################################
+$win10AppBlacklist = @(
+    # non-microsoft as of 1909
+    "*Solitaire*",
+    "*SkypeApp*",
+    "*Minecraft*",
+    "*Twitter*",
+    "*CandyCrush*",
+    "*LinkedIn*",
+    "*DisneyMagicKingdoms*",
+    "*MarchofEmpires*",
+    "*iHeartRadio*",
+    "*FarmVille*",
+    "*Duolingo*",
+    "*CyberLink*",
+    "*Facebook*",
+    "*Asphalt8Airborne*",
+    "*CookingFever*",
+    "*Pandora*",
+    "*FreeCasino*",
+    "*Shazam*",
+    "*SlingTV*",
+    "*Spotify*",
+    "*NYTCrossword*",
+    "*TuneInRadio*",
+    "*Xing*",
+    "*RoyalRevolt2*",
+    "*BubbleWitch3Saga*",
+    "*PetRescueSaga*",
+    "*FarmHeroesSaga*",
+    "*Netflix*",
+    "*king.com.*",
+    "*Sketchable*",
+    "*HotSpotShield*",
+    "*WhatsApp*",
+    "*PicsArt-PhotoStudio*",
+    "*EclipseManager*",
+    "*PolarrPhotoEditorAcademicEdition*",
+    "*Wunderlist*",
+    "*AutodeskSketchBook*",
+    "*ActiproSoftwareLLC*",
+    "*Plex*",
+    "*DolbyAccess*",
+    "*Drawboard*",
+    "*Fitbit*",
+    "*Flipboard*",
+    "*Keeper*",
+    "*PhototasticCollage*",
+    "*WinZipUniversal*"
 )
 
 #############################
@@ -73,7 +130,6 @@ $everyRunFunctions2 = @(
     # universal functions
     "disableTelemetry",
     "setWindowsTimeZone",
-    "enableLegacyF8Boot",
     "configurePrivacy",#needs updates
     "disableStickyKeys",
     "setPageFileToC",
@@ -371,12 +427,6 @@ Function setWindowsTimeZone {
     w32tm /resync
 }
 
-# Enable legacy F8 boot menu
-Function enableLegacyF8Boot {
-    #bcdedit /set `{current`} bootmenupolicy Legacy
-    bcdedit /set "{current}" bootmenupolicy Legacy
-}
-
 # Delete hibernation file -- (cmd)
 Function deleteHibernationFile{
     powercfg -h off
@@ -580,7 +630,6 @@ Function configureWindowsUpdates {
 
 # Disable all privacy settings
 Function configurePrivacy {
-<#
 #Windows permissions
 #General - Change privacy options
     #Let apps use advertising ID to make ads more interesting to you based on your app activity
@@ -631,7 +680,7 @@ Function configurePrivacy {
         New-Item -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Force
     }
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value 0 -Force
-#>
+
 #Diagnostics & feedback
     #Diagnostic data
     $dcPath="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
@@ -781,6 +830,7 @@ Function soundCommsAttenuation {
 }
 
 Function removeWin10Apps {
+    <#
     # suppress errors for these cmdlets, very noisy when working with a whitelist
     foreach ($app in $win10AppWhitelist) {
         Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "$app"} | Remove-AppxPackage -ErrorAction Ignore
@@ -788,6 +838,12 @@ Function removeWin10Apps {
     }
     # reinstall all apps 
     # Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+    #>
+
+    foreach ($app in $win10AppBlacklist) {
+        Get-AppxPackage -AllUsers | Where-Object {$_.Name -like "$app"} | Remove-AppxPackage
+        #Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -like "$app"} | Remove-AppxProvisionedPackage -Online
+    }
 }
 
 Function uninstallWindowsFeatures {
@@ -1055,7 +1111,9 @@ Function configureNightLight {
         $tempLo = (($NightColorTemperature - ($tempHi * 64)) * 2) + 128
         $data += ($tempLo, $tempHi)
         $data += (0xCA, 0x32, 0, 0xCA, 0x3C, 0, 0)
-        Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\$$windows.data.bluelightreduction.settings\Current' -Name 'Data' -Value ([byte[]]$data) -Type Binary
+        $path='HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\$$windows.data.bluelightreduction.settings\Current'
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name 'Data' -Value ([byte[]]$data) -Type Binary
     }
     Set-BlueLightReductionSettings -StartHour 21 -StartMinutes 00 -EndHour 7 -EndMinutes 0 -Enabled $true -NightColorTemperature 3400
 }
@@ -1086,9 +1144,9 @@ Function remainingStepsToText {
 https://github.com/aesser11/home-lab/wiki/Reimaging-General
 https://github.com/aesser11/home-lab/wiki/Windows-10
 # disable GeForce Experience game optimization (install bundled w/ nvidia drivers)
+# disable GeForce Experience in-game overlay
 
 # 10GbE -> https://github.com/aesser11/home-lab/wiki/10GbE#windows-desktop
-
 # plug mic into all usb ports to disable speaker device and set mic settings
 
 # set task manager columns [process name, cpu, memory, disk, network, gpu]
@@ -1100,6 +1158,8 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # set which folders appear on start: file explorer, and user folders
 # set notification center icons
 # remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
+
+# 
 
 # adjust focus assist
 # disable 5 tabs for windows permissions privacy settings manually
