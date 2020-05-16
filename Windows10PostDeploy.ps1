@@ -1164,6 +1164,7 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # show details during file transfers
 
 # unpin default groups from start menu
+# unpin default items from taskbar
 
 # set which folders appear on start: file explorer, and user folders
 # set notification center icons
