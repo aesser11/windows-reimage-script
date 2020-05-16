@@ -102,7 +102,6 @@ $everyRunFunctions2 = @(
     # universal functions
     "disableTelemetry", 
     "setWindowsTimeZone",
-    "enableLegacyF8Boot",
     "configurePrivacy",
     "disableStickyKeys",
     "setPageFileToC",
@@ -335,12 +334,6 @@ Function setWindowsTimeZone {
     w32tm /resync
 }
 
-# Enable legacy F8 boot menu
-Function enableLegacyF8Boot {
-    #bcdedit /set `{current`} bootmenupolicy Legacy
-    bcdedit /set "{current}" bootmenupolicy Legacy
-}
-
 # Disable all privacy settings
 Function configurePrivacy {
 #Windows permissions
@@ -509,10 +502,10 @@ Function taskbarHideSearch {
 }
 
 Function removeWin10Apps {
-    # check if error suppression is required for these commands (might be noisy) "-ErrorAction Ignore"
+    # suppress errors for these cmdlets, very noisy when working with a whitelist
     foreach ($app in $win10AppBlacklist) {
         Get-AppxPackage -AllUsers | Where-Object {$_.Name -like "$app"} | Remove-AppxPackage
-        Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -like "$app"} | Remove-AppxProvisionedPackage -Online
+        #Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -like "$app"} | Remove-AppxProvisionedPackage -Online
     }
     # reinstall all apps 
     # Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
