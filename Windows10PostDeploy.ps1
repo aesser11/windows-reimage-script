@@ -636,9 +636,6 @@ Function configurePrivacy {
         $adiPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
         if (!(Test-Path $adiPath)) { New-Item -Path $adiPath -Force }
         Set-ItemProperty -Path $adiPath -Name "Enabled" -Type DWord -Value 0 -Force
-        $adiPath2="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
-        if (!(Test-Path $adiPath2)) { New-Item -Path $adiPath2 -Force }
-        Set-ItemProperty -Path $adiPath2 -Name "Enabled" -Type DWord -Value 0 -Force
     #Let websites provide locally relevant content by accessing my language list
         $upPath="HKCU:\Control Panel\International\User Profile\"
         if (!(Test-Path $upPath)) { New-Item -Path $upPath -Force }
@@ -669,28 +666,34 @@ Function configurePrivacy {
         Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0 -Force
 #Speech - left off privacy adjustments here
     #Online speech recognition
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0 -Force
+        $path="HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy"
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name "HasAccepted" -Type DWord -Value 0 -Force
 #Inking & typing personalization
     #Getting to know you
-        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Input\TIPC" -Name "Enabled" -Type DWord -Value 0 -Force
+        $path="HKCU:\Software\Microsoft\Input\TIPC"
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name "Enabled" -Type DWord -Value 0 -Force
 
-# Turn off automatic learning 
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0 -Force
-    if (!(Test-Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore")) {
-        New-Item -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Force
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Type DWord -Value 0 -Force
-
+# Turn off automatic learning
+    $path="HKCU:\Software\Microsoft\Personalization\Settings"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty -Path $path -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0 -Force
+    $path="HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty -Path $path -Name "HarvestContacts" -Type DWord -Value 0 -Force
 #Diagnostics & feedback
     #Diagnostic data
     $dcPath="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
     if (!(Test-Path $dcPath)) { New-Item -Path $dcPath -Force }
     Set-ItemProperty -Path $dcPath -Name "AllowTelemetry" -Type DWord -Value 0 -Force
-<#    
+
     #Improving inking and typing
         #?
     #Tailored experiences
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy" -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type DWord -Value 0 -Force
+    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty -Path $path -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type DWord -Value 0 -Force
     #View diagnostic data
     $etkPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey"
     if (!(Test-Path $etkPath)) { New-Item -Path $etkPath -Force }
@@ -698,15 +701,21 @@ Function configurePrivacy {
     #Delete diagnostic data
         #?
     #Feedback frequency
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0 -Force
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
+    $path="HKCU:\Software\Microsoft\Siuf\Rules"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty -Path $path -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0 -Force
+    $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty -Path $path -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient"
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload"
     #Recommended troubleshooting
         #?
 #Activity history
     #Store my activity history on this device
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0 -Force
+        $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name "PublishUserActivities" -Type DWord -Value 0 -Force
     #Send my activity history to Microsoft
         #?
     #Clear activity history
@@ -715,10 +724,10 @@ Function configurePrivacy {
         #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0 -Force
         #Disable publishing of user activiites | #Disable Let windows sync activiites from my pc to the cloud
         #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0 -Force
-#>
+
 
 <#
-#Other
+#OLD-FUNCTIONS
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
 # Diagnostics & Feedback
     # Disable Feedback
@@ -1155,24 +1164,22 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # show details during file transfers
 
 # unpin default groups from start menu
+
 # set which folders appear on start: file explorer, and user folders
 # set notification center icons
 # remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
-
-# 
-
+# set background, lock screen, and login photo
 # adjust focus assist
-# disable 5 tabs for windows permissions privacy settings manually
+# review windows permissions privacy settings manually
 
 # pin GitHub to QuickAccess
 # pin watch to QuickAccess
 
-#####################
-# Automatable Steps #
-#####################
 # install powertoys choco install powertoys -y ; pin add n=powertoys
 # install electrum -> https://electrum.org/#download
 # create cup all -y ; pause -> script with shortcut (pin to start menu manually)
+
+# pin shit to start menu
 
 #########################
 # Appended Output Steps #
@@ -1230,8 +1237,6 @@ catch {
 <#
 notes for later:
 ###################################################################################################
-3 functions needing some attention
-
 ##############
 # Privacy BS #
 ##############
