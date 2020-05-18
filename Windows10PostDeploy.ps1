@@ -1195,8 +1195,8 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
 # set background, lock screen, and login photo
 # adjust focus assist
-# review windows permissions privacy settings manually
-# setup night light
+# review windows permissions privacy settings
+# set night light
 # check for missed built-in apps 
 # disable xbox in-game overlay
 # review default apps
@@ -1266,10 +1266,6 @@ catch {
 <#
 notes for later:
 ###################################################################################################
-##############
-# Privacy BS #
-##############
-# block privacy crap at pfsense level
-https://www.google.com/search?q=block+data+collection+windows+10+pfsense+%3F&rlz=1C1GCEA_enUS829US829&oq=block+data+collection+windows+10+pfsense+%3F&aqs=chrome..69i57.4605j0j4&sourceid=chrome&ie=UTF-8
+
 ###################################################################################################
 #>
