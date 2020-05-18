@@ -1173,6 +1173,7 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # review windows permissions privacy settings manually
 # setup night light
 # remove other built-in apps 
+# disable xbox in-game overlay
 
 # pin GitHub to QuickAccess
 # pin watch to QuickAccess
