@@ -26,9 +26,6 @@ $win10AppWhitelist = @(
 # Windows 10 Apps to Blacklist #
 ################################
 $win10AppBlacklist = @(
-    # other microsoft apps?
-    # "*Microsoft.Advertising.Xaml*",
-
     # microsoft apps as of 1909
     "*Microsoft.Microsoft3DViewer*",
     "*Microsoft.WindowsFeedbackHub*",
@@ -46,6 +43,7 @@ $win10AppBlacklist = @(
     "*Microsoft.Getstarted*",
     "*Microsoft.WindowsSoundRecorder*",
     "*Microsoft.BingWeather*",
+    "*Microsoft.Advertising.Xaml*",
     #"*Microsoft.Xbox.TCUI*",
     #"*Microsoft.XboxApp*",
     #"*Microsoft.XboxGameOverlay*",
