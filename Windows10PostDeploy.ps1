@@ -116,7 +116,7 @@ $firstRunFunctions1 = @(
     "installSoftware",#append-software
 
     # automated and universal
-    "configureNightLight",
+    #"configureNightLight",
     "personalFolderTargetSteps"
 )
 
@@ -674,7 +674,6 @@ Function configurePrivacy {
         $path="HKCU:\Software\Microsoft\Input\TIPC"
         if (!(Test-Path $path)) { New-Item -Path $path -Force }
         Set-ItemProperty -Path $path -Name "Enabled" -Type DWord -Value 0 -Force
-
 # Turn off automatic learning
     $path="HKCU:\Software\Microsoft\Personalization\Settings"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
@@ -1172,6 +1171,7 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # set background, lock screen, and login photo
 # adjust focus assist
 # review windows permissions privacy settings manually
+# setup night light
 
 # pin GitHub to QuickAccess
 # pin watch to QuickAccess

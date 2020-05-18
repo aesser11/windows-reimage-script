@@ -339,21 +339,54 @@ Function configurePrivacy {
 #Windows permissions
 #General - Change privacy options
     #Let apps use advertising ID to make ads more interesting to you based on your app activity
-        #$adiPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
-        #if (!(Test-Path $adiPath)) { New-Item -Path $adiPath -Force }
-        #Set-ItemProperty -Path $adiPath -Name "Enabled" -Type DWord -Value 0 -Force
+        $adiPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+        if (!(Test-Path $adiPath)) { New-Item -Path $adiPath -Force }
+        Set-ItemProperty -Path $adiPath -Name "Enabled" -Type DWord -Value 0 -Force
     #Let websites provide locally relevant content by accessing my language list
-        #Set-ItemProperty -Path "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut" -Type DWord -Value 1 -Force
+        $upPath="HKCU:\Control Panel\International\User Profile\"
+        if (!(Test-Path $upPath)) { New-Item -Path $upPath -Force }
+        Set-ItemProperty -Path $upPath -Name "HttpAcceptLanguageOptOut" -Type DWord -Value 1 -Force
     #Let Windows track app launches to improve Start and search results
-        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Type DWord -Value 0 -Force
+        $expadvPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+        if (!(Test-Path $expadvPath)) { New-Item -Path $expadvPath -Force }
+        Set-ItemProperty -Path $expadvPath -Name "Start_TrackProgs" -Type DWord -Value 0 -Force
     #Show me suggested content in the Settings app
-        #?
+        $cdmPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+        if (!(Test-Path $cdmPath)) { New-Item -Path $cdmPath -Force }
+        Set-ItemProperty -Path $cdmPath -Name "ContentDeliveryAllowed" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "PreInstalledAppsEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "PreInstalledAppsEverEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SystemPaneSuggestionsEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338388Enabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338389Enabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-353698Enabled" -Type DWord -Value 0 -Force
+    # disable fun facts and tips on lock screen and remove spotlight
+    #start ms-settings:lockscreen
+        Set-ItemProperty -Path $cdmPath -Name "RotatingLockScreenEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "RotatingLockScreenOverlayEnabled" -Type DWord -Value 0 -Force
+        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0 -Force
 #Speech
     #Online speech recognition
-        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" -Name "HasAccepted" -Type DWord -Value 0 -Force
+        $path="HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy"
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name "HasAccepted" -Type DWord -Value 0 -Force
 #Inking & typing personalization
     #Getting to know you
-        #Set-ItemProperty -Path "HKCU:\Software\Microsoft\Input\TIPC" -Name "Enabled" -Type DWord -Value 0 -Force
+        $path="HKCU:\Software\Microsoft\Input\TIPC"
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name "Enabled" -Type DWord -Value 0 -Force
+# Turn off automatic learning
+    $path="HKCU:\Software\Microsoft\Personalization\Settings"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty -Path $path -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0 -Force
+    $path="HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore"
+    if (!(Test-Path $path)) { New-Item -Path $path -Force }
+    Set-ItemProperty -Path $path -Name "HarvestContacts" -Type DWord -Value 0 -Force
 #Diagnostics & feedback
     #Diagnostic data
     $dcPath="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
