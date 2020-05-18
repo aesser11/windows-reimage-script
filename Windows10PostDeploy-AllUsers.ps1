@@ -11,53 +11,56 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 # Windows 10 Apps to Blacklist #
 ################################
 $win10AppBlacklist = @(
+    # microsoft as of 1909
+    "*Microsoft.WindowsFeedbackHub*",
+    "*Microsoft.SkypeApp*",
+    #"*Microsoft.MicrosoftSolitaireCollection*",
+
     # non-microsoft as of 1909
-    "*Solitaire*",
-    "*SkypeApp*",
-    "*Minecraft*",
-    "*Twitter*",
-    "*CandyCrush*",
-    "*LinkedIn*",
-    "*DisneyMagicKingdoms*",
-    "*MarchofEmpires*",
-    "*iHeartRadio*",
-    "*FarmVille*",
-    "*Duolingo*",
-    "*CyberLink*",
-    "*Facebook*",
-    "*Asphalt8Airborne*",
-    "*CookingFever*",
-    "*Pandora*",
-    "*FreeCasino*",
-    "*Shazam*",
-    "*SlingTV*",
-    "*Spotify*",
-    "*NYTCrossword*",
-    "*TuneInRadio*",
-    "*Xing*",
-    "*RoyalRevolt2*",
-    "*BubbleWitch3Saga*",
-    "*PetRescueSaga*",
-    "*FarmHeroesSaga*",
-    "*Netflix*",
-    "*king.com.*",
-    "*Sketchable*",
-    "*HotSpotShield*",
-    "*WhatsApp*",
-    "*PicsArt-PhotoStudio*",
-    "*EclipseManager*",
-    "*PolarrPhotoEditorAcademicEdition*",
-    "*Wunderlist*",
-    "*AutodeskSketchBook*",
     "*ActiproSoftwareLLC*",
-    "*Plex*",
+    "*Asphalt8Airborne*",
+    "*AutodeskSketchBook*",
+    "*BubbleWitch3Saga*",
+    "*CandyCrush*",
+    "*CookingFever*",
+    "*CyberLink*",
+    "*DisneyMagicKingdoms*",
     "*DolbyAccess*",
     "*Drawboard*",
+    "*Duolingo*",
+    "*EclipseManager*",
+    "*Facebook*",
+    "*FarmHeroesSaga*",
+    "*FarmVille*",
     "*Fitbit*",
     "*Flipboard*",
+    "*FreeCasino*",
+    "*HotSpotShield*",
+    "*iHeartRadio*",
     "*Keeper*",
+    "*king.com.*",
+    "*LinkedIn*",
+    "*MarchofEmpires*",
+    "*Minecraft*",
+    "*Netflix*",
+    "*NYTCrossword*",
+    "*Pandora*",
+    "*PetRescueSaga*",
     "*PhototasticCollage*",
-    "*WinZipUniversal*"
+    "*PicsArt-PhotoStudio*",
+    "*Plex*",
+    "*PolarrPhotoEditorAcademicEdition*",
+    "*RoyalRevolt2*",
+    "*Shazam*",
+    "*Sketchable*",
+    "*SlingTV*",
+    "*Spotify*",
+    "*TuneInRadio*",
+    "*Twitter*",
+    "*WhatsApp*",
+    "*WinZipUniversal*",
+    "*Wunderlist*",
+    "*Xing*"
 )
 
 #############################
@@ -584,6 +587,7 @@ Function remainingStepsToText {
 # set task manager startup apps to disabled from running at boot
 # unpin default groups from start menu
 # disable 5 tabs for windows permissions privacy settings manually
+# review default apps
 
 #########################
 # Appended Output Steps #

@@ -26,9 +26,35 @@ $win10AppWhitelist = @(
 # Windows 10 Apps to Blacklist #
 ################################
 $win10AppBlacklist = @(
+    # other microsoft apps?
+    # "*Microsoft.Advertising.Xaml*",
+
+    # microsoft apps as of 1909
+    "*Microsoft.Microsoft3DViewer*",
+    "*Microsoft.WindowsFeedbackHub*",
+    "*Microsoft.ZuneMusic*",
+    "*microsoft.windowscommunicationsapps*",
+    "*Microsoft.MixedReality.Portal*",
+    "*Microsoft.OneConnect*",
+    "*Microsoft.ZuneVideo*",
+    "*Microsoft.MicrosoftOfficeHub*",
+    "*Microsoft.Office.OneNote*",
+    "*Microsoft.Print3D*",
+    "*Microsoft.MicrosoftSolitaireCollection*",
+    "*Microsoft.SkypeApp*",
+    "*Microsoft.MicrosoftStickyNotes*",
+    "*Microsoft.Getstarted*",
+    "*Microsoft.WindowsSoundRecorder*",
+    "*Microsoft.BingWeather*",
+    #"*Microsoft.Xbox.TCUI*",
+    #"*Microsoft.XboxApp*",
+    #"*Microsoft.XboxGameOverlay*",
+    #"*Microsoft.XboxGamingOverlay*",
+    #"*Microsoft.XboxIdentityProvider*",
+    #"*Microsoft.XboxSpeechToTextOverlay*",
+    #"*Microsoft.XboxGameCallableUI*",
+
     # non-microsoft as of 1909
-    "*Solitaire*",
-    "*SkypeApp*",
     "*Minecraft*",
     "*Twitter*",
     "*CandyCrush*",
@@ -1170,8 +1196,9 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # adjust focus assist
 # review windows permissions privacy settings manually
 # setup night light
-# remove other built-in apps 
+# check for missed built-in apps 
 # disable xbox in-game overlay
+# review default apps
 
 # pin GitHub to QuickAccess
 # pin watch to QuickAccess
