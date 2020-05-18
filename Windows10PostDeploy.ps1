@@ -675,39 +675,38 @@ Function configurePrivacy {
         if (!(Test-Path $path)) { New-Item -Path $path -Force }
         Set-ItemProperty -Path $path -Name "Enabled" -Type DWord -Value 0 -Force
 # Turn off automatic learning
-    $path="HKCU:\Software\Microsoft\Personalization\Settings"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty -Path $path -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0 -Force
-    $path="HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty -Path $path -Name "HarvestContacts" -Type DWord -Value 0 -Force
+        $path="HKCU:\Software\Microsoft\Personalization\Settings"
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0 -Force
+        $path="HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore"
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name "HarvestContacts" -Type DWord -Value 0 -Force
 #Diagnostics & feedback
     #Diagnostic data
-    $dcPath="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
-    if (!(Test-Path $dcPath)) { New-Item -Path $dcPath -Force }
-    Set-ItemProperty -Path $dcPath -Name "AllowTelemetry" -Type DWord -Value 0 -Force
-
+        $dcPath="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+        if (!(Test-Path $dcPath)) { New-Item -Path $dcPath -Force }
+        Set-ItemProperty -Path $dcPath -Name "AllowTelemetry" -Type DWord -Value 0 -Force
     #Improving inking and typing
         #?
     #Tailored experiences
-    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty -Path $path -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type DWord -Value 0 -Force
+        $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy"
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type DWord -Value 0 -Force
     #View diagnostic data
-    $etkPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey"
-    if (!(Test-Path $etkPath)) { New-Item -Path $etkPath -Force }
-    Set-ItemProperty -Path $etkPath -Name "EnableEventTranscript" -Type DWord -Value 0 -Force
+        $etkPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey"
+        if (!(Test-Path $etkPath)) { New-Item -Path $etkPath -Force }
+        Set-ItemProperty -Path $etkPath -Name "EnableEventTranscript" -Type DWord -Value 0 -Force
     #Delete diagnostic data
         #?
     #Feedback frequency
-    $path="HKCU:\Software\Microsoft\Siuf\Rules"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty -Path $path -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0 -Force
-    $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty -Path $path -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
-    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient"
-    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload"
+        $path="HKCU:\Software\Microsoft\Siuf\Rules"
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0 -Force
+        $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+        if (!(Test-Path $path)) { New-Item -Path $path -Force }
+        Set-ItemProperty -Path $path -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
+        Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient"
+        Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload"
     #Recommended troubleshooting
         #?
 #Activity history
@@ -723,7 +722,6 @@ Function configurePrivacy {
         #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0 -Force
         #Disable publishing of user activiites | #Disable Let windows sync activiites from my pc to the cloud
         #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0 -Force
-
 
 <#
 #OLD-FUNCTIONS
