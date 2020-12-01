@@ -68,7 +68,7 @@ $win10AppBlacklist = @(
 $applicationsToInstall = @(
     # standard apps every windows instance should have
     "hwinfo",
-    "notepadplusplus",
+    #"notepadplusplus",
     #vlc
     #rufus
 
