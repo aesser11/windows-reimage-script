@@ -110,7 +110,8 @@ $firstRunFunctions1 = @(
     "installSoftware",#append-software
 
     # automated and universal
-    "personalFolderTargetSteps"
+    "personalFolderTargetSteps",
+    "removeWin10Apps"
 )
 
 $finalFirstRunFunctions3 = @(
@@ -123,7 +124,6 @@ $everyRunFunctions2 = @(
     # universal functions
     "disableTelemetry",
     "setWindowsTimeZone",
-    "configurePrivacy",#needs updates
     "disableStickyKeys",
     "setPageFileToC",
     "soundCommsAttenuation",
@@ -131,6 +131,7 @@ $everyRunFunctions2 = @(
     "disableMouseAcceleration",
 
     # tailored to my desired settings
+    "configurePrivacy",
     "uninstallWindowsFeatures",
     "configureWindowsUpdates",
     "deleteHibernationFile",
@@ -139,7 +140,6 @@ $everyRunFunctions2 = @(
     "taskbarHideSearch",
 
     # functions exclusively for myself
-    "removeWin10Apps",
     "removePrinters",
     "disableRemoteAssistance",
     "enableGuestSMBShares",
@@ -477,154 +477,8 @@ Function configureWindowsUpdates {
     Set-ItemProperty -Path $path3 -Name "DisableEdgeDesktopShortcutCreation" -Type DWord -Value 1 -Force
 }
 
-# Disable all privacy settings
+# Disable other privacy settings
 Function configurePrivacy {
-#Windows permissions
-#General - Change privacy options
-    #Let apps use advertising ID to make ads more interesting to you based on your app activity
-        $adiPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
-        if (!(Test-Path $adiPath)) { New-Item -Path $adiPath -Force }
-        Set-ItemProperty -Path $adiPath -Name "Enabled" -Type DWord -Value 0 -Force
-    #Let websites provide locally relevant content by accessing my language list
-        $upPath="HKCU:\Control Panel\International\User Profile\"
-        if (!(Test-Path $upPath)) { New-Item -Path $upPath -Force }
-        Set-ItemProperty -Path $upPath -Name "HttpAcceptLanguageOptOut" -Type DWord -Value 1 -Force
-    #Let Windows track app launches to improve Start and search results
-        $expadvPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        if (!(Test-Path $expadvPath)) { New-Item -Path $expadvPath -Force }
-        Set-ItemProperty -Path $expadvPath -Name "Start_TrackProgs" -Type DWord -Value 0 -Force
-    #Show me suggested content in the Settings app
-        $cdmPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
-        if (!(Test-Path $cdmPath)) { New-Item -Path $cdmPath -Force }
-        Set-ItemProperty -Path $cdmPath -Name "ContentDeliveryAllowed" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "PreInstalledAppsEnabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "PreInstalledAppsEverEnabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "SystemPaneSuggestionsEnabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338388Enabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338389Enabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338393Enabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-353694Enabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-353696Enabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-353698Enabled" -Type DWord -Value 0 -Force
-    # disable fun facts and tips on lock screen and remove spotlight
-    #start ms-settings:lockscreen
-        Set-ItemProperty -Path $cdmPath -Name "RotatingLockScreenEnabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "RotatingLockScreenOverlayEnabled" -Type DWord -Value 0 -Force
-        Set-ItemProperty -Path $cdmPath -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0 -Force
-#Speech - left off privacy adjustments here
-    #Online speech recognition
-        $path="HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy"
-        if (!(Test-Path $path)) { New-Item -Path $path -Force }
-        Set-ItemProperty -Path $path -Name "HasAccepted" -Type DWord -Value 0 -Force
-#Inking & typing personalization
-    #Getting to know you
-        $path="HKCU:\Software\Microsoft\Input\TIPC"
-        if (!(Test-Path $path)) { New-Item -Path $path -Force }
-        Set-ItemProperty -Path $path -Name "Enabled" -Type DWord -Value 0 -Force
-# Turn off automatic learning
-        $path="HKCU:\Software\Microsoft\Personalization\Settings"
-        if (!(Test-Path $path)) { New-Item -Path $path -Force }
-        Set-ItemProperty -Path $path -Name "AcceptedPrivacyPolicy" -Type DWord -Value 0 -Force
-        $path="HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore"
-        if (!(Test-Path $path)) { New-Item -Path $path -Force }
-        Set-ItemProperty -Path $path -Name "HarvestContacts" -Type DWord -Value 0 -Force
-#Diagnostics & feedback
-    #Diagnostic data
-        $dcPath="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
-        if (!(Test-Path $dcPath)) { New-Item -Path $dcPath -Force }
-        Set-ItemProperty -Path $dcPath -Name "AllowTelemetry" -Type DWord -Value 0 -Force
-    #Improving inking and typing
-        #?
-    #Tailored experiences
-        $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy"
-        if (!(Test-Path $path)) { New-Item -Path $path -Force }
-        Set-ItemProperty -Path $path -Name "TailoredExperiencesWithDiagnosticDataEnabled" -Type DWord -Value 0 -Force
-    #View diagnostic data
-        $etkPath="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack\EventTranscriptKey"
-        if (!(Test-Path $etkPath)) { New-Item -Path $etkPath -Force }
-        Set-ItemProperty -Path $etkPath -Name "EnableEventTranscript" -Type DWord -Value 0 -Force
-    #Delete diagnostic data
-        #?
-    #Feedback frequency
-        $path="HKCU:\Software\Microsoft\Siuf\Rules"
-        if (!(Test-Path $path)) { New-Item -Path $path -Force }
-        Set-ItemProperty -Path $path -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0 -Force
-        $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
-        if (!(Test-Path $path)) { New-Item -Path $path -Force }
-        Set-ItemProperty -Path $path -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
-        Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient"
-        Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload"
-    #Recommended troubleshooting
-        #?
-#Activity history
-    #Store my activity history on this device
-        $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
-        if (!(Test-Path $path)) { New-Item -Path $path -Force }
-        Set-ItemProperty -Path $path -Name "PublishUserActivities" -Type DWord -Value 0 -Force
-    #Send my activity history to Microsoft
-        #?
-    #Clear activity history
-        #?
-        #Disable activity feed | #Disable Let Windows collect activites from my PC
-        #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0 -Force
-        #Disable publishing of user activiites | #Disable Let windows sync activiites from my pc to the cloud
-        #Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0 -Force
-
-<#
-#OLD-FUNCTIONS
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1 -Force
-# Diagnostics & Feedback
-    # Disable Feedback
-    if (!(Test-Path "HKCU:\Software\Microsoft\Siuf\Rules")) {
-        New-Item -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Force
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Type DWord -Value 0 -Force
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
-    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient"
-    Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload"
-    #Disable Improv. inking and typing recognition
-    if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput")) {
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput" -Name "AllowLinguisticDataCollection" -Type DWord -Value 0 -Force
-    
-    #Disable Tailored experiences
-    #Write-Host "Disabling Tailored Experiences..." -ForegroundColor Green -BackgroundColor Black
-    if (!(Test-Path "HKCU:\Software\Policies\Microsoft\Windows\CloudContent")) {
-        New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows\CloudContent" -Force
-    }
-    Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\CloudContent" -Name "DisableTailoredExperiencesWithDiagnosticData" -Type DWord -Value 1 -Force
-
-    #Feedback frequency
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -Type DWord -Value 1 -Force
-# Activity History
-    #Disable activity feed | #Disable Let Windows collect activites from my PC
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0 -Force
-    #Disable publishing of user activiites | #Disable Let windows sync activiites from my pc to the cloud
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0 -Force
-    #Disallow upload of User Activities
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0 -Force
-
-
-# Disallow input Personalization
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Type DWord -Value 1 -Force
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Type DWord -Value 1 -Force
-# Turn off updates to speech recognition and speech synthesis
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Speech_OneCore\Preferences" -Name "ModelDownloadAllowed" -Type DWord -Value 0 -Force
-# Turn off handwriting personalization data sharing
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\TabletPC" -Name "PreventHandwritingDataSharing" -Type DWord -Value 1 -Force
-# Turn off handwriting recognition error reporting
-    if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports")) {
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports" -Force
-    }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports" -Name "PreventHandwritingErrorReports" -Type DWord -Value 1 -Force
-#>
-
 #App permissions
     #Location
         $lopath="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
@@ -633,17 +487,6 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" 
         #Allow apps to access your location
         #Location history
         Set-ItemProperty -Path $lopath -Name "Value" -Type String -Value "Deny" -Force
-    #Voice activation
-        $vaPath="HKCU:\Software\Microsoft\Speech_OneCore\Settings\VoiceActivation\UserPreferenceForAllApps"
-        if (!(Test-Path $vaPath)) { New-Item -Path $vaPath -Force }
-        #Allow apps to use voice activation
-        Set-ItemProperty -Path $vaPath -Name "AgentActivationEnabled" -Type DWord -Value 2 -Force
-        #Allow apps to use voice activation when this device is locked
-        Set-ItemProperty -Path $vaPath -Name "AgentActivationOnLockScreenEnabled" -Type DWord -Value 2 -Force
-    #Radios
-        $raPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\radios"
-        if (!(Test-Path $raPath)) { New-Item -Path $raPath -Force }
-        Set-ItemProperty -Path $raPath -Name "Value" -Type String -Value "Deny" -Force
     #Other devices - #Communicate with unpaired devices
         $bsPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync"
         if (!(Test-Path $bsPath)) { New-Item -Path $bsPath -Force }
@@ -950,7 +793,7 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
 # set background, lock screen, and login photo
 # adjust focus assist
-# review windows permissions privacy settings
+# disable Windows Privacy Permissions settings manually
 # check for missed built-in apps 
 # disable xbox in-game overlay
 # review default apps
