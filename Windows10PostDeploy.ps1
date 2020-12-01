@@ -135,12 +135,11 @@ $everyRunFunctions2 = @(
     "configureWindowsUpdates",
     "deleteHibernationFile",
     "uninstallOptionalApps",
-    "setPowerProfile",#what about plans like "DellOptimized"? set logic to check if GUID for Power Saver || Balanced || High Performance, is set, else leave alone
+    "setPowerProfile",
     "taskbarHideSearch",
 
     # functions exclusively for myself
     "removeWin10Apps",
-    #"disableHomeGroup",
     "removePrinters",
     "disableRemoteAssistance",
     "enableGuestSMBShares",
@@ -731,17 +730,6 @@ Function enableGuestSMBShares {
     Set-ItemProperty -Path $path -Name "AllowInsecureGuestAuth" -Type DWord -Value 1
 }
 
-# HomeGroup
-<#
-Function disableHomeGroup {
-    Write-Host "Disabling HomeGroup through 'HomeGroup Provider' && 'HomeGroup Listener' services " -ForegroundColor Green 
-    Set-Service HomeGroupListener -StartupType Disabled
-    Set-Service HomeGroupProvider -StartupType Disabled
-    Set-Service HomeGroupListener -Status Stopped
-    Set-Service HomeGroupProvider -Status Stopped
-}
-#>
-
 Function uninstallOneDrive {
     # uninstall onedrive
     Stop-Process -Name "OneDrive" -Force
@@ -917,14 +905,6 @@ Function mapNetworkDrives {
     net use X: \\$server\media /savecred /persistent:Yes
     net use W: \\$server\share /savecred /persistent:Yes
     net use V: \\$server\store /savecred /persistent:Yes
-
-    #$cred = Get-Credential (string caption, string message, string userName, string targetName);
-    #$cred = $host.ui.PromptForCredential("Credentials to Map Network Drives", "Ensure 10+GbE is configured before continuing!!!", "Hackerman", "NetBiosUserName")
-    #New-PSDrive -Name "Z" -Root "\\$server\apps" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
-    #New-PSDrive -Name "Y" -Root "\\$server\downloads" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
-    #New-PSDrive -Name "X" -Root "\\$server\media" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
-    #New-PSDrive -Name "W" -Root "\\$server\share" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
-    #New-PSDrive -Name "V" -Root "\\$server\store" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
 }
 
 ##################
@@ -967,18 +947,17 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # unpin default items from taskbar
 
 # set which folders appear on start: file explorer, and user folders
-# set notification center icons
 # remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
 # set background, lock screen, and login photo
 # adjust focus assist
 # review windows permissions privacy settings
-# set night light
 # check for missed built-in apps 
 # disable xbox in-game overlay
 # review default apps
 
 # pin GitHub to QuickAccess
 # pin watch to QuickAccess
+# pin %username% to QuickAccess
 
 # install powertoys choco install powertoys -y ; pin add n=powertoys
 # install electrum -> https://electrum.org/#download
