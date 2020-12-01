@@ -88,6 +88,10 @@ $applicationsToInstall = @(
     "goggalaxy",
     "uplay",
     "epicgameslauncher",
+    #need to validate if pin is required or not
+    "cpu-z",
+    "gpu-z",
+    "electrum",
 
     # requires case statements
     "spotify",#--ignore-checksums
@@ -98,7 +102,6 @@ $applicationsToInstall = @(
 
     # manual downloads
     "battle.net" #append-software
-    #"electrum" #append-software
 )
 
 #################
@@ -163,7 +166,6 @@ $finalEveryRunFunctions4 = @(
     "promptForRestart"
 )
 
-
 #############
 # Functions #
 #############
@@ -187,15 +189,15 @@ Function installSoftware {
             # exception cases
             "spotify" {
                 choco install $software -y --ignore-checksums
-                choco pin add -n="$software"
+                #choco pin add -n="$software"
             }
             "origin" {
                 choco install $software -y --ignore-checksums
-                choco pin add -n="$software"
+                #choco pin add -n="$software"
             }
             "teamviewer" {
                 choco install $software -y
-                choco pin add -n="$software"
+                #choco pin add -n="$software"
                 $global:appendOutputSoftware += "
 teamviewer: whitelist my account, disable random password generation, assign to my account, anything else?
 "
@@ -223,18 +225,10 @@ Battle.net-Setup.exe downloaded to desktop
 "
                 }
             }
-            <#
-            "electrum" {
-                # download manually - get hardcoded version in download
-                # https://electrum.org/#download
-                # https://download.electrum.org/3.3.8/electrum-3.3.8-setup.exe
-                # $version = (Invoke-WebRequest -Uri "https://download.electrum.org/" -UseBasicParsing).Links.Href | %{ new-object System.Version ($_) } | sort
-            }
-            #>
             # default behavior for all other apps
             default {
                 choco install $software -y
-                choco pin add -n="$software"
+                #choco pin add -n="$software"
             }
         }
     }
@@ -794,7 +788,7 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # set background, lock screen, and login photo
 # adjust focus assist
 # disable Windows Privacy Permissions settings manually
-# check for missed built-in apps 
+# check removal for missed built-in apps 
 # disable xbox in-game overlay
 # review default apps
 
@@ -802,9 +796,8 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # pin watch to QuickAccess
 # pin %username% to QuickAccess
 
-# install powertoys choco install powertoys -y ; pin add n=powertoys
-# install electrum -> https://electrum.org/#download
-# create cup all -y ; pause -> script with shortcut (pin to start menu manually)
+# install powertoys choco install powertoys -y
+# create cup 7zip windirstat -y ; pause -> script with shortcut (pin to start menu manually)
 
 # pin shit to start menu
 
