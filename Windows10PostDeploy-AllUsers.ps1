@@ -104,7 +104,7 @@ $everyRunFunctions2 = @(
     # universal functions
     "disableTelemetry", 
     "setWindowsTimeZone",
-    "configurePrivacy",
+    "configurePrivacy",#needs updates
     "disableStickyKeys",
     "setPageFileToC",
     "soundCommsAttenuation",
@@ -115,7 +115,6 @@ $everyRunFunctions2 = @(
     "uninstallWindowsFeatures",
     "configureWindowsUpdates",
     "uninstallOptionalApps",
-    #"setPowerProfile",#template for now #what about plans like "DellOptimized"? set logic to check if GUID for Power Saver || Balanced || High Performance, is set, else leave alone
     "taskbarHideSearch",
     "removeWin10Apps"
 
@@ -154,22 +153,22 @@ Function installSoftware {
             '1' {
                 Write-host "Installing Chrome..." -ForegroundColor Yellow
                 choco install googlechrome -y
-                choco pin add -n="googlechrome"
+                #choco pin add -n="googlechrome"
                 
             }
             '2' {
                 Write-host "Installing FireFox..." -ForegroundColor Yellow
                 choco install firefox -y
-                choco pin add -n="firefox"
+                #choco pin add -n="firefox"
 
             }
             '3' {
                 Write-host "Installing Both Chrome & FireFox..." -ForegroundColor Yellow
                 choco install googlechrome -y
-                choco pin add -n="googlechrome"
+                #choco pin add -n="googlechrome"
 
                 choco install firefox -y
-                choco pin add -n="firefox"
+                #choco pin add -n="firefox"
             }
 
             default {
@@ -195,7 +194,7 @@ Function installSoftware {
             # default behavior for all other apps
             default {
                 choco install $software -y
-                choco pin add -n="$software"
+                # choco pin add -n="$software"
             }
         }
     }
@@ -534,10 +533,6 @@ Function uninstallOptionalApps {
     Get-WindowsCapability -online | ? {$_.Name -like '*Demo*'} | Remove-WindowsCapability -online
     #Get-WindowsCapability -online | ? {$_.Name -like '*Face*'} | Remove-WindowsCapability -online
     #Get-WindowsCapability -online | ? {$_.Name -like '*WindowsMediaPlayer*'} | Remove-WindowsCapability -online
-}
-
-Function setPowerProfile {
-
 }
 
 Function taskbarHideSearch {
