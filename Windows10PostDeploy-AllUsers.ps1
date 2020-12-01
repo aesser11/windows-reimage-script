@@ -12,12 +12,11 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 ################################
 $win10AppBlacklist = @(
     # microsoft as of 1909
-    "*Microsoft.WindowsFeedbackHub*",
-    "*Microsoft.SkypeApp*",
-    #"*Microsoft.MicrosoftSolitaireCollection*",
+    "*Microsoft.Advertising.Xaml*",
 
-    # non-microsoft as of 1909
+    # non-microsoft as of 2004
     "*ActiproSoftwareLLC*",
+    "*Adobe*",
     "*Asphalt8Airborne*",
     "*AutodeskSketchBook*",
     "*BubbleWitch3Saga*",
@@ -552,13 +551,9 @@ Function taskbarHideSearch {
 }
 
 Function removeWin10Apps {
-    # suppress errors for these cmdlets, very noisy when working with a whitelist
     foreach ($app in $win10AppBlacklist) {
         Get-AppxPackage -AllUsers | Where-Object {$_.Name -like "$app"} | Remove-AppxPackage
-        #Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -like "$app"} | Remove-AppxProvisionedPackage -Online
     }
-    # reinstall all apps 
-    # Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 }
 
 ##################
