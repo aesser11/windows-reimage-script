@@ -8,98 +8,65 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     exit
 }
 ################################
-# Windows 10 Apps to Whitelist #
-################################
-<#
-$win10AppWhitelist = @(
-    # as of 1909
-    "*WindowsCalculator*",
-    "*Photos*",
-    "*Paint*",
-    "*NVIDIA*",
-    "*Store*",
-    "*ScreenSketch*"
-)
-#>
-
-################################
 # Windows 10 Apps to Blacklist #
 ################################
 $win10AppBlacklist = @(
-    # other microsoft apps
-    #Windows.CBSPreview - Windows Feedback ?
-
-    # microsoft apps as of 1909
-    "*Microsoft.Microsoft3DViewer*",
-    "*Microsoft.WindowsFeedbackHub*",
-    "*Microsoft.ZuneMusic*",
-    "*microsoft.windowscommunicationsapps*",
-    "*Microsoft.MixedReality.Portal*",
-    "*Microsoft.OneConnect*",
-    "*Microsoft.ZuneVideo*",
-    "*Microsoft.MicrosoftOfficeHub*",
-    "*Microsoft.Office.OneNote*",
-    "*Microsoft.Print3D*",
-    "*Microsoft.MicrosoftSolitaireCollection*",
-    "*Microsoft.SkypeApp*",
-    "*Microsoft.MicrosoftStickyNotes*",
-    "*Microsoft.Getstarted*",
-    "*Microsoft.WindowsSoundRecorder*",
-    "*Microsoft.BingWeather*",
+    # microsoft apps as of 2004 (so far only blacklisting ui-removable ones)
+    "*Microsoft.3DBuilder*",
     "*Microsoft.Advertising.Xaml*",
-    #"*Microsoft.Xbox.TCUI*",
-    #"*Microsoft.XboxApp*",
-    #"*Microsoft.XboxGameOverlay*",
-    #"*Microsoft.XboxGamingOverlay*",
-    #"*Microsoft.XboxIdentityProvider*",
-    #"*Microsoft.XboxSpeechToTextOverlay*",
-    #"*Microsoft.XboxGameCallableUI*",
+    "*Microsoft.BingNews*",
+    "*Microsoft.BingWeather*",
+    "*Microsoft.MicrosoftOfficeHub*",
+    "*Microsoft.MicrosoftSolitaireCollection*",
+    "*Microsoft.Office.OneNote*",
+    "*Microsoft.Office.Sway*",
 
-    # non-microsoft as of 1909
-    "*Minecraft*",
-    "*Twitter*",
-    "*CandyCrush*",
-    "*LinkedIn*",
-    "*DisneyMagicKingdoms*",
-    "*MarchofEmpires*",
-    "*iHeartRadio*",
-    "*FarmVille*",
-    "*Duolingo*",
-    "*CyberLink*",
-    "*Facebook*",
-    "*Asphalt8Airborne*",
-    "*CookingFever*",
-    "*Pandora*",
-    "*FreeCasino*",
-    "*Shazam*",
-    "*SlingTV*",
-    "*Spotify*",
-    "*NYTCrossword*",
-    "*TuneInRadio*",
-    "*Xing*",
-    "*RoyalRevolt2*",
-    "*BubbleWitch3Saga*",
-    "*PetRescueSaga*",
-    "*FarmHeroesSaga*",
-    "*Netflix*",
-    "*king.com.*",
-    "*Sketchable*",
-    "*HotSpotShield*",
-    "*WhatsApp*",
-    "*PicsArt-PhotoStudio*",
-    "*EclipseManager*",
-    "*PolarrPhotoEditorAcademicEdition*",
-    "*Wunderlist*",
-    "*AutodeskSketchBook*",
+    # non-microsoft as of 2004
     "*ActiproSoftwareLLC*",
-    "*Plex*",
+    "*Adobe*",
+    "*Asphalt8Airborne*",
+    "*AutodeskSketchBook*",
+    "*BubbleWitch3Saga*",
+    "*CandyCrush*",
+    "*CookingFever*",
+    "*CyberLink*",
+    "*DisneyMagicKingdoms*",
     "*DolbyAccess*",
     "*Drawboard*",
+    "*Duolingo*",
+    "*EclipseManager*",
+    "*Facebook*",
+    "*FarmHeroesSaga*",
+    "*FarmVille*",
     "*Fitbit*",
     "*Flipboard*",
+    "*FreeCasino*",
+    "*HotSpotShield*",
+    "*iHeartRadio*",
     "*Keeper*",
+    "*king.com.*",
+    "*LinkedIn*",
+    "*MarchofEmpires*",
+    "*Minecraft*",
+    "*Netflix*",
+    "*NYTCrossword*",
+    "*Pandora*",
+    "*PetRescueSaga*",
     "*PhototasticCollage*",
-    "*WinZipUniversal*"
+    "*PicsArt-PhotoStudio*",
+    "*Plex*",
+    "*PolarrPhotoEditorAcademicEdition*",
+    "*RoyalRevolt2*",
+    "*Shazam*",
+    "*Sketchable*",
+    "*SlingTV*",
+    "*Spotify*",
+    "*TuneInRadio*",
+    "*Twitter*",
+    "*WhatsApp*",
+    "*WinZipUniversal*",
+    "*Wunderlist*",
+    "*Xing*"
 )
 
 #############################
@@ -143,7 +110,6 @@ $firstRunFunctions1 = @(
     "installSoftware",#append-software
 
     # automated and universal
-    #"configureNightLight",
     "personalFolderTargetSteps"
 )
 
@@ -461,174 +427,31 @@ Function deleteHibernationFile{
 
 # Create power profile ----- (ctrl pan)
 Function setPowerProfile {
-    Function powerSetings {
-    ###############################################################################################################################################
-        # Processor specific config settings to disable core parking etc 
-        # https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn642106(v=vs.85)
-        # https://docs.microsoft.com/en-us/windows-hardware/customize/power-settings/configure-processor-power-management-options 
-        <#
-        powercfg -setacvalueindex scheme_current sub_processor DISTRIBUTEUTIL 0
-        powercfg -setdcvalueindex scheme_current sub_processor DISTRIBUTEUTIL 1
-        # (Core Parking) (minimum percentage of cores that can be unparked) (100 disables core parking)
-        powercfg -setacvalueindex scheme_current sub_processor CPMINCORES 100
-        powercfg -setdcvalueindex scheme_current sub_processor CPMINCORES 0
-        # (Core Parking) (maximum percentage of cores that can be unparked)
-        powercfg -setacvalueindex scheme_current sub_processor CPMAXCORES 100
-        powercfg -setdcvalueindex scheme_current sub_processor CPMAXCORES 100
-        # (Performance boost mode) | 0 (Disabled) | 1 (Enabled) | 2 (Aggressive) | 3 (Efficient Enabled) | 4 (Efficient Aggressive)
-        powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTMODE 4
-        powercfg -setdcvalueindex scheme_current sub_processor PERFBOOSTMODE 3
-        #>
-    ###############################################################################################################################################
-        ## (Hard Disk)
-        #powercfg -setacvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE 1200
-        #powercfg -setdcvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE 1200
-
-        # (Internet Explorer)
-        powercfg -setacvalueindex SCHEME_CURRENT 02f815b5-a5cf-4c84-bf20-649d1f75d3d8 4c793e7d-a264-42e1-87d3-7a0d2f523ccd 1
-        powercfg -setdcvalueindex SCHEME_CURRENT 02f815b5-a5cf-4c84-bf20-649d1f75d3d8 4c793e7d-a264-42e1-87d3-7a0d2f523ccd 0
-
-        # (Desktop background settings)
-        # (Slide show)
-        powercfg -setacvalueindex SCHEME_CURRENT 0d7dbae2-4294-402a-ba8e-26777e8488cd 309dce9b-bef4-4119-9921-a851fb12f0f4 0
-        powercfg -setdcvalueindex SCHEME_CURRENT 0d7dbae2-4294-402a-ba8e-26777e8488cd 309dce9b-bef4-4119-9921-a851fb12f0f4 1
-
-        # (Wireless Adapter Settings)
-        powercfg -setacvalueindex SCHEME_CURRENT 19cbb8fa-5279-450e-9fac-8a3d5fedd0c1 12bbebe6-58d6-4636-95bb-3217ef867c1a 0
-        powercfg -setdcvalueindex SCHEME_CURRENT 19cbb8fa-5279-450e-9fac-8a3d5fedd0c1 12bbebe6-58d6-4636-95bb-3217ef867c1a 3
-
-        # (Sleep)
-        # (Sleep after)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_SLEEP STANDBYIDLE 18000
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_SLEEP STANDBYIDLE 1800
-        # (Allow hybrid sleep)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_SLEEP HYBRIDSLEEP 1
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_SLEEP HYBRIDSLEEP 1
-        # (Hibernate after)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_SLEEP HIBERNATEIDLE 0
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_SLEEP HIBERNATEIDLE 0
-        ## (Allow wake timers)
-        #powercfg -setacvalueindex SCHEME_CURRENT SUB_SLEEP RTCWAKE 2
-        #powercfg -setdcvalueindex SCHEME_CURRENT SUB_SLEEP RTCWAKE 0
-
-        # (USB settings)
-        # (USB selective suspend setting)
-        powercfg -setacvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0
-        powercfg -setdcvalueindex SCHEME_CURRENT 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 1
-
-        ## (Intel(R) Graphics Settings)
-        ## (Intel(R) Graphics Power Plan)
-        #powercfg -setacvalueindex SCHEME_CURRENT 44f3beca-a7c0-460e-9df2-bb8b99e0cba6 3619c3f2-afb2-4afc-b0e9-e7fef372de36 2
-        #powercfg -setdcvalueindex SCHEME_CURRENT 44f3beca-a7c0-460e-9df2-bb8b99e0cba6 3619c3f2-afb2-4afc-b0e9-e7fef372de36 0
-
-        # (Power buttons and lid)
-        # (Lid close action)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS LIDACTION 0
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BUTTONS LIDACTION 1
-        # (Power button action)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS PBUTTONACTION 3
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BUTTONS PBUTTONACTION 3
-        # (Sleep button action)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS SBUTTONACTION 1
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BUTTONS SBUTTONACTION 1
-        # (Start menu power button)
-        #powercfg -setacvalueindex SCHEME_CURRENT SUB_BUTTONS UIBUTTON_ACTION 0
-        #powercfg -setdcvalueindex SCHEME_CURRENT SUB_BUTTONS UIBUTTON_ACTION 0
-
-        # (PCI Express)
-        # (Link State Power Management)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM 0
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM 2
-
-        # (Processor power management)
-        # (Minimum processor state)
-        ## set minimum frequency
-        #powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 0
-        #powercfg -setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMIN 0
-        # (System cooling policy)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR SYSCOOLPOL 1
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR SYSCOOLPOL 0
-        # (Maximum processor state)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMAX 100
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PROCTHROTTLEMAX 100
-
-        # (Display)
-        # (Turn off display after)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_VIDEO VIDEOIDLE 1500
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_VIDEO VIDEOIDLE 600
-        # (Display brightness)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_VIDEO aded5e82-b909-4619-9949-f5d71dac0bcb 100
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_VIDEO aded5e82-b909-4619-9949-f5d71dac0bcb 75
-        # (Dimmed display brightness)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_VIDEO f1fbfde2-a960-4165-9f88-50667911ce96 50
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_VIDEO f1fbfde2-a960-4165-9f88-50667911ce96 50
-        # (Enable adaptive brightness)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 0
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 0
-
-        # (Multimedia settings)
-        ## (When sharing media)
-        #powercfg -setacvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 03680956-93bc-4294-bba6-4e0f09bb717f 1
-        #powercfg -setdcvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 03680956-93bc-4294-bba6-4e0f09bb717f 0
-        # (Video playback quality bias.)
-        powercfg -setacvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 10778347-1370-4ee0-8bbd-33bdacaade49 1
-        powercfg -setdcvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 10778347-1370-4ee0-8bbd-33bdacaade49 0
-        ## (When playing video)
-        #powercfg -setacvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 34c7b99f-9a6d-4b3c-8dc7-b6693b78cef4 0
-        #powercfg -setdcvalueindex SCHEME_CURRENT 9596fb26-9850-41fd-ac3e-f7c3c00afd4b 34c7b99f-9a6d-4b3c-8dc7-b6693b78cef4 2
-
-        # (Battery)
-        # (Critical battery notification)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BATTERY BATFLAGSCRIT 1
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BATTERY BATFLAGSCRIT 1
-        # (Critical battery action)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BATTERY BATACTIONCRIT 0
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BATTERY BATACTIONCRIT 1
-        # (Low battery level)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BATTERY BATLEVELLOW 10
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BATTERY BATLEVELLOW 10
-        # (Critical battery level)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BATTERY BATLEVELCRIT 5
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BATTERY BATLEVELCRIT 5
-        # (Low battery notification)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BATTERY BATFLAGSLOW 0
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BATTERY BATFLAGSLOW 1
-        # (Low battery action)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BATTERY BATACTIONLOW 0
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BATTERY BATACTIONLOW 0
-        # (Reserve battery level)
-        powercfg -setacvalueindex SCHEME_CURRENT SUB_BATTERY f3c5027d-cd16-4930-aa6b-90db844a8f00 7
-        powercfg -setdcvalueindex SCHEME_CURRENT SUB_BATTERY f3c5027d-cd16-4930-aa6b-90db844a8f00 7
-    }
     # powercfg reference https://docs.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options
     Write-Host "Power: Selecting and configuring power profile" -ForegroundColor Green
     #powercfg -h off
     $cpu = Get-WMIObject Win32_Processor
     $cpuName = $cpu.name
 
-    $powerPlans = Get-WMIObject -namespace "root\cimv2\power" -class Win32_powerplan
-    $powerPlanGUIDs = $powerPlans.InstanceId
-    $powerPlanGUIDAMD = $powerPlanGUIDs.split("`r`n") | ForEach {$_} | Select-String -Pattern "9897998c-92de-4669-853f-b7cd3ecb2790"
+    powercfg -list
+    #Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)
+    #Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)
+    #Power Scheme GUID: a1841308-3541-4fab-bc81-f71556f20b4a  (Power saver)
+    #Power Scheme GUID: 9897998c-92de-4669-853f-b7cd3ecb2790  (AMD Ryzen™ Balanced)
+    #Power Scheme GUID: 9935e61f-1661-40c5-ae2f-8495027d5d5d  (AMD Ryzen™ High performance)
 
-    if (($cpuName -like "*Ryzen*") -and ($powerPlanGUIDAMD)) {
-        <#
-        Caption           : AMD64 Family 23 Model 17 Stepping 0
-        DeviceID          : CPU0
-        Manufacturer      : AuthenticAMD
-        MaxClockSpeed     : 3500
-        Name              : AMD Ryzen 3 2200G with Radeon Vega Graphics
-        SocketDesignation : AM4
-        Power Scheme GUID: 9897998c-92de-4669-853f-b7cd3ecb2790  (AMD Ryzen™ Balanced) *
-        #>
-        Write-Host "Ryzen CPU Detected, selecting AMD Ryzen Balanced config" -ForegroundColor Green
-        powercfg -setactive 9897998c-92de-4669-853f-b7cd3ecb2790
-        powerSetings
+    if ($cpuName -like "*Ryzen*") {
+        #Power Scheme GUID: 9897998c-92de-4669-853f-b7cd3ecb2790  (AMD Ryzen™ Balanced)
+        #Power Scheme GUID: 9935e61f-1661-40c5-ae2f-8495027d5d5d  (AMD Ryzen™ High performance)
+        Write-Host "AMD Ryzen CPU Detected, selecting AMD Ryzen High Performance power profile" -ForegroundColor Green
+        powercfg -setactive 9935e61f-1661-40c5-ae2f-8495027d5d5d
     }
     else {
-        Write-Host "CPU is not AMD Ryzen, proceeding with standard config" -ForegroundColor Green
-        # GUID 381b4222-f694-41f0-9685-ff5bb260df2e
-        powercfg -setactive SCHEME_BALANCED
-        powerSetings
+        Write-Host "Intel CPU is present, proceeding with Windows High performance power profile" -ForegroundColor Green
+        #Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)
+        #Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)
+        #Power Scheme GUID: a1841308-3541-4fab-bc81-f71556f20b4a  (Power saver)
+        powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
     }
 }
 
@@ -863,19 +686,8 @@ Function soundCommsAttenuation {
 }
 
 Function removeWin10Apps {
-    <#
-    # suppress errors for these cmdlets, very noisy when working with a whitelist
-    foreach ($app in $win10AppWhitelist) {
-        Get-AppxPackage -AllUsers | Where-Object {$_.Name -notlike "$app"} | Remove-AppxPackage -ErrorAction Ignore
-        Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -notlike "$app"} | Remove-AppxProvisionedPackage -Online -ErrorAction Ignore
-    }
-    # reinstall all apps 
-    # Get-AppxPackage -AllUsers| Foreach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-    #>
-
     foreach ($app in $win10AppBlacklist) {
         Get-AppxPackage -AllUsers | Where-Object {$_.Name -like "$app"} | Remove-AppxPackage
-        #Get-AppXProvisionedPackage -Online | Where-Object {$_.DisplayName -like "$app"} | Remove-AppxProvisionedPackage -Online
     }
 }
 
@@ -1095,7 +907,8 @@ Function enableClipboardHistory {
 }
 
 Function mapNetworkDrives {
-    $server = "192.168.2.3"
+    #$server = "192.168.2.3" #10GbE config
+    $server = "192.168.1.69"
     Write-Host  "Assuming a server ip of $server" -ForegroundColor Yellow
     Write-Host  "Ensure 10+GbE is configured before continuing!!!" -ForegroundColor Red
 
@@ -1112,43 +925,6 @@ Function mapNetworkDrives {
     #New-PSDrive -Name "X" -Root "\\$server\media" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
     #New-PSDrive -Name "W" -Root "\\$server\share" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
     #New-PSDrive -Name "V" -Root "\\$server\store" -Scope "Global" -Persist -PSProvider "FileSystem" -Credential $cred
-}
-
-Function configureNightLight {
-    Function Set-BlueLightReductionSettings {
-        # Source
-        # https://superuser.com/questions/1200222/configure-windows-creators-update-night-light-via-registry
-        [CmdletBinding()]
-        Param (
-            [Parameter(Mandatory=$true)] [ValidateRange(0, 23)] [int]$StartHour,
-            [Parameter(Mandatory=$true)] [ValidateSet(0, 15, 30, 45)] [int]$StartMinutes,
-            [Parameter(Mandatory=$true)] [ValidateRange(0, 23)] [int]$EndHour,
-            [Parameter(Mandatory=$true)] [ValidateSet(0, 15, 30, 45)] [int]$EndMinutes,
-            [Parameter(Mandatory=$true)] [bool]$Enabled,
-            [Parameter(Mandatory=$true)] [ValidateRange(1200, 6500)] [int]$NightColorTemperature
-        )
-        $data = (2, 0, 0, 0)
-        $data += [BitConverter]::GetBytes((Get-Date).ToFileTime())
-        $data += (0, 0, 0, 0, 0x43, 0x42, 1, 0)
-        If ($Enabled) {$data += (2, 1)}
-        $data += (0xCA, 0x14, 0x0E)
-        $data += $StartHour
-        $data += 0x2E
-        $data += $StartMinutes
-        $data += (0, 0xCA, 0x1E, 0x0E)
-        $data += $EndHour
-        $data += 0x2E
-        $data += $EndMinutes
-        $data += (0, 0xCF, 0x28)
-        $tempHi = [Math]::Floor($NightColorTemperature / 64)
-        $tempLo = (($NightColorTemperature - ($tempHi * 64)) * 2) + 128
-        $data += ($tempLo, $tempHi)
-        $data += (0xCA, 0x32, 0, 0xCA, 0x3C, 0, 0)
-        $path='HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\$$windows.data.bluelightreduction.settings\Current'
-        if (!(Test-Path $path)) { New-Item -Path $path -Force }
-        Set-ItemProperty -Path $path -Name 'Data' -Value ([byte[]]$data) -Type Binary
-    }
-    Set-BlueLightReductionSettings -StartHour 21 -StartMinutes 00 -EndHour 7 -EndMinutes 0 -Enabled $true -NightColorTemperature 3400
 }
 
 ##################
