@@ -544,6 +544,8 @@ Function uninstallWindowsFeatures {
     # windows media player
     Disable-WindowsOptionalFeature -Online -FeatureName "MediaPlayback" -NoRestart
     Disable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoRestart
+    # install WSL
+    Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart
 }
 
 Function removePrinters {
