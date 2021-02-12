@@ -546,6 +546,8 @@ Function uninstallWindowsFeatures {
     Disable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoRestart
     # install WSL
     Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart
+    # install hyper-v
+    Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V" -All -NoRestart
 }
 
 Function removePrinters {
