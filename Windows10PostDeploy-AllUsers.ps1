@@ -223,6 +223,42 @@ Documents, Downloads, Music, Pictures, Videos
     }
 }
 
+# Rename computer to something a little more personal if the name contains a default generic name
+Function renameComputer {
+    if ($env:computername -like "*DESKTOP-*") {
+        Write-Host "Rename your PC, current name: $env:computername" -ForegroundColor Green
+        Write-Host "Press [Enter] to continue without renaming" -ForegroundColor Yellow
+        $newCompName = Read-Host -Prompt "Enter in a new computer name, limit 15 characters"
+        $newCompNameLength = $newCompName.length
+        while (($newCompNameLength -gt 15) -or ($newCompName -eq "y") -or ($newCompName -eq "Y") -or ($newCompName -eq "n") -or ($newCompName -eq "N")) {
+            Write-Host "The name specified is $newCompNameLength character(s) long" -ForegroundColor Red
+            $renameComputer = Read-Host -Prompt "Do you wish to rename from $newCompName : [y]/[n]?"
+            if (($renameComputer -eq "y") -or ($renameComputer -eq "Y") -or ($renameComputer -eq "1")) {
+                Write-Host "Getting a new name... Limit 15 characters" -ForegroundColor Green
+                Write-Host "Press [Enter] to continue without renaming" -ForegroundColor Yellow
+                $newCompName = Read-Host -Prompt "Enter in a new computer name, limit 15 characters"
+                $newCompNameLength = $newCompName.length
+            }
+            elseif (($renameComputer -eq "n") -or ($renameComputer -eq "N") -or ($renameComputer -eq "0")) {
+                Write-Host "Proceeding..." -ForegroundColor Yellow
+                $newCompNameLength = 0
+            }
+            else {
+                Write-Host "Please input 'y' or 'n' to continue" -ForegroundColor Red
+            }
+        }
+        if (!$newCompName) {
+            Write-Host "Skipping new name since no input was specified" -ForegroundColor Green
+        }
+        else {
+            Rename-Computer -NewName $newCompName 
+        }
+    }
+    else {
+        Write-Host "A personalized computer name already exists: $env:computername | Skipping the renaming section" -ForegroundColor Green
+    }
+}
+
 Function disableTelemetry {
     Set-Service dmwappushservice -StartupType Disabled
     Set-Service dmwappushservice -Status Stopped
