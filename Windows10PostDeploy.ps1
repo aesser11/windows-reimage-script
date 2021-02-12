@@ -548,6 +548,8 @@ Function uninstallWindowsFeatures {
     Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart
     # install hyper-v
     Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V" -All -NoRestart
+    # install windows sandbox
+    Enable-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" -All -NoRestart
 }
 
 Function removePrinters {
