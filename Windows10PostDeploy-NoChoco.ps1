@@ -461,13 +461,6 @@ Function taskbarHideSearch {
     Set-ItemProperty -Path $path -Name "CortanaConsent" -Type DWord -Value 0 -Force
 }
 
-Function enableDarkMode {
-    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # enable dark mode
-    Set-ItemProperty -Path $path -Name "AppsUseLightTheme" -Type DWord -Value 0 -Force
-}
-
 # Disable shared experiences
 Function disableSharedExperiences {
     $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
