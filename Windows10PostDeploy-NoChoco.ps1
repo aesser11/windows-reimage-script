@@ -122,7 +122,6 @@ $everyRunFunctions2 = @(
     # functions exclusively for myself
     "enableGuestSMBShares",
     "uninstallOneDrive",
-    "taskbarHideInkWorkspace",
     "disableWebSearch",
     "explorerSetControlPanelLargeIcons",
     "enableDarkMode",
@@ -464,13 +463,6 @@ Function taskbarHideSearch {
     # disable bing web search
     Set-ItemProperty -Path $path -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
     Set-ItemProperty -Path $path -Name "CortanaConsent" -Type DWord -Value 0 -Force
-}
-
-Function taskbarHideInkWorkspace {
-    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\PenWorkspace"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # hide windows ink workspace
-    Set-ItemProperty -Path $path -Name "PenWorkspaceButtonDesiredVisibility" -Type DWord -Value 0 -Force
 }
 
 Function disableWebSearch {
