@@ -464,8 +464,8 @@ Function advancedExplorerSettings {
     Set-ItemProperty -Path $path -Name "LaunchTo" -Type DWord -Value 1 -Force
     # disable windows aero shake
     Set-ItemProperty -Path $path -Name "DisallowShaking" -Type DWord -Value 1 -Force
-    # set taskbar buttons to show labels and combine when taskbar is full
-    Set-ItemProperty -Path $path -Name "TaskbarGlomLevel" -Type DWord -Value 1 -Force
+    # set taskbar buttons to show labels and never combine
+    Set-ItemProperty -Path $path -Name "TaskbarGlomLevel" -Type DWord -Value 2 -Force
     # hide task view button
     Set-ItemProperty -Path $path -Name "ShowTaskViewButton" -Type DWord -Value 0 -Force
     # show taskbar on all displays
