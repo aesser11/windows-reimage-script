@@ -124,7 +124,6 @@ $everyRunFunctions2 = @(
     "taskbarHideSearch",
 
     # functions exclusively for myself
-    "removePrinters",
     "disableRemoteAssistance",
     "enableGuestSMBShares",
     "uninstallOneDrive",
@@ -483,12 +482,6 @@ Function uninstallWindowsFeatures {
     #Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V" -All -NoRestart
     # install windows sandbox
     Enable-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" -All -NoRestart
-}
-
-Function removePrinters {
-    # remove default fax and xps printers    
-    Remove-Printer -Name "Fax"
-    Remove-Printer -Name "Microsoft XPS Document Writer"
 }
 
 Function disableRemoteAssistance {
