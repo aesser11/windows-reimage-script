@@ -365,7 +365,6 @@ Function setWindowsTimeZone {
 Function setPowerProfile {
     # powercfg reference https://docs.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options
     Write-Host "Power: Selecting and configuring power profile" -ForegroundColor Green
-    powercfg -h off
     $cpu = Get-WMIObject Win32_Processor
     $cpuName = $cpu.name
 
@@ -389,6 +388,8 @@ Function setPowerProfile {
         #Power Scheme GUID: a1841308-3541-4fab-bc81-f71556f20b4a  (Power saver)
         powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
     }
+    # delete hibernation file to save disk space
+    powercfg -h off
 }
 
 Function disableStickyKeys {
