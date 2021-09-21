@@ -113,7 +113,6 @@ $everyRunFunctions2 = @(
     "setWindowsTimeZone",
     "disableStickyKeys",
     "soundCommsAttenuation",
-    "disableWindowsDefenderSampleSubmission",
     "disableMouseAcceleration",
 
     # tailored to my desired settings
@@ -636,21 +635,6 @@ Function disableWifiSense {
     if (!(Test-Path $path3)) { New-Item -Path $path3 -Force }
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "AutoConnectAllowedOEM" -Type DWord -Value 0 -Force
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "WifISenseAllowed" -Type DWord -Value 0 -Force
-}
-
-Function disableWindowsDefenderSampleSubmission {
-    # configure windows defender
-    $path1="HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet"
-    if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
-    # disable windows defender automatic sample submission - (also seems to suppress automatic sample submission alerts)
-    Set-ItemProperty -Path $path1 -Name "SubmitSamplesConsent" -Type DWord -Value 2 -Force
-    # disable cloud based protection
-    #Set-ItemProperty -Path $path1 -Name "SpynetReporting" -Type DWord -Value 0
-
-    $path2="HKCU:\Software\Microsoft\Windows Security Health\State"
-    if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
-    # hide m$ account sign in warning
-    Set-ItemProperty $path2 -Name "AccountProtection_MicrosoftAccount_Disconnected" -Type DWord -Value 1 -Force
 }
 
 Function disableLocalIntranetFileWarnings {
