@@ -122,7 +122,6 @@ $everyRunFunctions2 = @(
     # functions exclusively for myself
     "enableGuestSMBShares",
     "uninstallOneDrive",
-    "explorerSetControlPanelLargeIcons",
     "enableDarkMode",
     "mkdirGodMode",
     "disableSharedExperiences",
@@ -462,14 +461,6 @@ Function taskbarHideSearch {
     # disable bing web search
     Set-ItemProperty -Path $path -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
     Set-ItemProperty -Path $path -Name "CortanaConsent" -Type DWord -Value 0 -Force
-}
-
-Function explorerSetControlPanelLargeIcons {
-    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # set control panel view to large icons
-    Set-ItemProperty -Path $path -Name "StartupPage" -Type DWord -Value 1 -Force
-    Set-ItemProperty -Path $path -Name "AllItemsIconView" -Type DWord -Value 0 -Force
 }
 
 Function enableDarkMode {
