@@ -116,7 +116,6 @@ $everyRunFunctions2 = @(
     "disableMouseAcceleration",
 
     # tailored to my desired settings
-    "configurePrivacy",
     "uninstallWindowsFeatures",
     "configureWindowsUpdates",
     "deleteHibernationFile",
@@ -431,27 +430,6 @@ Function configureWindowsUpdates {
     if (!(Test-Path $path3)) { New-Item -Path $path3 -Force }
     # disable edge desktop shortcut creation
     Set-ItemProperty -Path $path3 -Name "DisableEdgeDesktopShortcutCreation" -Type DWord -Value 1 -Force
-}
-
-# Disable other privacy settings
-Function configurePrivacy {
-#App permissions
-    #Location
-        $lopath="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
-        if (!(Test-Path $lopath)) { New-Item -Path $lopath -Force }
-        #Allow access to location on this device
-        #Allow apps to access your location
-        #Location history
-        Set-ItemProperty -Path $lopath -Name "Value" -Type String -Value "Deny" -Force
-    #Other devices - #Communicate with unpaired devices
-        $bsPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync"
-        if (!(Test-Path $bsPath)) { New-Item -Path $bsPath -Force }
-        Set-ItemProperty -Path $bsPath -Name "Value" -Type String -Value "Deny" -Force
-    #Background apps
-        $baPath="HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications"
-        if (!(Test-Path $baPath)) { New-Item -Path $baPath -Force }
-        #Let apps run in the background
-        Set-ItemProperty -Path $baPath -Name "GlobalUserDisabled" -Type DWord -Value 1 -Force
 }
 
 Function disableStickyKeys {
