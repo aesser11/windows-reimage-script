@@ -117,7 +117,6 @@ $everyRunFunctions2 = @(
 
     # tailored to my desired settings
     "modifyWindowsFeatures",
-    "configureWindowsUpdates",
     "deleteHibernationFile",
     "uninstallOptionalApps",
     "setPowerProfile",
@@ -405,29 +404,6 @@ Function setPowerProfile {
         #Power Scheme GUID: a1841308-3541-4fab-bc81-f71556f20b4a  (Power saver)
         powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
     }
-}
-
-# configure windows updates
-Function configureWindowsUpdates {
-    $path1="HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings"
-    if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
-    # set active hours 8am-2am
-    Set-ItemProperty -Path $path1 -Name "ActiveHoursStart" -Type DWord -Value 8 -Force
-    Set-ItemProperty -Path $path1 -Name "ActiveHoursEnd" -Type DWord -Value 2 -Force
-    # set update branch to avoid the buggy (Targeted) releases
-    Set-ItemProperty -Path $path1 -Name "BranchReadinessLevel" -Type DWord -Value 32 -Force
-    # disable windows insider preview builds
-    Set-ItemProperty -Path $path1 -Name "InsiderProgramEnabled" -Type DWord -Value 0 -Force
-    
-    $path2="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config"
-    if (!(Test-Path $path2)) { New-Item -Path $path2 -Force }
-    # set to allow downloads from other PCs on my local network only
-    Set-ItemProperty -Path $path2 -Name "DODownloadMode" -Type DWord -Value 1 -Force
-
-    $path3="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
-    if (!(Test-Path $path3)) { New-Item -Path $path3 -Force }
-    # disable edge desktop shortcut creation
-    Set-ItemProperty -Path $path3 -Name "DisableEdgeDesktopShortcutCreation" -Type DWord -Value 1 -Force
 }
 
 Function disableStickyKeys {
