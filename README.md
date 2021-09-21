@@ -1,6 +1,7 @@
 # Windows10PowerShellReimaging
 A PowerShell script to personalize and de-crapify Windows 10 automatically after a reimage or update
 
+# Note: the appBlacklist/removeWin10Apps list/function and advancedExplorerSettings function should be the only things that need to be modified for windows 11 compatibilty. -- will check on release
 
 # To Run:
 
