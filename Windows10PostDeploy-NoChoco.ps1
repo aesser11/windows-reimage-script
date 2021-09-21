@@ -118,7 +118,6 @@ $everyRunFunctions2 = @(
     # tailored to my desired settings
     "modifyWindowsFeatures",
     "deleteHibernationFile",
-    "uninstallOptionalApps",
     "setPowerProfile",
     "taskbarHideSearch",
 
@@ -258,14 +257,6 @@ Function disableTelemetry {
     #Usually errors out, not a big deal since after reboot it will be disabled
     Set-Service DiagTrack -Status Stopped -ErrorAction Ignore
     echo "" > C:\ProgramData\Microsoft\Diagnosis\ETLLogs\AutoLogger\AutoLogger-Diagtrack-Listener.etl
-}
-
-Function uninstallOptionalApps {
-    Get-WindowsCapability -online | ? {$_.Name -like '*QuickAssist*'} | Remove-WindowsCapability -online
-    Get-WindowsCapability -online | ? {$_.Name -like '*ContactSupport*'} | Remove-WindowsCapability -online
-    Get-WindowsCapability -online | ? {$_.Name -like '*Demo*'} | Remove-WindowsCapability -online
-    #Get-WindowsCapability -online | ? {$_.Name -like '*Face*'} | Remove-WindowsCapability -online
-    Get-WindowsCapability -online | ? {$_.Name -like '*WindowsMediaPlayer*'} | Remove-WindowsCapability -online
 }
 
 # Sync windows time
