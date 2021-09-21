@@ -112,7 +112,6 @@ $everyRunFunctions2 = @(
     "disableTelemetry",
     "setWindowsTimeZone",
     "disableStickyKeys",
-    "setPageFileToC",
     "soundCommsAttenuation",
     "disableWindowsDefenderSampleSubmission",
     "disableMouseAcceleration",
@@ -461,13 +460,6 @@ Function disableStickyKeys {
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     # disable stickykeys
     Set-ItemProperty -Path $path -Name "Flags" -Type String -Value "506" -Force
-}
-
-Function setPageFileToC {
-    $path="HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # set page file settings to C: drive with "system managed size"
-    Set-ItemProperty -Path $path -Name "PagingFiles" -Type MultiString -Value "C:\pagefile.sys 0 0" -Force
 }
 
 Function disableMouseAcceleration {
