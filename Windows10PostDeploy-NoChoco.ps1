@@ -122,7 +122,6 @@ $everyRunFunctions2 = @(
     # functions exclusively for myself
     "enableGuestSMBShares",
     "uninstallOneDrive",
-    "disableSharedExperiences",
     "disableWifiSense",
     "disableLocalIntranetFileWarnings",
     "advancedExplorerSettings",
@@ -459,13 +458,6 @@ Function taskbarHideSearch {
     # disable bing web search
     Set-ItemProperty -Path $path -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
     Set-ItemProperty -Path $path -Name "CortanaConsent" -Type DWord -Value 0 -Force
-}
-
-# Disable shared experiences
-Function disableSharedExperiences {
-    $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    Set-ItemProperty -Path $path -Name "EnableCdp" -Type DWord -Value 0 -Force
 }
 
 Function disableWifiSense {
