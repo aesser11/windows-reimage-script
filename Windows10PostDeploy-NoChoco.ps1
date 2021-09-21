@@ -109,7 +109,7 @@ $finalFirstRunFunctions3 = @(
 $everyRunFunctions2 = @(
     # universal functions
     "disableTelemetry",
-    "setWindowsTimeZone",
+    "setTimeZone",
     "disableStickyKeys",
     "soundCommsAttenuation",
     "disableMouseAcceleration",
@@ -249,7 +249,7 @@ Function disableTelemetry {
 }
 
 # Sync windows time
-Function setWindowsTimeZone {
+Function setTimeZone {
     #$currentTimeZone.StandardName #Time Zone Name
     #$ipinfo.ip #Public IP address
     #$ipinfo.hostname #Public DNS Answer
