@@ -117,7 +117,6 @@ $everyRunFunctions2 = @(
 
     # tailored to my desired settings
     "modifyWindowsFeatures",
-    "deleteHibernationFile",
     "setPowerProfile",
     "taskbarHideSearch",
 
@@ -362,16 +361,11 @@ Function setWindowsTimeZone {
     w32tm /resync
 }
 
-# Delete hibernation file -- (cmd)
-Function deleteHibernationFile{
-    powercfg -h off
-}
-
 # Create power profile ----- (ctrl pan)
 Function setPowerProfile {
     # powercfg reference https://docs.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options
     Write-Host "Power: Selecting and configuring power profile" -ForegroundColor Green
-    #powercfg -h off
+    powercfg -h off
     $cpu = Get-WMIObject Win32_Processor
     $cpuName = $cpu.name
 
