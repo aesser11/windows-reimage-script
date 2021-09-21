@@ -98,7 +98,6 @@ $firstRunFunctions1 = @(
     "installSoftware",#append-software
 
     # automated and universal
-    "personalFolderTargetSteps",
     "removeWin10Apps"
 )
 
@@ -219,29 +218,6 @@ https://www.minecraft.net/en-us/download
                 (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
             }
         }
-    }
-}
-
-# Append disk steps to the text file if applicable
-Function personalFolderTargetSteps {
-    $previousDiskSize = 0
-    $getDisksSizes = (Get-Disk).size
-    $diskCount = (Get-Disk).number.count
-    foreach ($diskSize in $getDisksSizes) {
-        if ($diskSize -gt $previousDiskSize) {
-            $greatestDiskSize = $diskSize
-        }
-        $previousDiskSize = $diskSize
-    }
-    if (($diskCount -gt 1) -and ($greatestDiskSize -gt 900000000000)) {
-        $global:appendOutputSteps += 
-"
-#############################
-## Personal Folder Targets ##
-#############################
-Mass storage drive detected. Change personal folder targets to the mass storage drive:
-Documents, Downloads, Music, Pictures, Videos
-"
     }
 }
 
