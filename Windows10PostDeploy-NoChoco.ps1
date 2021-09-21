@@ -122,7 +122,6 @@ $everyRunFunctions2 = @(
     # functions exclusively for myself
     "enableGuestSMBShares",
     "uninstallOneDrive",
-    "disableWebSearch",
     "explorerSetControlPanelLargeIcons",
     "enableDarkMode",
     "mkdirGodMode",
@@ -463,13 +462,6 @@ Function taskbarHideSearch {
     # disable bing web search
     Set-ItemProperty -Path $path -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
     Set-ItemProperty -Path $path -Name "CortanaConsent" -Type DWord -Value 0 -Force
-}
-
-Function disableWebSearch {
-    $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search\"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # disable web search 
-    Set-ItemProperty -Path $path -Name "DisableWebSearch" -Type DWord -Value 1 -Force
 }
 
 Function explorerSetControlPanelLargeIcons {
