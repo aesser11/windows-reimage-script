@@ -93,6 +93,8 @@ $applicationsToInstall = @(
     "https://www.hwinfo.com/download/",
     #pia client
     "https://www.privateinternetaccess.com/download/windows-vpn",
+    #electrum
+    "https://download.electrum.org/?C=M;O=D",
     ""
 )
 
@@ -185,6 +187,12 @@ https://www.minecraft.net/en-us/download
             "*privateinternetaccess*" {
                 $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://installers.privateinternetaccess.com/download/pia-windows-x64-*.exe"
                 $downloadURL = $versionURL[0]
+                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
+            }
+            "*electrum*" {
+                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -match ".\d+."
+                $version = $versionURL[0].trim('/')
+                $downloadURL = "https://download.electrum.org/$version/electrum-$version.exe"
                 $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
             }
             # default behavior for all other apps
