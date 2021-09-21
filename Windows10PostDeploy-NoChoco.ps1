@@ -73,7 +73,7 @@ $win10AppBlacklist = @(
 # 3rd Party Apps to Install #
 #############################
 $applicationsToInstall = @(
-    ## ninite
+    ## ninite for 8 of the available apps
     "https://ninite.com/7zip-chrome-discord-spotify-steam-teamviewer15-vlc-windirstat/ninite.exe",
 
     ## filename exception cases
