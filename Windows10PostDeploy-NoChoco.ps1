@@ -77,7 +77,7 @@ $applicationsToInstall = @(
     ## ninite for 9 of the available apps
     "https://ninite.com/7zip-chrome-discord-notepadplusplus-spotify-steam-teamviewer15-vlc-windirstat/ninite.exe",
     #ea origin
-    "https://www.dm.origin.com/download",
+    "https://download.dm.origin.com/origin/live/OriginSetup.exe",
     ## exception cases
     #battle.net
     "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP",
@@ -95,8 +95,6 @@ $applicationsToInstall = @(
     "https://www.privateinternetaccess.com/download/windows-vpn",
     #electrum
     "https://download.electrum.org/?C=M;O=D",
-    #mkvtoolnix
-    "https://www.fosshub.com/MKVToolNix.html",
     #minecraft java
     "https://launcher.mojang.com/download/MinecraftInstaller.msi",
     #qmk msys
@@ -108,6 +106,10 @@ $applicationsToInstall = @(
 #################
 # Reimage Steps #
 #################
+# problematic software to download
+    $global:appendOutputSoftware += "
+https://www.fosshub.com/MKVToolNix.html
+"
 $firstRunFunctions1 = @(
     # user input required
     "renameComputer",#change-prompt-logic
@@ -194,11 +196,6 @@ Function installSoftware {
                 $version = $versionURL[0].trim('/')
                 $downloadURL = "https://download.electrum.org/$version/electrum-$version.exe"
                 $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-            }
-            "*mkvtoolnix*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://www.fosshub.com/MKVToolNix.html?dwl=mkvtoolnix-64-bit-*-setup.exe"
-                $downloadURL = $versionURL[0]
-                $filename = "mkvtoolnix-64-bit-setup.exe"
             }
             "*qmk*msys*" {
                 $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "*/qmk/qmk_distro_msys/releases/download/*/QMK_MSYS.exe"
