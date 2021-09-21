@@ -122,7 +122,6 @@ $everyRunFunctions2 = @(
     # functions exclusively for myself
     "enableGuestSMBShares",
     "uninstallOneDrive",
-    "enableDarkMode",
     "disableSharedExperiences",
     "disableWifiSense",
     "disableLocalIntranetFileWarnings",
