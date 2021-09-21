@@ -122,7 +122,6 @@ $everyRunFunctions2 = @(
     # functions exclusively for myself
     "enableGuestSMBShares",
     "uninstallOneDrive",
-    "setVisualFXAppearance",
     "explorerSettings",
     "taskbarHidePeopleIcon",
     "taskbarHideInkWorkspace",
@@ -457,13 +456,6 @@ Function uninstallOneDrive {
     $path="$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
     if (!(Test-Path $path)) { $path="$env:SYSTEMROOT\System32\OneDriveSetup.exe" }
     Start-Process $path "/uninstall"
-}
-
-Function setVisualFXAppearance {
-    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # set visual effects for "appearance" mode
-    Set-ItemProperty -Path $path -Name "VisualFXSetting" -Type DWord -Value 1 -Force
 }
 
 Function explorerSettings {
