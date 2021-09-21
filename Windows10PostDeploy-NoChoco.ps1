@@ -103,7 +103,6 @@ $firstRunFunctions1 = @(
 
 $finalFirstRunFunctions3 = @(
     # tailored to my desired settings
-    # borked right now "mapNetworkDrives",
     "remainingStepsToText"
 )
 
@@ -601,19 +600,6 @@ Function enableClipboardHistory {
     Set-ItemProperty -Path $path -Name "AllowClipboardHistory" -Type DWord -Value 1 -Force
 }
 
-Function mapNetworkDrives {
-    #$server = "192.168.2.3" #10GbE config
-    $server = "192.168.1.69"
-    Write-Host  "Assuming a server ip of $server" -ForegroundColor Yellow
-    Write-Host  "Ensure 10+GbE is configured before continuing!!!" -ForegroundColor Red
-
-    net use Z: \\$server\apps /savecred /persistent:Yes
-    net use Y: \\$server\downloads /savecred /persistent:Yes
-    net use X: \\$server\media /savecred /persistent:Yes
-    net use W: \\$server\share /savecred /persistent:Yes
-    net use V: \\$server\store /savecred /persistent:Yes
-}
-
 ##################
 # Restart Prompt #
 ##################
@@ -641,6 +627,13 @@ https://github.com/aesser11/home-lab/wiki/Reimaging-General
 https://github.com/aesser11/home-lab/wiki/Windows-10
 # disable GeForce Experience game optimization (install bundled w/ nvidia drivers)
 # disable GeForce Experience in-game overlay
+
+# map network drives
+Z: \\192.168.1.69\apps
+Y: \\192.168.1.69\downloads
+X: \\192.168.1.69\media
+W: \\192.168.1.69\share
+V: \\192.168.1.69\store
 
 # 10GbE -> https://github.com/aesser11/home-lab/wiki/10GbE#windows-desktop
 # plug mic into all usb ports to disable speaker device and set mic settings
@@ -670,8 +663,6 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # create cup 7zip windirstat -y ; pause -> script with shortcut (pin to start menu manually)
 
 # pin shit to start menu
-
-
 
 #########################
 # Appended Output Steps #
