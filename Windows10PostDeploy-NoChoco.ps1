@@ -73,16 +73,14 @@ $win10AppBlacklist = @(
 # 3rd Party Apps to Install #
 #############################
 $applicationsToInstall = @(
-    ## ninite for 8 of the available apps
-    "https://ninite.com/7zip-chrome-discord-spotify-steam-teamviewer15-vlc-windirstat/ninite.exe",
-
-    ## filename exception cases
+    ## ninite for 9 of the available apps
+    "https://ninite.com/7zip-chrome-discord-notepadplusplus-spotify-steam-teamviewer15-vlc-windirstat/ninite.exe",
+    ## default cases
+    ## exception cases
     #battle.net
     "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP",
     #github-desktop
     "https://central.github.com/deployments/desktop/desktop/latest/win32",
-
-    ## version exception cases
     #goggalaxy
     "https://www.gog.com/galaxy",
     #rufus
@@ -95,6 +93,14 @@ $applicationsToInstall = @(
     "https://www.privateinternetaccess.com/download/windows-vpn",
     #electrum
     "https://download.electrum.org/?C=M;O=D",
+    #mkvtoolnix
+    "https://www.fosshub.com/MKVToolNix.html",
+    #minecraft java
+    "https://launcher.mojang.com/download/MinecraftInstaller.msi",
+    ## TO ADD
+    #qmk?
+    "",
+    #ea origin
     ""
 )
 
@@ -194,6 +200,11 @@ https://www.minecraft.net/en-us/download
                 $version = $versionURL[0].trim('/')
                 $downloadURL = "https://download.electrum.org/$version/electrum-$version.exe"
                 $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
+            }
+            "*mkvtoolnix*" {
+                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://www.fosshub.com/MKVToolNix.html?dwl=mkvtoolnix-64-bit-*-setup.exe"
+                $downloadURL = $versionURL[0]
+                $filename = "mkvtoolnix-64-bit-setup.exe"
             }
             # default behavior for all other apps
             default {
