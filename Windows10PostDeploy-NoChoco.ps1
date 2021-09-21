@@ -153,49 +153,29 @@ https://www.minecraft.net/en-us/download
         switch -wildcard ($downloadURL) {
             "*battle.net*" {
                 $filename = "Battle.net-Setup.exe"
-                $output = "C:\Users\$env:username\Downloads\$filename"
-                write-host "filename: $filename"
-                write-host "output: $output"
-                Write-Host "Downloading file $downloadURL" -ForegroundColor Green
-                (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
             }
             "*github*" {
                 $filename = "GitHubDesktopSetup-x64.exe"
-                $output = "C:\Users\$env:username\Downloads\$filename"
-                write-host "filename: $filename"
-                write-host "output: $output"
-                Write-Host "Downloading file $downloadURL" -ForegroundColor Green
-                (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
             }
             "*gog*" {
                 $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://webinstallers.gog-statics.com/download/GOG_Galaxy*.exe*"
                 $downloadURL = $versionURL[0]
                 $filename = "GOG_Galaxy.exe"
-                $output = "C:\Users\$env:username\Downloads\$filename"
-                write-host "filename: $filename"
-                write-host "output: $output"
-                Write-Host "Downloading file $downloadURL" -ForegroundColor Green
-                (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
             }
             "*rufus*" {
                 $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://github.com/pbatard/rufus/releases/download/*/rufus*.exe"
                 $downloadURL = $versionURL[0]
                 $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-                $output = "C:\Users\$env:username\Downloads\$filename"
-                write-host "filename: $filename"
-                write-host "output: $output"
-                Write-Host "Downloading file $downloadURL" -ForegroundColor Green
-                (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
             }
             # default behavior for all other apps
             default {
                 $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-                $output = "C:\Users\$env:username\Downloads\$filename"
-                write-host "filename: $filename"
-                write-host "output: $output"
-                Write-Host "Downloading file $downloadURL" -ForegroundColor Green
-                (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
             }
+            $output = "C:\Users\$env:username\Downloads\$filename"
+            write-host "filename: $filename"
+            write-host "output: $output"
+            Write-Host "Downloading file $downloadURL" -ForegroundColor Green
+            (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
         }
     }
 }
