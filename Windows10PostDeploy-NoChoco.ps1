@@ -150,6 +150,7 @@ Function downloadSoftware {
     # problematic software to download
     $global:appendOutputSoftware += "
 https://www.fosshub.com/MKVToolNix.html
+https://ubuntu.com/wsl
 "
     #Disable File Security Checks for this PowerShell instance
     $env:SEE_MASK_NOZONECHECKS = 1
@@ -264,7 +265,6 @@ Function disableTelemetry {
     Set-Service DiagTrack -StartupType Disabled
     #Usually errors out, not a big deal since after reboot it will be disabled
     Set-Service DiagTrack -Status Stopped -ErrorAction Ignore
-    echo "" > C:\ProgramData\Microsoft\Diagnosis\ETLLogs\AutoLogger\AutoLogger-Diagtrack-Listener.etl
 }
 
 # Sync windows time
