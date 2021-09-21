@@ -123,7 +123,6 @@ $everyRunFunctions2 = @(
     "enableGuestSMBShares",
     "uninstallOneDrive",
     "enableDarkMode",
-    "mkdirGodMode",
     "disableSharedExperiences",
     "disableWifiSense",
     "disableLocalIntranetFileWarnings",
@@ -468,22 +467,6 @@ Function enableDarkMode {
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
     # enable dark mode
     Set-ItemProperty -Path $path -Name "AppsUseLightTheme" -Type DWord -Value 0 -Force
-}
-
-Function mkdirGodMode {
-    # create god mode folder in home directory and pin shortcut to quick access
-    $Path="C:\Users\$env:username\GodMode.{ED7BA470-8E54-465E-825C-99712043E01C}"
-    New-Item -ItemType Directory -Path $Path -Force
-    $QuickAccess = New-Object -ComObject shell.application 
-    $TargetObject = $QuickAccess.Namespace("shell:::{679f85cb-0220-4080-b29b-5540cc05aab6}").Items() | where {$_.Path -eq "$Path"} 
-    
-    if ($TargetObject -ne $null) { 
-        Write-Host "GodMode Folder is already pinned to Quick Access" -ForegroundColor Yellow
-        return 
-    } 
-    else { 
-        $QuickAccess.Namespace("$Path").Self.InvokeVerb("pintohome") 
-    } 
 }
 
 # Disable shared experiences
