@@ -113,7 +113,7 @@ https://www.fosshub.com/MKVToolNix.html
 $firstRunFunctions1 = @(
     # user input required
     "renameComputer",#change-prompt-logic
-    "installSoftware",#append-software
+    "downloadSoftware",
 
     # automated and universal
     "removeWin10Apps"
@@ -150,7 +150,7 @@ $finalEveryRunFunctions4 = @(
 #############
 # Functions #
 #############
-Function installSoftware {
+Function downloadSoftware {
     #Disable File Security Checks for this PowerShell instance
     $env:SEE_MASK_NOZONECHECKS = 1
 
