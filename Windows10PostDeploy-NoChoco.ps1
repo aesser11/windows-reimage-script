@@ -121,7 +121,6 @@ $everyRunFunctions2 = @(
     # functions exclusively for myself
     "enableGuestSMBShares",
     "uninstallOneDrive",
-    "disableWifiSense",
     "disableLocalIntranetFileWarnings",
     "advancedExplorerSettings",
     "enableClipboardHistory"
@@ -447,22 +446,6 @@ Function uninstallOneDrive {
     $path="$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
     if (!(Test-Path $path)) { $path="$env:SYSTEMROOT\System32\OneDriveSetup.exe" }
     Start-Process $path "/uninstall"
-}
-
-Function disableWifiSense {
-    # disable hot spots and wifi sense
-    $path1="HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWifiHotSpotReporting"
-    if (!(Test-Path $path1)) { New-Item -Path $path1 -Force }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowWifiHotSpotReporting" -Name "Value" -Type DWord -Value 0 -Force
-
-    $path2="HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowAutoConnectToWifiSenseHotspots"
-    if (!(Test-Path $path2)) { New-Item -Path $path2 -Force }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Wifi\AllowAutoConnectToWifiSenseHotspots" -Name "Value" -Type DWord -Value 0 -Force
-
-    $path3="HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config"
-    if (!(Test-Path $path3)) { New-Item -Path $path3 -Force }
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "AutoConnectAllowedOEM" -Type DWord -Value 0 -Force
-    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config" -Name "WifISenseAllowed" -Type DWord -Value 0 -Force
 }
 
 Function disableLocalIntranetFileWarnings {
