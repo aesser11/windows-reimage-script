@@ -84,7 +84,7 @@ $applicationsToInstall = @(
 
     ## version exception cases
     #goggalaxy
-    #"https://www.gog.com/galaxy",
+    "https://www.gog.com/galaxy",
     #rufus
     "https://rufus.ie/en/"
 )
