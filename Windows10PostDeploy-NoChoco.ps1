@@ -122,7 +122,6 @@ $everyRunFunctions2 = @(
     # functions exclusively for myself
     "enableGuestSMBShares",
     "uninstallOneDrive",
-    "explorerSettings",
     "taskbarHidePeopleIcon",
     "taskbarHideInkWorkspace",
     "disableWebSearch",
@@ -456,16 +455,6 @@ Function uninstallOneDrive {
     $path="$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
     if (!(Test-Path $path)) { $path="$env:SYSTEMROOT\System32\OneDriveSetup.exe" }
     Start-Process $path "/uninstall"
-}
-
-Function explorerSettings {
-    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # show all tray notification icons on the taskbar
-    Set-ItemProperty -Path $path -Name "EnableAutoTray" -Type DWord -Value 0 -Force
-    # hide recent shortcuts from file explorer/quick access context
-    Set-ItemProperty -Path $path -Name "ShowRecent" -Type DWord -Value 0 -Force
-    Set-ItemProperty -Path $path -Name "ShowFrequent" -Type DWord -Value 0 -Force
 }
 
 Function taskbarHideSearch {
