@@ -116,7 +116,7 @@ $everyRunFunctions2 = @(
     "disableMouseAcceleration",
 
     # tailored to my desired settings
-    "uninstallWindowsFeatures",
+    "modifyWindowsFeatures",
     "configureWindowsUpdates",
     "deleteHibernationFile",
     "uninstallOptionalApps",
@@ -458,23 +458,23 @@ Function removeWin10Apps {
     }
 }
 
-Function uninstallWindowsFeatures {
-    # disable PowerShellv2
-    Disable-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2" -NoRestart
-    Disable-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2Root" -NoRestart
-    # disable SMBv1
-    Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol" -NoRestart
-    Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol-Client" -NoRestart
-    Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol-Server" -NoRestart
-    # disable Telnet
-    Disable-WindowsOptionalFeature -Online -FeatureName "TelnetClient" -NoRestart
-    # uninstall windows fax and scan services
-    Disable-WindowsOptionalFeature -Online -FeatureName "FaxServicesClientPackage" -NoRestart
-    # uninstall microsoft xps document writer
-    Disable-WindowsOptionalFeature -Online -FeatureName "Printing-XPSServices-Features" -NoRestart
-    # windows media player
-    Disable-WindowsOptionalFeature -Online -FeatureName "MediaPlayback" -NoRestart
-    Disable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoRestart
+Function modifyWindowsFeatures {
+    ## disable PowerShellv2
+    #Disable-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2" -NoRestart
+    #Disable-WindowsOptionalFeature -Online -FeatureName "MicrosoftWindowsPowerShellV2Root" -NoRestart
+    ## disable SMBv1
+    #Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol" -NoRestart
+    #Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol-Client" -NoRestart
+    #Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol-Server" -NoRestart
+    ## disable Telnet
+    #Disable-WindowsOptionalFeature -Online -FeatureName "TelnetClient" -NoRestart
+    ## uninstall windows fax and scan services
+    #Disable-WindowsOptionalFeature -Online -FeatureName "FaxServicesClientPackage" -NoRestart
+    ## uninstall microsoft xps document writer
+    #Disable-WindowsOptionalFeature -Online -FeatureName "Printing-XPSServices-Features" -NoRestart
+    ## windows media player
+    #Disable-WindowsOptionalFeature -Online -FeatureName "MediaPlayback" -NoRestart
+    #Disable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoRestart
     # install WSL
     Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart
     # install hyper-v
