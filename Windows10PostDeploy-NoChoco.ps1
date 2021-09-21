@@ -122,7 +122,6 @@ $everyRunFunctions2 = @(
     # functions exclusively for myself
     "enableGuestSMBShares",
     "uninstallOneDrive",
-    "taskbarHidePeopleIcon",
     "taskbarHideInkWorkspace",
     "disableWebSearch",
     "explorerSetControlPanelLargeIcons",
@@ -467,12 +466,6 @@ Function taskbarHideSearch {
     Set-ItemProperty -Path $path -Name "CortanaConsent" -Type DWord -Value 0 -Force
 }
 
-Function taskbarHidePeopleIcon {
-    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # hide taskbar people icon
-    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0 -Force
-}
 Function taskbarHideInkWorkspace {
     $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\PenWorkspace"
     if (!(Test-Path $path)) { New-Item -Path $path -Force }
