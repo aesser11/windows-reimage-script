@@ -124,7 +124,6 @@ $everyRunFunctions2 = @(
     "taskbarHideSearch",
 
     # functions exclusively for myself
-    "disableRemoteAssistance",
     "enableGuestSMBShares",
     "uninstallOneDrive",
     "setVisualFXAppearance",
@@ -482,14 +481,6 @@ Function uninstallWindowsFeatures {
     #Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V" -All -NoRestart
     # install windows sandbox
     Enable-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" -All -NoRestart
-}
-
-Function disableRemoteAssistance {
-    $path="HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # disable allow remote assistance connections to this computer automatically
-    Set-ItemProperty -Path $path -Name "fAllowToGetHelp" -Type DWord -Value 0 -Force
-    Set-ItemProperty -Path $path -Name "fAllowFullControl" -Type DWord -Value 0 -Force
 }
 
 Function enableGuestSMBShares {
