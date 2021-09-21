@@ -117,7 +117,6 @@ $everyRunFunctions2 = @(
     # tailored to my desired settings
     "modifyWindowsFeatures",
     "setPowerProfile",
-    "taskbarHideSearch",
 
     # functions exclusively for myself
     "enableGuestSMBShares",
@@ -448,16 +447,6 @@ Function uninstallOneDrive {
     $path="$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
     if (!(Test-Path $path)) { $path="$env:SYSTEMROOT\System32\OneDriveSetup.exe" }
     Start-Process $path "/uninstall"
-}
-
-Function taskbarHideSearch {
-    $path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # hide taskbar search icon / box
-    Set-ItemProperty -Path $path -Name "SearchboxTaskbarMode" -Type DWord -Value 0 -Force
-    # disable bing web search
-    Set-ItemProperty -Path $path -Name "BingSearchEnabled" -Type DWord -Value 0 -Force
-    Set-ItemProperty -Path $path -Name "CortanaConsent" -Type DWord -Value 0 -Force
 }
 
 Function disableWifiSense {
