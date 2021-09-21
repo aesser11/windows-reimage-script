@@ -106,10 +106,6 @@ $applicationsToInstall = @(
 #################
 # Reimage Steps #
 #################
-# problematic software to download
-    $global:appendOutputSoftware += "
-https://www.fosshub.com/MKVToolNix.html
-"
 $firstRunFunctions1 = @(
     # user input required
     "renameComputer",#change-prompt-logic
@@ -151,6 +147,10 @@ $finalEveryRunFunctions4 = @(
 # Functions #
 #############
 Function downloadSoftware {
+    # problematic software to download
+    $global:appendOutputSoftware += "
+https://www.fosshub.com/MKVToolNix.html
+"
     #Disable File Security Checks for this PowerShell instance
     $env:SEE_MASK_NOZONECHECKS = 1
 
