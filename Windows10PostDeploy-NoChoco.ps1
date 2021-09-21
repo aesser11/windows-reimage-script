@@ -73,38 +73,20 @@ $win10AppBlacklist = @(
 # 3rd Party Apps to Install #
 #############################
 $applicationsToInstall = @(
-    ## place urls here
+    ## ninite
+    "https://ninite.com/7zip-chrome-discord-spotify-steam-teamviewer15-vlc-windirstat/ninite.exe",
 
+    ## filename exception cases
+    #battle.net
+    "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP",
+    #github-desktop
+    "https://central.github.com/deployments/desktop/desktop/latest/win32",
 
-    # my chocolatey apps
-    # auto run
-    "github-desktop",
-    "hwinfo",
-    #"powertoys",
-    "rufus",
-    "putty",
-    "sublimetext3",
-    "vlc",
-    "googlechrome",
-    "discord",
-    "steam",
-    "goggalaxy",
-    "uplay",
-    "epicgameslauncher",
-    #need to validate if pin is required or not
-    "cpu-z",
-    "gpu-z",
-    "electrum",
-
-    # requires case statements
-    "spotify",#--ignore-checksums
-    "origin",#--ignore-checksums
-    "teamviewer",#append-software
-    "7zip",#no pin && #append-software
-    "windirstat",#no pin
-
-    # manual downloads
-    "battle.net" #append-software
+    ## version exception cases
+    #goggalaxy
+    #"https://www.gog.com/galaxy",
+    #rufus
+    "https://rufus.ie/en/"
 )
 
 #################
@@ -173,21 +155,69 @@ $finalEveryRunFunctions4 = @(
 # Functions #
 #############
 Function installSoftware {
+    # problematic software to download
+    $global:appendOutputSoftware += "
+https://www.hwinfo.com/download/
+https://www.sublimetext.com/download
+https://electrum.org/#download
+https://www.fosshub.com/MKVToolNix.html
+https://www.privateinternetaccess.com/download
+https://www.minecraft.net/en-us/download
+"
     #Disable File Security Checks for this PowerShell instance
     $env:SEE_MASK_NOZONECHECKS = 1
 
     ##########################
     # Download software here #
     ##########################
-    foreach ($software in $applicationsToInstall) {
-        # download manually
-        if (!(Test-Path "C:\Users\$env:username\Downloads\*battle.net*")) {
-            Write-Host "Downloading: Battle.net" -ForegroundColor Green
-            $url = "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP"
-            $output = "C:\Users\$env:username\Downloads\Battle.net-Setup.exe"
-            $start_time = Get-Date
-            (New-Object System.Net.WebClient).DownloadFile($url, $output)
-            Write-Host "Waiting for Battle.net to finish downloading..." -ForegroundColor Yellow
+    Write-Host "Downloading software installers..." -ForegroundColor Yellow
+    foreach ($downloadURL in $applicationsToInstall) {
+        switch -wildcard ($downloadURL) {
+            "*battle.net*" {
+                $filename = "Battle.net-Setup.exe"
+                $output = "C:\Users\$env:username\Downloads\$filename"
+                write-host "filename: $filename"
+                write-host "output: $output"
+                Write-Host "Downloading file $downloadURL" -ForegroundColor Green
+                (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
+            }
+            "*github*" {
+                $filename = "GitHubDesktopSetup-x64.exe"
+                $output = "C:\Users\$env:username\Downloads\$filename"
+                write-host "filename: $filename"
+                write-host "output: $output"
+                Write-Host "Downloading file $downloadURL" -ForegroundColor Green
+                (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
+            }
+            "*gog*" {
+                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://webinstallers.gog-statics.com/download/GOG_Galaxy*.exe*"
+                $downloadURL = $versionURL[0]
+                $filename = "GOG_Galaxy.exe"
+                $output = "C:\Users\$env:username\Downloads\$filename"
+                write-host "filename: $filename"
+                write-host "output: $output"
+                Write-Host "Downloading file $downloadURL" -ForegroundColor Green
+                (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
+            }
+            "*rufus*" {
+                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://github.com/pbatard/rufus/releases/download/*/rufus*.exe"
+                $downloadURL = $versionURL[0]
+                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
+                $output = "C:\Users\$env:username\Downloads\$filename"
+                write-host "filename: $filename"
+                write-host "output: $output"
+                Write-Host "Downloading file $downloadURL" -ForegroundColor Green
+                (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
+            }
+            # default behavior for all other apps
+            default {
+                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
+                $output = "C:\Users\$env:username\Downloads\$filename"
+                write-host "filename: $filename"
+                write-host "output: $output"
+                Write-Host "Downloading file $downloadURL" -ForegroundColor Green
+                (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
+            }
         }
     }
 }
