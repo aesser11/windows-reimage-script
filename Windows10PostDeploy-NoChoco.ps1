@@ -90,7 +90,10 @@ $applicationsToInstall = @(
     #sublimetext
     "https://www.sublimetext.com/download",
     #hwinfo
-    "https://www.hwinfo.com/download/"
+    "https://www.hwinfo.com/download/",
+    #pia client
+    "https://www.privateinternetaccess.com/download/windows-vpn",
+    ""
 )
 
 #################
@@ -176,6 +179,11 @@ https://www.minecraft.net/en-us/download
             }
             "*hwinfo*" {
                 $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://www.hwinfo.com/files/hwi_*.exe"
+                $downloadURL = $versionURL[0]
+                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
+            }
+            "*privateinternetaccess*" {
+                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://installers.privateinternetaccess.com/download/pia-windows-x64-*.exe"
                 $downloadURL = $versionURL[0]
                 $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
             }
