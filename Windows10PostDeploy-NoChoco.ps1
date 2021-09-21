@@ -171,12 +171,12 @@ https://www.minecraft.net/en-us/download
             default {
                 $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
             }
-            $output = "C:\Users\$env:username\Downloads\$filename"
-            write-host "filename: $filename"
-            write-host "output: $output"
-            Write-Host "Downloading file $downloadURL" -ForegroundColor Green
-            (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
         }
+        $output = "C:\Users\$env:username\Downloads\$filename"
+        write-host "filename: $filename"
+        write-host "output: $output"
+        Write-Host "Downloading file $downloadURL" -ForegroundColor Green
+        (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
     }
 }
 
