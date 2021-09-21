@@ -122,8 +122,7 @@ $everyRunFunctions2 = @(
     "enableGuestSMBShares",
     "uninstallOneDrive",
     "disableLocalIntranetFileWarnings",
-    "advancedExplorerSettings",
-    "enableClipboardHistory"
+    "advancedExplorerSettings"
 )
 
 $finalEveryRunFunctions4 = @(
@@ -479,13 +478,6 @@ Function advancedExplorerSettings {
     Set-ItemProperty -Path $path -Name "HideFileExt" -Type DWord -Value 0 -Force
     # show hidden files
     Set-ItemProperty -Path $path -Name "Hidden" -Type DWord -Value 1 -Force
-}
-
-Function enableClipboardHistory {
-    $path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
-    if (!(Test-Path $path)) { New-Item -Path $path -Force }
-    # enable clipboard history
-    Set-ItemProperty -Path $path -Name "AllowClipboardHistory" -Type DWord -Value 1 -Force
 }
 
 ##################
