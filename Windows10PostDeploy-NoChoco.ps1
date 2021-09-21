@@ -86,9 +86,11 @@ $applicationsToInstall = @(
     #goggalaxy
     "https://www.gog.com/galaxy",
     #rufus
-    "https://rufus.ie/en/"
+    "https://rufus.ie/en/",
     #sublimetext
-    "https://www.sublimetext.com/download"
+    "https://www.sublimetext.com/download",
+    #hwinfo
+    "https://www.hwinfo.com/download/"
 )
 
 #################
@@ -137,7 +139,6 @@ $finalEveryRunFunctions4 = @(
 Function installSoftware {
     # problematic software to download
     $global:appendOutputSoftware += "
-https://www.hwinfo.com/download/
 https://electrum.org/#download
 https://www.fosshub.com/MKVToolNix.html
 https://www.privateinternetaccess.com/download
@@ -159,18 +160,23 @@ https://www.minecraft.net/en-us/download
                 $filename = "GitHubDesktopSetup-x64.exe"
             }
             "*gog*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://webinstallers.gog-statics.com/download/GOG_Galaxy*.exe*"
+                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://webinstallers.gog-statics.com/download/GOG_Galaxy_*.exe*"
                 $downloadURL = $versionURL[0]
                 $filename = "GOG_Galaxy.exe"
             }
             "*rufus*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://github.com/pbatard/rufus/releases/download/*/rufus*.exe"
+                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://github.com/pbatard/rufus/releases/download/*/rufus-*.exe"
                 $downloadURL = $versionURL[0]
                 $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
             }
             "*sublimetext*" {
                 $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://download.sublimetext.com/sublime_text_build_*_x64_setup.exe"
-                $downloadURL = $versionURL
+                $downloadURL = $versionURL[0]
+                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
+            }
+            "*hwinfo*" {
+                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://www.hwinfo.com/files/hwi_*.exe"
+                $downloadURL = $versionURL[0]
                 $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
             }
             # default behavior for all other apps
