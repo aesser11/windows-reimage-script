@@ -73,9 +73,11 @@ $win10AppBlacklist = @(
 # 3rd Party Apps to Install #
 #############################
 $applicationsToInstall = @(
+    ## default cases
     ## ninite for 9 of the available apps
     "https://ninite.com/7zip-chrome-discord-notepadplusplus-spotify-steam-teamviewer15-vlc-windirstat/ninite.exe",
-    ## default cases
+    #ea origin
+    "https://www.dm.origin.com/download",
     ## exception cases
     #battle.net
     "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP",
@@ -97,11 +99,10 @@ $applicationsToInstall = @(
     "https://www.fosshub.com/MKVToolNix.html",
     #minecraft java
     "https://launcher.mojang.com/download/MinecraftInstaller.msi",
-    ## TO ADD
-    #qmk?
-    "",
-    #ea origin
-    ""
+    #qmk msys
+    "https://github.com/qmk/qmk_distro_msys/releases/latest",
+    #qmk toolbox
+    "https://github.com/qmk/qmk_toolbox/releases/latest"
 )
 
 #################
@@ -148,13 +149,6 @@ $finalEveryRunFunctions4 = @(
 # Functions #
 #############
 Function installSoftware {
-    # problematic software to download
-    $global:appendOutputSoftware += "
-https://electrum.org/#download
-https://www.fosshub.com/MKVToolNix.html
-https://www.privateinternetaccess.com/download
-https://www.minecraft.net/en-us/download
-"
     #Disable File Security Checks for this PowerShell instance
     $env:SEE_MASK_NOZONECHECKS = 1
 
@@ -205,6 +199,18 @@ https://www.minecraft.net/en-us/download
                 $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://www.fosshub.com/MKVToolNix.html?dwl=mkvtoolnix-64-bit-*-setup.exe"
                 $downloadURL = $versionURL[0]
                 $filename = "mkvtoolnix-64-bit-setup.exe"
+            }
+            "*qmk*msys*" {
+                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "*/qmk/qmk_distro_msys/releases/download/*/QMK_MSYS.exe"
+                $version = $versionURL[0]
+                $downloadURL = "https://github.com$version"
+                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
+            }
+            "*qmk*toolbox*" {
+                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "*/qmk/qmk_toolbox/releases/download/*/qmk_toolbox_install.exe"
+                $version = $versionURL[0]
+                $downloadURL = "https://github.com$version"
+                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
             }
             # default behavior for all other apps
             default {
