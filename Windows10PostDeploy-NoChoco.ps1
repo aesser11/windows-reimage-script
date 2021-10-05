@@ -72,37 +72,59 @@ $win10AppBlacklist = @(
 #############################
 # 3rd Party Apps to Install #
 #############################
-$applicationsToInstall = @(
-    ## default cases
+$applicationsToDownload = @(
+    ## default cases (auto cases)
     ## ninite for 9 of the available apps
-    "https://ninite.com/7zip-chrome-discord-notepadplusplus-spotify-steam-teamviewer15-vlc-windirstat/ninite.exe",
+    #"https://ninite.com/7zip-chrome-discord-notepadplusplus-spotify-steam-teamviewer15-vlc-windirstat/ninite.exe",
+    #chrome
+    "https://dl.google.com/tag/s/dl/chrome/install/googlechromestandaloneenterprise64.msi",
+    #discord
+    "https://discord.com/api/downloads/distributions/app/installers/latest?channel=stable&platform=win&arch=x86",
+    #minecraft java
+    "https://launcher.mojang.com/download/MinecraftInstaller.msi",
+    #steam
+    "https://cdn.cloudflare.steamstatic.com/client/installer/SteamSetup.exe",
+    #teamviewer
+    "https://download.teamviewer.com/download/TeamViewer_Setup_x64.exe",
     #ea origin
     "https://download.dm.origin.com/origin/live/OriginSetup.exe",
-    ## exception cases
     #battle.net
-    "https://www.battle.net/download/getInstallerForGame?os=win&locale=enUS&version=LIVE&gameProgram=BATTLENET_APP",
+    "https://www.blizzard.com/en-us/download/confirmation?platform=windows&locale=en_US&product=bnetdesk",
     #github-desktop
     "https://central.github.com/deployments/desktop/desktop/latest/win32",
+    #spotify
+    "https://download.scdn.co/SpotifySetup.exe"
+)
+
+$applicationsToDownloadManually = @(
+    ## exception cases (manual cases)
+    #vlc
+    "https://www.videolan.org/vlc/download-windows.html",
     #goggalaxy
     "https://www.gog.com/galaxy",
-    #rufus
-    "https://rufus.ie/en/",
+    #windirstat
+    "https://windirstat.net/download.html",
+    #mkvtoolnix
+    "https://www.fosshub.com/MKVToolNix.html",
     #sublimetext
     "https://www.sublimetext.com/download",
+    #7zip
+    "https://www.7-zip.org/download.html",
     #hwinfo
     "https://www.hwinfo.com/download/",
     #pia client
-    "https://www.privateinternetaccess.com/download/windows-vpn",
+    "https://www.privateinternetaccess.com/download/windows-vpn#download-windows",
     #electrum
-    "https://download.electrum.org/?C=M;O=D",
-    #minecraft java
-    "https://launcher.mojang.com/download/MinecraftInstaller.msi",
+    "https://electrum.org/#download",
+    #notepad++
+    "https://notepad-plus-plus.org/downloads/",
+    #rufus
+    "https://github.com/pbatard/rufus/releases/latest/",
     #qmk msys
     "https://github.com/qmk/qmk_distro_msys/releases/latest",
     #qmk toolbox
     "https://github.com/qmk/qmk_toolbox/releases/latest"
 )
-
 #################
 # Reimage Steps #
 #################
@@ -149,77 +171,22 @@ $finalEveryRunFunctions4 = @(
 Function downloadSoftware {
     # problematic software to download
     $global:appendOutputSoftware += "
-https://www.fosshub.com/MKVToolNix.html
 https://ubuntu.com/wsl
 "
-    #Disable File Security Checks for this PowerShell instance
+    #Disable File Security Checks for this PowerShell instance (might be able to remove this)
     $env:SEE_MASK_NOZONECHECKS = 1
 
     ##########################
     # Download software here #
     ##########################
     Write-Host "Downloading software installers..." -ForegroundColor Yellow
-    foreach ($downloadURL in $applicationsToInstall) {
-        switch -wildcard ($downloadURL) {
-            "*battle.net*" {
-                $filename = "Battle.net-Setup.exe"
-            }
-            "*github*" {
-                $filename = "GitHubDesktopSetup-x64.exe"
-            }
-            "*gog*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://webinstallers.gog-statics.com/download/GOG_Galaxy_*.exe*"
-                $downloadURL = $versionURL[0]
-                $filename = "GOG_Galaxy.exe"
-            }
-            "*rufus*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://github.com/pbatard/rufus/releases/download/*/rufus-*.exe"
-                $downloadURL = $versionURL[0]
-                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-            }
-            "*sublimetext*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://download.sublimetext.com/sublime_text_build_*_x64_setup.exe"
-                $downloadURL = $versionURL[0]
-                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-            }
-            "*hwinfo*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://www.hwinfo.com/files/hwi_*.exe"
-                $downloadURL = $versionURL[0]
-                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-            }
-            "*privateinternetaccess*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "https://installers.privateinternetaccess.com/download/pia-windows-x64-*.exe"
-                $downloadURL = $versionURL[0]
-                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-            }
-            "*electrum*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -match ".\d+."
-                $version = $versionURL[0].trim('/')
-                $downloadURL = "https://download.electrum.org/$version/electrum-$version.exe"
-                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-            }
-            "*qmk*msys*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "*/qmk/qmk_distro_msys/releases/download/*/QMK_MSYS.exe"
-                $version = $versionURL[0]
-                $downloadURL = "https://github.com$version"
-                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-            }
-            "*qmk*toolbox*" {
-                $versionURL = (Invoke-WebRequest -Uri $downloadURL -UseBasicParsing).Links.Href -like "*/qmk/qmk_toolbox/releases/download/*/qmk_toolbox_install.exe"
-                $version = $versionURL[0]
-                $downloadURL = "https://github.com$version"
-                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-            }
-            # default behavior for all other apps
-            default {
-                $filename = $downloadURL.Substring($downloadURL.LastIndexOf("/") + 1)
-            }
-        }
-        $output = "C:\Users\$env:username\Downloads\$filename"
-        write-host "filename: $filename"
-        write-host "output: $output"
-        Write-Host "Downloading file $downloadURL" -ForegroundColor Green
-        (New-Object System.Net.WebClient).DownloadFileAsync($downloadURL, $output)
+    foreach ($downloadURL in $applicationsToDownload) {
+        Start-Process $downloadURL
+    }
+    Write-Host "Press any key to continue to manual downloads"
+    Pause
+    foreach ($downloadURL in $applicationsToDownloadManually) {
+        Start-Process $downloadURL
     }
 }
 
@@ -537,9 +504,6 @@ X: \\192.168.1.69\media
 W: \\192.168.1.69\share
 V: \\192.168.1.69\store
 
-# 10GbE -> https://github.com/aesser11/home-lab/wiki/10GbE#windows-desktop
-# plug mic into all usb ports to disable speaker device and set mic settings
-
 # set task manager columns [process name, cpu, memory, disk, network, gpu]
 # set task manager cpu to logical processors
 # set task manager startup apps to disabled from running at boot
@@ -551,18 +515,16 @@ V: \\192.168.1.69\store
 # set which folders appear on start: file explorer, and user folders
 # remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
 # set background, lock screen, and login photo
-# adjust focus assist
 # disable Windows Privacy Permissions settings manually
 # check removal for missed built-in apps 
 # disable xbox in-game overlay
 # review default apps
 
+# pin %username% to QuickAccess
 # pin GitHub to QuickAccess
 # pin watch to QuickAccess
-# pin %username% to QuickAccess
 
-# install powertoys choco install powertoys -y
-# create cup 7zip windirstat -y ; pause -> script with shortcut (pin to start menu manually)
+# install powertoys if desired
 
 # pin shit to start menu
 
