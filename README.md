@@ -14,4 +14,4 @@ A PowerShell script to automate Windows 10 settings after a reimage or update. S
 
 [4] 3rd party software will download at the end with the default browser
   
-[6] Follow through with post setup manual steps in "Remaining Manual Steps.txt" located on the Desktop
+[6] Follow through with post setup manual steps in "Remaining Steps.txt" located on the Desktop
