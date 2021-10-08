@@ -496,7 +496,6 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # disable GeForce Experience game optimization (install bundled w/ nvidia drivers)
 # disable GeForce Experience in-game overlay
 
-
 # disable Windows Privacy Permissions settings manually
 
 # unpin default groups from start menu
