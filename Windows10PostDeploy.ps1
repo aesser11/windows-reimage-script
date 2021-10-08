@@ -496,6 +496,19 @@ https://github.com/aesser11/home-lab/wiki/Windows-10
 # disable GeForce Experience game optimization (install bundled w/ nvidia drivers)
 # disable GeForce Experience in-game overlay
 
+
+# disable Windows Privacy Permissions settings manually
+
+# unpin default groups from start menu
+# unpin default items from taskbar
+
+# check removal for missed built-in apps 
+# disable xbox in-game overlay
+# review default apps
+# set which folders appear on start: file explorer, and user folders
+# remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
+# set background, lock screen, and login photo
+
 # map network drives
 Z: \\192.168.1.69\apps
 Y: \\192.168.1.69\downloads
@@ -503,29 +516,14 @@ X: \\192.168.1.69\media
 W: \\192.168.1.69\share
 V: \\192.168.1.69\store
 
-# set task manager columns [process name, cpu, memory, disk, network, gpu]
-# set task manager cpu to logical processors
-# set task manager startup apps to disabled from running at boot
-# show details during file transfers
-
-# unpin default groups from start menu
-# unpin default items from taskbar
-
-# set which folders appear on start: file explorer, and user folders
-# remove recycle bin from desktop -> ms-settings:personalization -> Themes -> Desktop icon settings
-# set background, lock screen, and login photo
-# disable Windows Privacy Permissions settings manually
-# check removal for missed built-in apps 
-# disable xbox in-game overlay
-# review default apps
-
 # pin %username% to QuickAccess
 # pin GitHub to QuickAccess
 # pin watch to QuickAccess
 
-# install powertoys if desired
-
-# pin shit to start menu
+# set task manager columns [process name, cpu, memory, disk, network, gpu]
+# set task manager cpu to logical processors
+# set task manager startup apps to disabled from running at boot
+# show details during file transfers
 
 #########################
 # Appended Output Steps #
