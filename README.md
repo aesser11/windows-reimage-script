@@ -1,22 +1,17 @@
-# NOTE:
+# Note
 The appBlacklist/removeWin10Apps list/function and advancedExplorerSettings function should be the only things that need to be modified for windows 11 compatibilty. -- will check on release
 
 # Windows10PowerShellReimaging
-A PowerShell script to personalize and de-crapify Windows 10 automatically after a reimage or update
+A PowerShell script to automate Windows 10 settings after a reimage or update. Some steps are still manual due to the craptastic nature of windows.
 
 # To Run:
 
-[1] Right Click -> Run as Administrator
+[1] Right Click -> Run with PowerShell
 
 [2] Accept the UAC prompt
 
-[3] Input "A" to bypass the execution policy (only for this PowerShell instance)
+[3] Follow the initial set of on-screen prompts
 
-[4] Follow the initial set of on-screen prompts
-
-[5] Everything else should be automatic after that
-
-  [5a] Manually step through the Battle.net client install (if selected)
+[4] 3rd party software will download at the end with the default browser
   
-[6] Follow through with post setup manual steps in "Remaining Manual Steps.txt" located on your Desktop
-
+[6] Follow through with post setup manual steps in "Remaining Manual Steps.txt" located on the Desktop
