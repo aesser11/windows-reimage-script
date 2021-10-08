@@ -1,7 +1,6 @@
 ###################################
 # Windows10PostDeploy-NoChoco.ps1 #
 ###################################
-try {
 # Relaunch the script with administrator privileges and bypass execution-policy if it isn't already
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
     Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File $PSCommandPath" -Verb RunAs
@@ -131,7 +130,6 @@ $applicationsToDownloadManually = @(
 $firstRunFunctions1 = @(
     # user input required
     "renameComputer",#change-prompt-logic
-    "downloadSoftware",
 
     # automated and universal
     "removeWin10Apps"
@@ -139,6 +137,7 @@ $firstRunFunctions1 = @(
 
 $finalFirstRunFunctions3 = @(
     # tailored to my desired settings
+    "downloadSoftware",
     "remainingStepsToText"
 )
 
@@ -580,10 +579,8 @@ Function promptFreshInstall {
     }
 }
 promptFreshInstall
-}
-catch {
-    $error | Out-File -FilePath "C:\Users\$env:username\Desktop\CrashLog.txt" -Width 200
-}
+
+#$error | Out-File -FilePath "C:\Users\$env:username\Desktop\CrashLog.txt" -Width 200
 
 <#
 notes for later:
