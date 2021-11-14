@@ -1,0 +1,5 @@
+windows 11 settings to change
+- move taskbar to left
+- re-enable right click context menus
+- default browser (fix edge links >.<)
+- 
