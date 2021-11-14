@@ -133,7 +133,6 @@ $firstRunFunctions1 = @(
     
     # tailored to my desired settings
     "downloadSoftware"
-
 )
 
 $finalFirstRunFunctions3 = @(
