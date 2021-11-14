@@ -130,14 +130,16 @@ $applicationsToDownloadManually = @(
 $firstRunFunctions1 = @(
     # user input required
     "renameComputer",#change-prompt-logic
+    
+    # tailored to my desired settings
+    "downloadSoftware"
 
-    # automated and universal
-    "removeWin10Apps"
 )
 
 $finalFirstRunFunctions3 = @(
-    # tailored to my desired settings
-    "downloadSoftware",
+    # automated and universal
+    "removeWin10Apps",
+
     "remainingStepsToText"
 )
 
