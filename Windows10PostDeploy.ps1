@@ -353,15 +353,15 @@ Function setPowerProfile {
     if ($cpuName -like "*Ryzen*") {
         #Power Scheme GUID: 9897998c-92de-4669-853f-b7cd3ecb2790  (AMD Ryzen™ Balanced)
         #Power Scheme GUID: 9935e61f-1661-40c5-ae2f-8495027d5d5d  (AMD Ryzen™ High performance)
-        Write-Host "AMD Ryzen CPU Detected, selecting AMD Ryzen High Performance power profile" -ForegroundColor Green
-        powercfg -setactive 9935e61f-1661-40c5-ae2f-8495027d5d5d
+        Write-Host "AMD Ryzen CPU Detected, selecting AMD Ryzen Balanced power profile" -ForegroundColor Green
+        powercfg -setactive 9897998c-92de-4669-853f-b7cd3ecb2790
     }
     else {
-        Write-Host "Intel CPU is present, proceeding with Windows High performance power profile" -ForegroundColor Green
+        Write-Host "Intel CPU is present, proceeding with Windows Balanced power profile" -ForegroundColor Green
         #Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)
         #Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)
         #Power Scheme GUID: a1841308-3541-4fab-bc81-f71556f20b4a  (Power saver)
-        powercfg -setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+        powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e
     }
     # delete hibernation file to save disk space
     powercfg -h off
