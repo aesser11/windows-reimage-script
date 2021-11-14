@@ -525,6 +525,13 @@ V: \\192.168.1.69\store
 # set task manager startup apps to disabled from running at boot
 # show details during file transfers
 
+################################
+# Windows 11 Specific Settings #
+################################
+# move taskbar to left
+# re-enable right click context menus
+# default browser (fix edge links >.<)
+
 #########################
 # Appended Output Steps #
 #########################
