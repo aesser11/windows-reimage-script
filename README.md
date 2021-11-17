@@ -15,3 +15,10 @@ A PowerShell script to automate Windows 10 settings after a reimage or update. S
 [4] 3rd party software will download at the end with the default browser
   
 [6] Follow through with post setup manual steps in "Remaining Steps.txt" located on the Desktop
+
+## How to get the Windows N media pack update
+- The Media Feature Pack for Windows 10/11 N is available for download as an Optional Feature. Here’s how to install the Media Feature Pack:
+
+- On Windows 10 N: Select the Start button, then select Settings > Apps > Apps and Features > Optional features > Add a feature. Find the Media Feature Pack in the list of available optional features.
+
+- On Windows 11 N: Select the Start button, then select Settings > Apps > Optional features. Select View features next to Add an optional feature, and then select the Media Feature Pack in the list of available optional features.
