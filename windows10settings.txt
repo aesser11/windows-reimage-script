@@ -1,0 +1,29 @@
+essential windows 10 settings to change for all installs
+- rename pc
+- download 3rd party software
+- uninstall built in trash apps
+- disable telemetry
+- set time zone
+- disable sticky keys
+- set comms attenuation
+- disable mouse acceleration
+- modify windows features
+- set power profile
+
+################
+# Manual Steps #
+################
+# disable GeForce Experience game optimization (install bundled w/ nvidia drivers)
+# disable GeForce Experience in-game overlay
+
+# disable Windows Privacy Permissions settings manually
+
+# unpin default groups from start menu
+# unpin default items from taskbar
+
+# check removal for missed built-in apps 
+# review default apps
+
+# set task manager startup apps to disabled from running at boot
+
+7zip: change file type associations, reduce context menus to extract files, check hash, and add to archive
